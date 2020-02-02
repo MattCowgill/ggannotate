@@ -5,6 +5,7 @@
 #' @import ggplot2
 #' @importFrom miniUI miniPage
 #' @importFrom rstudioapi getSourceEditorContext primary_selection
+#' @importFrom expr exec
 #'
 
 ggannotate <- function() {
@@ -39,10 +40,12 @@ ggannotate <- function() {
 
     user_args <- reactive({
 
+      annot_no_esc <- gsub("\\n", "\n", user_input$annotation, fixed = TRUE)
+
       args_1 <- list(geom = "text",
                      x = user_input$x,
                      y = user_input$y,
-                     label = user_input$annotation)
+                     label = annot_no_esc)
 
       list("args_1" = args_1)
 
@@ -52,7 +55,8 @@ ggannotate <- function() {
 
     output$plot <- renderPlot({
       eval(base_plot_code()) +
-        do.call("annotate", args = user_args()$args_1)
+        #do.call("annotate", args = user_args()$args_1)
+        rlang::exec("annotate", !!!user_args()$args_1)
     })
 
     output$rendered_plot <- renderUI({
@@ -60,21 +64,17 @@ ggannotate <- function() {
     })
 
 
-    output$code_output <- renderText({
-      paste0("annotate(",
-             "geom = '", user_args()$args_1$geom, "', ",
-             "x = ", user_args()$args_1$x, ", ",
-             "y = ", user_args()$args_1$y, ", ",
-             "label = '", user_args()$args_1$label, "'",
-             ")"
-      )
+    output$code_output <- renderPrint({
+      rlang::expr("annotate"(!!!user_args()$args_1))
     })
+
   }
 
-  app <- shiny::shinyApp(ggann_ui, ggann_server)
-  shiny::runGadget(app, viewer = shiny::dialogViewer("Annotate plot with ggannotate",
-                                                     width = 1000,
-                                                     height = 800))
+  ggann_app <- shiny::shinyApp(ggann_ui, ggann_server)
+  shiny::runGadget(app = ggann_app,
+                   viewer = shiny::dialogViewer("Annotate plot with ggannotate",
+                                                width = 1000,
+                                                height = 800))
 }
 
 # from reprex
