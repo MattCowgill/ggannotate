@@ -4,8 +4,20 @@
 \alias{ggannotate}
 \title{ggannotate}
 \usage{
-ggannotate()
+ggannotate(plot_code)
+}
+\arguments{
+\item{plot_code}{A string containing code to construct a ggplot2
+object. If blank, your current selection in RStudio will be used.}
 }
 \description{
 ggannotate
+}
+\examples{
+
+\donttest{
+ggannotate("ggplot(mtcars, aes(x = wt, y = mpg)) +
+    geom_point(col = 'orange')")
+}
+
 }

@@ -1,5 +1,16 @@
 #' ggannotate
 #' @name ggannotate
+#'
+#' @param plot_code A string containing code to construct a ggplot2
+#' object. If blank, your current selection in RStudio will be used.
+#'
+#' @examples
+#'
+#'\donttest{
+#' ggannotate("ggplot(mtcars, aes(x = wt, y = mpg)) +
+#'     geom_point(col = 'orange')")
+#'}
+#'
 #' @export
 #' @import shiny
 #' @import ggplot2
@@ -8,11 +19,18 @@
 #' @importFrom rlang expr exec
 #'
 
-ggannotate <- function() {
+ggannotate <- function(plot_code) {
 
   # code input
 
-  plot_code <- rstudio_selection()
+  if(!interactive()) {
+    stop("`ggannotate` only works in interactive sessions.")
+  }
+
+  if(missing(plot_code)) {
+    plot_code <- rstudio_selection()
+  }
+  plot_code <- rstudio_text_tidy(plot_code)
   plot_code <- escape_newlines(sub("\n$", "", enc2utf8(plot_code)))
   plot_code <- paste(plot_code, collapse = "")
 
@@ -80,7 +98,6 @@ ggannotate <- function() {
 # from reprex
 rstudio_selection <- function(context = rstudio_context()) {
   text <- rstudioapi::primary_selection(context)[["text"]]
-  rstudio_text_tidy(text)
 }
 
 rstudio_context <- function() {
