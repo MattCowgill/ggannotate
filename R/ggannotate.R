@@ -5,7 +5,7 @@
 #' @import ggplot2
 #' @importFrom miniUI miniPage
 #' @importFrom rstudioapi getSourceEditorContext primary_selection
-#' @importFrom expr exec
+#' @importFrom rlang expr exec
 #'
 
 ggannotate <- function() {

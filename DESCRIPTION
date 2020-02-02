@@ -1,14 +1,19 @@
 Package: ggannotate
-Title: What the Package Does (One Line, Title Case)
+Title: Interactively annotate ggplot2 plots
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Matt",
+           family = "Cowgill",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "mattcowgill@gmail.com")
 Description: What the package does (one paragraph).
-License: What license it uses
+License: MIT + file LICENSE
+Imports: 
+    ggplot2,
+    miniUI,
+    rlang,
+    rstudioapi,
+    shiny
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
