@@ -1,5 +1,5 @@
-Name: ggannotate
-Description: Interactively annotate ggplots
+Name: Annotate ggplot object
+Description: Interactively annotate ggplot object
 Binding: ggannotate
 Interactive: true
 

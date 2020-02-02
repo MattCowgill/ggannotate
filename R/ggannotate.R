@@ -20,8 +20,8 @@ ggannotate <- function() {
     textInput("user_plot_code", "Plot code", value = plot_code),
     numericInput("plot_width", "Plot width (pixels)", value = 800, min = 0, step = 1),
     numericInput("plot_height", "Plot height (pixels)", value = 400, min = 0, step = 1),
-    uiOutput("plot"),
-    verbatimTextOutput("info")
+    uiOutput("rendered_plot"),
+    verbatimTextOutput("code_output")
   )
 
   ggann_server <- function(input, output) {
@@ -48,17 +48,27 @@ ggannotate <- function() {
 
     })
 
-    output$plot1 <- renderPlot({
 
+
+    output$plot <- renderPlot({
       eval(base_plot_code()) +
         do.call("annotate", args = user_args()$args_1)
     })
 
-    output$plot <- renderUI({
-      plotOutput("plot1", click = "plot_click", width = input$plot_width)
+    output$rendered_plot <- renderUI({
+      plotOutput("plot", click = "plot_click", width = input$plot_width)
     })
 
-    output$info <- shiny::renderPrint(call("annotate", args = user_args()$args_1))
+
+    output$code_output <- renderText({
+      paste0("annotate(",
+             "geom = '", user_args()$args_1$geom, "', ",
+             "x = ", user_args()$args_1$x, ", ",
+             "y = ", user_args()$args_1$y, ", ",
+             "label = '", user_args()$args_1$label, "'",
+             ")"
+      )
+    })
   }
 
   app <- shiny::shinyApp(ggann_ui, ggann_server)
