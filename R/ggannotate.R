@@ -5,7 +5,13 @@
 #' @import ggplot2
 #'
 
-ggannotate <- function(plot_code = "ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()") {
+ggannotate <- function() {
+
+  # code input
+
+  plot_code <- rstudio_selection()
+  plot_code <- escape_newlines(sub("\n$", "", enc2utf8(plot_code)))
+  plot_code <- paste(plot_code, collapse = "")
 
   ggann_ui <- basicPage(
     textInput("annotation", "Annotation", value = "My annotation"),
@@ -54,7 +60,40 @@ ggannotate <- function(plot_code = "ggplot(mtcars, aes(x = wt, y = mpg)) + geom_
   }
 
   app <- shiny::shinyApp(ggann_ui, ggann_server)
-  shiny::runGadget(app, viewer = shiny::dialogViewer("Annotate plot"))
+  shiny::runGadget(app, viewer = shiny::dialogViewer("Annotate plot with ggannotate",
+                                                     width = 1000,
+                                                     height = 800))
 }
 
+# from reprex
+rstudio_selection <- function(context = rstudio_context()) {
+  text <- rstudioapi::primary_selection(context)[["text"]]
+  rstudio_text_tidy(text)
+}
+
+rstudio_context <- function() {
+  rstudioapi::getSourceEditorContext()
+}
+
+rstudio_text_tidy <- function(x) {
+  Encoding(x) <- "UTF-8"
+  if (length(x) == 1) {
+    ## rstudio_selection() returns catenated text
+    x <- strsplit(x, "\n")[[1]]
+  }
+
+  n <- length(x)
+  if (!grepl("\n$", x[[n]])) {
+    x[[n]] <- newline(x[[n]])
+  }
+  x
+}
+
+newline <- function(x) {
+  paste0(x, "\n")
+}
+
+escape_newlines <- function (x) {
+  gsub("\n", "\\\\n", x, perl = TRUE)
+}
 
