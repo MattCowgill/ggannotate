@@ -3,6 +3,8 @@
 #' @export
 #' @import shiny
 #' @import ggplot2
+#' @importFrom miniUI miniPage
+#' @importFrom rstudioapi getSourceEditorContext primary_selection
 #'
 
 ggannotate <- function() {
@@ -13,7 +15,7 @@ ggannotate <- function() {
   plot_code <- escape_newlines(sub("\n$", "", enc2utf8(plot_code)))
   plot_code <- paste(plot_code, collapse = "")
 
-  ggann_ui <- basicPage(
+  ggann_ui <- miniUI::miniPage(
     textInput("annotation", "Annotation", value = "My annotation"),
     textInput("user_plot_code", "Plot code", value = plot_code),
     numericInput("plot_width", "Plot width (pixels)", value = 800, min = 0, step = 1),

@@ -4,7 +4,7 @@
 \alias{ggannotate}
 \title{ggannotate}
 \usage{
-ggannotate(plot_code = "ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()")
+ggannotate()
 }
 \description{
 ggannotate

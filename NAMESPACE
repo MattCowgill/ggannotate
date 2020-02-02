@@ -3,3 +3,6 @@
 export(ggannotate)
 import(ggplot2)
 import(shiny)
+importFrom(miniUI,miniPage)
+importFrom(rstudioapi,getSourceEditorContext)
+importFrom(rstudioapi,primary_selection)
