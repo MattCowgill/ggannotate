@@ -40,7 +40,7 @@ ggannotate <- function(plot_code) {
   plot_code <- escape_newlines(sub("\n$", "", enc2utf8(plot_code)))
   plot_code <- paste(plot_code, collapse = "")
 
-  ggann_ui <- miniUI::miniPage(
+  ggann_ui <- fluidPage(
     textInput("annotation", "Annotation", value = "My annotation"),
     textInput("user_plot_code", "Plot code", value = plot_code),
     numericInput("plot_width", "Plot width (pixels)", value = 800, min = 0, step = 1),
