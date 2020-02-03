@@ -1,7 +1,7 @@
 #' ggannotate
 #' @name ggannotate
 #'
-#' @param plot_code A string containing code to construct a ggplot2
+#' @param plot_code Code to construct a ggplot2
 #' object. If blank, your current selection in RStudio will be used.
 #'
 #' @examples
@@ -16,18 +16,24 @@
 #' @import ggplot2
 #' @importFrom miniUI miniPage
 #' @importFrom rstudioapi getSourceEditorContext primary_selection
-#' @importFrom rlang expr exec
+#' @importFrom rlang expr exec enquo get_expr expr_deparse
 #'
 
 ggannotate <- function(plot_code) {
 
   # code input
 
-  if(!interactive()) {
+  if (!interactive()) {
     stop("`ggannotate` only works in interactive sessions.")
   }
 
-  if(missing(plot_code)) {
+  if (!missing(plot_code)) {
+    plot_code <- rlang::enquo(plot_code)
+    plot_code <- rlang::get_expr(plot_code)
+    plot_code <- rlang::expr_deparse(plot_code)
+  }
+
+  if (missing(plot_code)) {
     plot_code <- rstudio_selection()
   }
   plot_code <- rstudio_text_tidy(plot_code)

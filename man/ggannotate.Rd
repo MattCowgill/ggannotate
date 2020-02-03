@@ -7,7 +7,7 @@
 ggannotate(plot_code)
 }
 \arguments{
-\item{plot_code}{A string containing code to construct a ggplot2
+\item{plot_code}{Code to construct a ggplot2
 object. If blank, your current selection in RStudio will be used.}
 }
 \description{

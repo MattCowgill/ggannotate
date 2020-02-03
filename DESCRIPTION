@@ -9,11 +9,11 @@ Authors@R:
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Imports: 
-    ggplot2,
-    miniUI,
-    rlang,
-    rstudioapi,
-    shiny
+    ggplot2 (>= 3.3),
+    miniUI (>= 0.1.1),
+    rlang (>= 0.4.4),
+    rstudioapi (>= 0.10),
+    shiny (>= 1.4.0)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
