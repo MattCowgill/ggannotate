@@ -13,9 +13,12 @@ Imports:
     miniUI (>= 0.1.1),
     rlang (>= 0.4.4),
     rstudioapi (>= 0.10),
-    shiny (>= 1.4.0)
+    shiny (>= 1.4.0),
+    dplyr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
 URL: https://github.com/MattCowgill/ggannotate
 BugReports: https://github.com/MattCowgill/ggannotate/issues
+Suggests: 
+    testthat (>= 2.1.0)
