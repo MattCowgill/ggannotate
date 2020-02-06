@@ -58,26 +58,42 @@ ggannotate <- function(plot_code) {
         ))
       ),
 
-    fluidRow(column(3,
-                    selectInput("geom_1", "Geom",
-                                choices = c("text", "label", "curve"),
-                                selected = "text"))),
-    hr(class = "black"),
-    fluidRow(column(12, uiOutput("geom_opts"))),
-    hr(class = "black"),
-    fluidRow(column(3,
-                    numericInput("plot_width", "Plot width", value = 22.16, min = 0, step = 1)),
-             column(3,
-                    numericInput("plot_height", "Plot height", value = 14.5, min = 0, step = 1)),
-             column(4,
-                    selectInput("size_units",
-                                "Units for height and width",
-                                choices = c("Centimetres", "Millimetres", "Inches", "Pixels"),
-                                selected = "Centimetres"))),
-    hr(class = "black"),
-    uiOutput("rendered_plot"),
-    hr(class = "black"),
-    verbatimTextOutput("code_output")
+    sidebarLayout(
+      sidebarPanel(
+        fluidRow(column(6,
+                        selectInput("geom_1", "Geom",
+                                    choices = c("text", "label", "curve"),
+                                    selected = "text"))),
+        hr(class = "black"),
+        fluidRow(column(12, uiOutput("geom_opts"))),
+        hr(class = "black"),
+        fluidRow(column(4,
+                        numericInput("plot_width", "Plot width", value = 22.16, min = 0, step = 1)),
+                 column(4,
+                        numericInput("plot_height", "Plot height", value = 14.5, min = 0, step = 1)),
+                 column(4,
+                        selectInput("size_units",
+                                    "Units ",
+                                    choices = c("cm", "mm", "in", "px"),
+                                    selected = "cm"))),
+        hr(class = "black")
+      ),
+      mainPanel(
+        div(textOutput("instruction"),
+             style="color:black; font-weight:bold; line-height:2em; font-size:1.25em"),
+        uiOutput("rendered_plot"),
+        hr(class = "black"),
+        fluidRow(
+          column(3,
+                 actionButton("copy_button", "Copy code")),
+          column(9,
+                 verbatimTextOutput("code_output"))
+
+        )
+
+      )
+    ),
+
   )
 
   # Shiny server ------
@@ -122,7 +138,10 @@ ggannotate <- function(plot_code) {
                          yend = user_input$y,
                          curvature = input$curvature,
                          angle = input$curve_angle,
-                         arrow = arrow())
+                         arrow = arrow(angle = input$arrow_angle,
+                                       length = unit(0.1, "inches"),
+                                       ends = "last",
+                                       type = "closed"))
 
       if (input$geom_1 == "text") {
         args <- text_args
@@ -138,6 +157,13 @@ ggannotate <- function(plot_code) {
 
       list("args" = args)
 
+    })
+
+    output$instruction <- renderText({
+      dplyr::case_when(input$geom_1 == "text" ~ "Click where you want to place your annotation",
+                       input$geom_1 == "label" ~ "Click where you want to place your label",
+                       input$geom_1 == "curve" ~ "Click where want your line to begin and double-click where it should end",
+                       TRUE ~ "No instruction defined for geom")
     })
 
     output$plot <- renderPlot({
@@ -160,11 +186,7 @@ ggannotate <- function(plot_code) {
 
     output$rendered_plot <- renderUI({
 
-      size_units <- input$size_units
-      css_units <- dplyr::case_when(size_units == "Pixels" ~ "px",
-                                    size_units == "Inches" ~ "in",
-                                    size_units == "Centimetres" ~ "cm",
-                                    size_units == "Millimetres" ~ "mm")
+      css_units <- input$size_units
 
       plot_width <- paste0(input$plot_width, css_units)
       plot_height <- paste0(input$plot_height, css_units)
@@ -177,30 +199,33 @@ ggannotate <- function(plot_code) {
 
     output$geom_opts <- renderUI({
       geom <- input$geom_1
+      show_arrow <- ifelse(is.null(input$show_arrow),
+                           TRUE,
+                           input$show_arrow)
 
       text_ui <- tagList(
 
         #sidebarPanel(width = 10,
-        fluidRow(column(10,
+        fluidRow(column(12,
                         textInput("annotation", "Annotation", value = "My annotation",
                                   width = "100%"))),
-        fluidRow(column(1,
-                        numericInput("angle", "angle", value = 0, min = -360, max = 360,
+        fluidRow(column(4,
+                        numericInput("angle", "Angle", value = 0, min = -360, max = 360,
                                      step = 1)),
-                 column(1,
-                        numericInput("lineheight", "lineheight", value = 1,
+                 column(4,
+                        numericInput("lineheight", "Lineheight", value = 1,
                                      min = 0, step = 0.05)),
-                 column(1,
+                 column(4,
+                        textInput("colour", "colour", value = "black"))),
+        fluidRow(column(6,
                         sliderInput("hjust", "hjust", value = 0.5,
                                     min = 0, max = 1, step = 0.05, ticks = FALSE)),
-                 column(1,
+                 column(6,
                         sliderInput("vjust", "vjust", value = 0.5,
-                                    min = 0, max = 1, step = 0.05, ticks = FALSE)),
-                 column(2,
-                        textInput("colour", "colour", value = "black")),
-                 column(2,
+                                    min = 0, max = 1, step = 0.05, ticks = FALSE))),
+        fluidRow(column(6,
                         textInput("font", "font", value = "sans")),
-                 column(2,
+                 column(6,
                         selectInput("fontface", "fontface", selected = "plain",
                                     choices = c("plain", "bold", "italic", "bold.italic"))))
 
@@ -208,13 +233,13 @@ ggannotate <- function(plot_code) {
 
       label_ui <- c(text_ui,
                     tagList(
-                      fluidRow(column(1,
+                      fluidRow(column(4,
                                       numericInput("label.padding", "Label padding",
                                                    value = 0.25, step = 0.01)),
-                               column(1,
+                               column(4,
                                       numericInput("label.r", "Label radius",
                                                    value = 0.15, step = 0.01)),
-                               column(1,
+                               column(4,
                                       numericInput("label.size", "Label size",
                                                    value = 0.25, step = 0.01)))
 
@@ -222,15 +247,20 @@ ggannotate <- function(plot_code) {
 
       curve_ui <- tagList(
         fluidRow(
-          column(2,
+          column(6,
                  sliderInput("curvature", "Curvature",
                              min = -1, max = 1, value = 0.5, step = 0.01,
                              ticks = FALSE)),
-          column(1,
+          column(6,
                  numericInput("curve_angle", "Angle", value = 90, min = -360, max = 360,
-                              step = 1))
+                              step = 1))),
+        fluidRow(
+          column(6,
+                 sliderInput("arrow_angle", "Arrow angle",
+                             min = 0, max = 90, value = 30, step = 1, ticks = FALSE))
         )
       )
+
 
 
       if (geom == "text") {
@@ -246,8 +276,18 @@ ggannotate <- function(plot_code) {
 
     })
 
+    annot_code <- reactive({
+      rlang::expr("annotate"(!!!user_args()$args))
+    })
+
+    observeEvent(input$copy_button, {
+      clip_code <- rlang::expr_text(annot_code())
+      clip_code <- gsub('\\"', '"', clip_code)
+      clipr::write_clip(clip_code, object_type = "character")
+    })
+
     output$code_output <- renderPrint({
-      rlang::expr("layer"(!!!user_args()$args))
+      annot_code()
     })
 
   }
@@ -255,8 +295,8 @@ ggannotate <- function(plot_code) {
   ggann_app <- shiny::shinyApp(ggann_ui, ggann_server)
   shiny::runGadget(app = ggann_app,
                    viewer = shiny::dialogViewer("Annotate plot with ggannotate",
-                                                width = 1200,
-                                                height = 800),
+                                                width = 1300,
+                                                height = 750),
                    stopOnCancel = TRUE)
 }
 
