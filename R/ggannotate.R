@@ -14,10 +14,10 @@
 #' @export
 #' @import shiny
 #' @import ggplot2
-#' @importFrom miniUI miniPage
 #' @importFrom rstudioapi getSourceEditorContext primary_selection
 #' @importFrom rlang expr exec enquo get_expr expr_deparse
 #' @importFrom dplyr case_when
+#' @importFrom clipr write_clip
 #'
 
 ggannotate <- function(plot_code) {
@@ -252,11 +252,12 @@ ggannotate <- function(plot_code) {
                              min = -1, max = 1, value = 0.5, step = 0.01,
                              ticks = FALSE)),
           column(6,
-                 numericInput("curve_angle", "Angle", value = 90, min = -360, max = 360,
-                              step = 1))),
+                 sliderInput("curve_angle", "Curve angle", value = 90, min = 0, max = 180,
+                              step = 1,
+                             ticks = FALSE))),
         fluidRow(
           column(6,
-                 sliderInput("arrow_angle", "Arrow angle",
+                 sliderInput("arrow_angle", "Arrowhead angle",
                              min = 0, max = 90, value = 30, step = 1, ticks = FALSE))
         )
       )
@@ -282,7 +283,7 @@ ggannotate <- function(plot_code) {
 
     observeEvent(input$copy_button, {
       clip_code <- rlang::expr_text(annot_code())
-      clip_code <- gsub('\\"', '"', clip_code)
+      clip_code <- gsub('\\\"', '"', clip_code)
       clipr::write_clip(clip_code, object_type = "character")
     })
 

@@ -10,11 +10,13 @@ Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Imports: 
     ggplot2 (>= 3.2.1),
-    miniUI (>= 0.1.1),
     rlang (>= 0.4.4),
     rstudioapi (>= 0.10),
     shiny (>= 1.4.0),
-    dplyr
+    dplyr,
+    tibble,
+    purrr,
+    clipr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
