@@ -1,3 +1,6 @@
+#' Generate a call to ggplot2::layer() given some aesthetics and parameters
+#' Based on ggplot2::annotate()
+#' Can handle limiting annotations to (specified) facet level(s)
 #' @importFrom tibble as_tibble tibble
 #' @importFrom ggplot2 aes_all
 #' @importFrom dplyr bind_cols
