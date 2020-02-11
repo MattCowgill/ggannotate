@@ -16,7 +16,7 @@
 #' @import ggplot2
 #' @importFrom rstudioapi getSourceEditorContext primary_selection
 #' @importFrom rlang expr exec enquo get_expr expr_deparse
-#' @importFrom dplyr case_when
+#' @importFrom dplyr case_when if_else
 #' @importFrom clipr write_clip
 #'
 
@@ -105,14 +105,52 @@ ggannotate <- function(plot_code) {
     observeEvent(input$plot_click, {
       user_input$x <- input$plot_click$x
       user_input$y <- input$plot_click$y
+
+      if (isTRUE(axis_classes()$x_date)) {
+        user_input$x <- as.Date(user_input$x, origin = "1970-01-01")
+      }
+
+      if (isTRUE(axis_classes()$y_date)) {
+        user_input$y <- as.Date(user_input$y, origin = "1970-01-01")
+      }
+
     })
 
     observeEvent(input$plot_dblclick,{
       user_input$x_dbl <- input$plot_dblclick$x
       user_input$y_dbl <- input$plot_dblclick$y
+
+      if (isTRUE(axis_classes()$x_date)) {
+        user_input$x_dbl <- as.Date(user_input$x_dbl, origin = "1970-01-01")
+      }
+
+      if (isTRUE(axis_classes()$y_date)) {
+        user_input$y_dbl <- as.Date(user_input$y_dbl, origin = "1970-01-01")
+      }
+
     })
 
     base_plot_code <- reactive(rlang::parse_expr(plot_code))
+
+    # Check whether axes are dates
+    axis_classes <- reactive({
+      p <- eval(base_plot_code())
+      p <- ggplot2::ggplot_build(p)
+
+      x_scale <- p$layout$panel_scales_x[[1]]
+      y_scale <- p$layout$panel_scales_y[[1]]
+
+      x_date <- dplyr::if_else(inherits(x_scale, "ScaleContinuousDate"),
+                               TRUE,
+                               FALSE)
+
+      y_date <- dplyr::if_else(inherits(y_scale, "ScaleContinuousDate"),
+                               TRUE,
+                               FALSE)
+
+      list("x_date" = x_date,
+           "y_date" = y_date)
+    })
 
     user_args <- reactive({
 
@@ -153,7 +191,6 @@ ggannotate <- function(plot_code) {
       } else if (input$geom_1 == "curve") {
         args <- curve_args
       }
-
 
       list("args" = args)
 
