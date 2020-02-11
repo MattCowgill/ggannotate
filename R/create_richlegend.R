@@ -1,3 +1,6 @@
+
+#' @importFrom ggtext geom_richtext GeomRichtext GeomRichText
+
 richlegend_text <- function(plot, aes_type = "fill") {
 
   p <- ggplot2::ggplot_build(plot)
@@ -37,31 +40,45 @@ richlegend_text <- function(plot, aes_type = "fill") {
 }
 
 
-add_richlegend <- function(plot,
+richlegend_call <- function(plot,
+                            x, y,
+                            aes_type = "fill",
+                            label.padding = unit(0, "lines"),
+                            label.size = 0,
+                            ...) {
+
+  text_legend <- richlegend_text(plot, aes_type = aes_type)
+
+  make_layer(geom = "richtext",
+             x = x,
+             y = y,
+             label = text_legend,
+             params = c(list(label.padding = label.padding,
+                           label.size = label.size),
+                        ...)
+             )
+
+}
+
+
+richlegend <- function(plot,
                            aes_type = "fill",
                            x, y,
                            label.padding = unit(0, "lines"),
                            label.size = 0,
                            ...) {
 
-  text_legend <- richlegend_text(plot, aes_type = aes_type)
 
-  legend_df <- tibble::tibble(x = x,
-                              y = y,
-                              label = text_legend)
+  legend_call <- richlegend_call(plot = plot,
+                                 aes_type = aes_type,
+                                 x = x, y = y,
+                                 label.padding = unit(0, "lines"),
+                                 label.size = 0,
+                                 ...)
 
-  plot +
-    ggtext::geom_richtext(data = legend_df,
-                          aes(x = x, y = y, label = label),
-                          label.padding = label.padding,
-                          label.size = label.size,
-                          inherit.aes = FALSE,
-                          ...)
-
+  eval(legend_call)
 
 }
-
-
 
 
 

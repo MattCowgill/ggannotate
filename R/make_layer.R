@@ -1,6 +1,13 @@
 #' Generate a call to ggplot2::layer() given some aesthetics and parameters
 #' Based on ggplot2::annotate()
 #' Can handle limiting annotations to (specified) facet level(s)
+#'
+#' @param geom Geom to annotate, such as "text".
+#' @param x Variable to map to x aesthetic
+#' @param y Variable to map to y aesthetic
+#'
+#'
+#' @keywords internal
 #' @importFrom tibble as_tibble tibble
 #' @importFrom ggplot2 aes_all
 #' @importFrom dplyr bind_cols
@@ -73,6 +80,8 @@ make_layer <- function(geom,
         show.legend = FALSE)
 
 }
+
+
 
 
 
