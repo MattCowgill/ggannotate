@@ -17,8 +17,8 @@
 make_layer <- function(geom,
                        x = NULL,
                        y = NULL,
-                       yend = NULL,
                        xend = NULL,
+                       yend = NULL,
                        label = NULL,
                        params = NULL,
                        annotate_all_facets = FALSE,
@@ -30,7 +30,7 @@ make_layer <- function(geom,
                        na.rm = FALSE) {
 
   aesthetics <- compact(list(x = x, y = y,
-                             #xend = xend, yend = yend,
+                             xend = xend, yend = yend,
                              label = label))
 
   aesthetics <- c(aesthetics, list(...))
