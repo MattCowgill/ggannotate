@@ -88,7 +88,7 @@ ggannotate <- function(plot_code) {
         hr(class = "black"),
         fluidRow(
           column(2,
-                 actionButton("copy_button", "Copy code")),
+                 actionButton("copy_button", "Copy code", width = "100%")),
           column(10,
                  verbatimTextOutput("code_output"))
 
