@@ -62,7 +62,7 @@ ggannotate <- function(plot_code) {
       sidebarPanel(
         fluidRow(column(6,
                         selectInput("geom_1", "Geom",
-                                    choices = c("text", "label", "curve"),
+                                    choices = c("text", "label", "curve", "richlegend"),
                                     selected = "text"))),
         hr(class = "black"),
         fluidRow(column(12, uiOutput("geom_opts"))),
@@ -202,13 +202,16 @@ ggannotate <- function(plot_code) {
       params_list <- params_list()
 
       geom <- input$geom_1
+      geom <- ifelse(geom == "richlegend", "richtext", geom)
 
       selected_geom <- if (geom == "text") {
         ggplot2::GeomText
-      } else if (input$geom_1 == "label") {
+      } else if (geom == "label") {
         ggplot2::GeomLabel
-      } else if (input$geom_1 == "curve") {
+      } else if (geom == "curve") {
         ggplot2::GeomCurve
+      } else if (geom == "richtext") {
+        ggtext::GeomRichText
       }
 
       known_aes <- selected_geom$aesthetics()
@@ -232,7 +235,7 @@ ggannotate <- function(plot_code) {
 
       # Create the layer call
       make_layer(
-        geom = input$geom_1,
+        geom = geom,
         x = x,
         y = y,
         xend = xend,
@@ -252,6 +255,7 @@ ggannotate <- function(plot_code) {
       dplyr::case_when(input$geom_1 == "text" ~ "Click where you want to place your annotation",
                        input$geom_1 == "label" ~ "Click where you want to place your label",
                        input$geom_1 == "curve" ~ "Click where want your line to begin and double-click where it should end",
+                       input$geom_1 == "richlegend" ~ "Click where you want to place your richlegend",
                        TRUE ~ "No instruction defined for geom")
     })
 
