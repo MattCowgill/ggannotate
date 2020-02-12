@@ -17,9 +17,7 @@ Imports:
     tibble,
     purrr,
     clipr,
-    ggtext
-Remotes:
-    wilkelab/ggtext
+    stringr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2

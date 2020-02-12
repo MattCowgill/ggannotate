@@ -18,6 +18,7 @@
 #' @importFrom rlang expr exec enquo get_expr expr_deparse
 #' @importFrom dplyr case_when if_else
 #' @importFrom clipr write_clip
+#' @importFrom stringr str_squish
 #'
 
 ggannotate <- function(plot_code) {
@@ -60,9 +61,10 @@ ggannotate <- function(plot_code) {
 
     sidebarLayout(
       sidebarPanel(
+        width = 3,
         fluidRow(column(6,
                         selectInput("geom_1", "Geom",
-                                    choices = c("text", "label", "curve", "richlegend"),
+                                    choices = c("text", "label", "curve"),
                                     selected = "text"))),
         hr(class = "black"),
         fluidRow(column(12, uiOutput("geom_opts"))),
@@ -79,14 +81,15 @@ ggannotate <- function(plot_code) {
         hr(class = "black")
       ),
       mainPanel(
+        width = 9,
         div(textOutput("instruction"),
              style="color:black; font-weight:bold; line-height:2em; font-size:1.25em"),
         uiOutput("rendered_plot"),
         hr(class = "black"),
         fluidRow(
-          column(3,
+          column(2,
                  actionButton("copy_button", "Copy code")),
-          column(9,
+          column(10,
                  verbatimTextOutput("code_output"))
 
         )
@@ -189,20 +192,13 @@ ggannotate <- function(plot_code) {
 
     annot_call <- reactive({
 
-      if (input$geom_1 == "richlegend") {
-        base_plot <- eval(base_plot_code())
-        annot <- richlegend_text(plot = base_plot,
-                                 aes_type = "fill") # REPLACE WITH AN INPUT
-      } else {
-        annot <- input$annotation
-      }
+      annot <- input$annotation
 
       annot_no_esc <- gsub("\\n", "\n", annot, fixed = TRUE)
 
       params_list <- params_list()
 
       geom <- input$geom_1
-      geom <- ifelse(geom == "richlegend", "richtext", geom)
 
       selected_geom <- if (geom == "text") {
         ggplot2::GeomText
@@ -210,8 +206,6 @@ ggannotate <- function(plot_code) {
         ggplot2::GeomLabel
       } else if (geom == "curve") {
         ggplot2::GeomCurve
-      } else if (geom == "richtext") {
-        ggtext::GeomRichText
       }
 
       known_aes <- selected_geom$aesthetics()
@@ -255,7 +249,6 @@ ggannotate <- function(plot_code) {
       dplyr::case_when(input$geom_1 == "text" ~ "Click where you want to place your annotation",
                        input$geom_1 == "label" ~ "Click where you want to place your label",
                        input$geom_1 == "curve" ~ "Click where want your line to begin and double-click where it should end",
-                       input$geom_1 == "richlegend" ~ "Click where you want to place your richlegend",
                        TRUE ~ "No instruction defined for geom")
     })
 
@@ -387,7 +380,10 @@ ggannotate <- function(plot_code) {
 
     observeEvent(input$copy_button, {
       clip_code <- rlang::expr_text(annot_call())
-      clip_code <- gsub('\\\"', '"', clip_code)
+      #clip_code <- gsub('\\\"', '"', clip_code)
+      clip_code <- stringr::str_squish(clip_code)
+      #clip_code <- base::strwrap(clip_code, width = 80)
+
       clipr::write_clip(clip_code, object_type = "character")
     })
 
