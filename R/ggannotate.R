@@ -105,6 +105,17 @@ ggannotate <- function(plot_code) {
 
     user_input <- reactiveValues()
 
+    built_base_plot <- reactive({
+      p <- eval(base_plot_code())
+      p <- ggplot2::ggplot_build(p)
+      p
+    })
+
+    flipped_coords <- reactive({
+      p <- built_base_plot()
+      ggplot2::summarise_coord(p)$flip
+    })
+
     observeEvent(input$plot_click, {
       user_input$x <- input$plot_click$x
       user_input$y <- input$plot_click$y
@@ -115,26 +126,43 @@ ggannotate <- function(plot_code) {
       user_input$facet_var2 <- input$mapping$panelvar2
       user_input$facet_level2 <- input$panelvar2
 
+      # Date scales
       if (isTRUE(axis_classes()$x_date)) {
         user_input$x <- as.Date(user_input$x, origin = "1970-01-01")
       }
-
       if (isTRUE(axis_classes()$y_date)) {
         user_input$y <- as.Date(user_input$y, origin = "1970-01-01")
       }
 
+      # Flipped scales
+      if (isTRUE(flipped_coords())) {
+        temp_x <- user_input$x
+        temp_y <- user_input$y
+        user_input$x <- temp_y
+        user_input$y <- temp_x
+      }
+
+      print(isTRUE(flipped_coords()))
     })
 
     observeEvent(input$plot_dblclick,{
       user_input$x_dbl <- input$plot_dblclick$x
       user_input$y_dbl <- input$plot_dblclick$y
 
+      # Date scales
       if (isTRUE(axis_classes()$x_date)) {
         user_input$x_dbl <- as.Date(user_input$x_dbl, origin = "1970-01-01")
       }
-
       if (isTRUE(axis_classes()$y_date)) {
         user_input$y_dbl <- as.Date(user_input$y_dbl, origin = "1970-01-01")
+      }
+
+      # Flipped scales
+      if (isTRUE(flipped_coords())) {
+        temp_x_dbl <- user_input$x_dbl
+        temp_y_dbl <- user_input$y_dbl
+        user_input$x_dbl <- temp_y_dbl
+        user_input$y_dbl <- temp_x_dbl
       }
 
     })
@@ -143,8 +171,7 @@ ggannotate <- function(plot_code) {
 
     # Check whether axes are dates
     axis_classes <- reactive({
-      p <- eval(base_plot_code())
-      p <- ggplot2::ggplot_build(p)
+      p <- built_base_plot()
 
       x_scale <- p$layout$panel_scales_x[[1]]
       y_scale <- p$layout$panel_scales_y[[1]]
@@ -183,8 +210,6 @@ ggannotate <- function(plot_code) {
         curvature = input$curvature,
         arrow = user_arrow
       )
-
-
 
       purrr::compact(params)
 
@@ -228,7 +253,7 @@ ggannotate <- function(plot_code) {
       label <- switch("label" %in% known_aes, annot_no_esc, NULL)
 
       # Create the layer call
-      make_layer(
+      layer_call <- make_layer(
         geom = geom,
         x = x,
         y = y,
@@ -243,6 +268,9 @@ ggannotate <- function(plot_code) {
         params = params_list
       )
 
+      print(layer_call)
+
+      layer_call
     })
 
     output$instruction <- renderText({
