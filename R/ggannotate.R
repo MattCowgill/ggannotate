@@ -142,7 +142,6 @@ ggannotate <- function(plot_code) {
         user_input$y <- temp_x
       }
 
-      print(isTRUE(flipped_coords()))
     })
 
     observeEvent(input$plot_dblclick,{
@@ -267,8 +266,6 @@ ggannotate <- function(plot_code) {
         facet_level2 = user_input$facet_level2,
         params = params_list
       )
-
-      print(layer_call)
 
       layer_call
     })
@@ -407,10 +404,11 @@ ggannotate <- function(plot_code) {
     })
 
     observeEvent(input$copy_button, {
+      #clip_code <- deparse(annot_call(), control = NULL)
       clip_code <- rlang::expr_text(annot_call())
       #clip_code <- gsub('\\\"', '"', clip_code)
       clip_code <- stringr::str_squish(clip_code)
-      #clip_code <- base::strwrap(clip_code, width = 80)
+      ##clip_code <- base::strwrap(clip_code, width = 80)
 
       clipr::write_clip(clip_code, object_type = "character")
     })

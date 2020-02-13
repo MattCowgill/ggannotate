@@ -7,7 +7,7 @@
 #' @param y Variable to map to y aesthetic
 #'
 #'
-#' @keywords internal
+#' @export
 #' @importFrom tibble as_tibble tibble
 #' @importFrom ggplot2 aes_all
 #' @importFrom dplyr bind_cols
@@ -68,6 +68,8 @@ make_layer <- function(geom,
 
   params_list <- purrr::compact(c(list(na.rm = na.rm),
                            params))
+
+  data <- as.data.frame(data)
 
   call("layer",
        geom = geom,

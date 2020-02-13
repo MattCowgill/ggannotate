@@ -35,4 +35,3 @@ Generate a call to ggplot2::layer() given some aesthetics and parameters
 Based on ggplot2::annotate()
 Can handle limiting annotations to (specified) facet level(s)
 }
-\keyword{internal}
