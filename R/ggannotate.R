@@ -61,7 +61,7 @@ ggannotate <- function(plot_code) {
 
     sidebarLayout(
       sidebarPanel(
-        width = 3,
+        width = 4,
         fluidRow(column(6,
                         selectInput("geom_1", "Geom",
                                     choices = c("text", "label", "curve"),
@@ -75,13 +75,13 @@ ggannotate <- function(plot_code) {
                         numericInput("plot_height", "Plot height", value = 14.5, min = 0, step = 1)),
                  column(4,
                         selectInput("size_units",
-                                    "Units ",
+                                    "Units  ",
                                     choices = c("cm", "mm", "in", "px"),
                                     selected = "cm"))),
         hr(class = "black")
       ),
       mainPanel(
-        width = 9,
+        width = 8,
         div(textOutput("instruction"),
              style="color:black; font-weight:bold; line-height:2em; font-size:1.25em"),
         uiOutput("rendered_plot"),
@@ -120,11 +120,11 @@ ggannotate <- function(plot_code) {
       user_input$x <- input$plot_click$x
       user_input$y <- input$plot_click$y
 
-      user_input$facet_var1 <- input$mapping$panelvar1
-      user_input$facet_level1 <- input$panelvar1
+      user_input$facet_var1 <- input$plot_click$mapping$panelvar1
+      user_input$facet_level1 <- input$plot_click$panelvar1
 
-      user_input$facet_var2 <- input$mapping$panelvar2
-      user_input$facet_level2 <- input$panelvar2
+      user_input$facet_var2 <- input$plot_click$mapping$panelvar2
+      user_input$facet_level2 <- input$plot_click$panelvar2
 
       # Date scales
       if (isTRUE(axis_classes()$x_date)) {
@@ -397,10 +397,6 @@ ggannotate <- function(plot_code) {
       }
 
 
-    })
-
-    annot_code <- reactive({
-      rlang::expr(annot_call())
     })
 
     observeEvent(input$copy_button, {

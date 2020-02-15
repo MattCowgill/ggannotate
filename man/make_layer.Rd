@@ -19,8 +19,7 @@ make_layer(
   facet_level1 = NULL,
   facet_var2 = NULL,
   facet_level2 = NULL,
-  ...,
-  na.rm = FALSE
+  ...
 )
 }
 \arguments{
@@ -29,6 +28,30 @@ make_layer(
 \item{x}{Variable to map to x aesthetic}
 
 \item{y}{Variable to map to y aesthetic}
+
+\item{xend}{Variable to map to xend (such as for `geom_curve`)}
+
+\item{yend}{Variable to map to yend (such as for `geom_curve`)}
+
+\item{label}{Variable to use as label (such as for `geom_text`)}
+
+\item{params}{List of parameters for geom, such as `list(colour = "black")`}
+
+\item{annotate_all_facets}{Logical. `FALSE` by default. If `TRUE`, an
+identical annotation will be added to all facets of the graph at the same
+x-y location.}
+
+\item{facet_var1}{Character. Name of first facet variable.}
+
+\item{facet_level1}{Value of first facet variable in the panel you wish to
+annotate.}
+
+\item{facet_var2}{Character. Name of second facet variable.}
+
+\item{facet_level2}{Value of second facet variable in the panel you wish to
+annotate.}
+
+\item{...}{Additional aesthetics you wish to pass to `layer()`}
 }
 \description{
 Generate a call to ggplot2::layer() given some aesthetics and parameters
