@@ -62,13 +62,13 @@ make_layer <- function(geom,
 
   call("layer",
        geom = geom,
-        params = params_list,
-        stat = "identity",
-        position = "identity",
-        data = data_call,
-        mapping = aes_call,
-        inherit.aes = FALSE,
-        show.legend = FALSE)
+       data = data_call,
+       mapping = aes_call,
+       params = params_list,
+       stat = "identity",
+       position = "identity",
+       inherit.aes = FALSE,
+       show.legend = FALSE)
 
 }
 
