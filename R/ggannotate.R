@@ -400,11 +400,9 @@ ggannotate <- function(plot_code) {
     })
 
     observeEvent(input$copy_button, {
-      #clip_code <- deparse(annot_call(), control = NULL)
       clip_code <- rlang::expr_text(annot_call())
-      #clip_code <- gsub('\\\"', '"', clip_code)
       clip_code <- stringr::str_squish(clip_code)
-      ##clip_code <- base::strwrap(clip_code, width = 80)
+      clip_code <- stringr::str_replace_all(clip_code, ", ", ",\n")
 
       clipr::write_clip(clip_code, object_type = "character")
     })
