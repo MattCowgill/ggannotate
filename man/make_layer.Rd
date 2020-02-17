@@ -14,10 +14,8 @@ make_layer(
   yend = NULL,
   label = NULL,
   params = NULL,
-  facet_var1 = NULL,
-  facet_level1 = NULL,
-  facet_var2 = NULL,
-  facet_level2 = NULL,
+  facet_vars = NULL,
+  facet_levels = NULL,
   ...
 )
 }
@@ -36,17 +34,13 @@ make_layer(
 
 \item{params}{List of parameters for geom, such as `list(colour = "black")`}
 
-\item{facet_var1}{Character. Name of first facet variable.}
+\item{facet_vars}{List. The names of variables used to facet the plot,
+such as list("cyl").}
 
-\item{facet_level1}{Value of first facet variable in the panel you wish to
-annotate.}
+\item{facet_levels}{List. The levels of variables you wish to annotation, such
+as list(4).}
 
-\item{facet_var2}{Character. Name of second facet variable.}
-
-\item{facet_level2}{Value of second facet variable in the panel you wish to
-annotate.}
-
-\item{...}{Additional aesthetics you wish to pass to `layer()`}
+\item{...}{Additional aesthetics you wish to pass to geom}
 }
 \description{
 Generate a call to ggplot2::layer() given some aesthetics and parameters
