@@ -41,10 +41,15 @@ make_layer <- function(geom,
   aesthetics <- purrr::compact(list(x = x, y = y,
                              xend = xend, yend = yend,
                              label = label))
+
   aesthetics <- c(aesthetics, list(...))
+  aesthetics <- syms(names(aesthetics))
+  names(aesthetics) <- aesthetics
   aes_call <- rlang::call2("aes",!!!aesthetics)
 
-  data_cols <- aesthetics
+  data_cols <- list(x = x, y = y,
+                    xend = xend, yend = yend,
+                    label = label)
   facet_vars <- as.list(c(facet_level1, facet_level2))
   facet_vars <- setNames(facet_vars, c(facet_var1, facet_var2))
   data_cols <- c(data_cols, facet_vars)
