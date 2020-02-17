@@ -259,7 +259,6 @@ ggannotate <- function(plot_code) {
         xend = xend,
         yend = yend,
         label = label,
-        annotate_all_facets = FALSE,
         facet_var1 = user_input$facet_var1,
         facet_level1 = user_input$facet_level1,
         facet_var2 = user_input$facet_var2,

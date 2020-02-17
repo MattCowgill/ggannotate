@@ -57,4 +57,29 @@ date_line_base <- economics %>%
   ggplot(aes(x = date, y = unemploy)) +
   geom_line()
 
-# annot_date_line <- make_layer()
+annot_date_line <- make_layer(geom = "text", x = as.Date("1982-06-08"),
+                              y = 12781.0431364006, label = "My annotation")
+
+annot_date_line_plot <- date_line_base +
+  eval(annot_date_line)
+
+test_that("make_layer works with date axes", {
+  expect_is(annot_date_line, "call")
+  expect_is(annot_date_line_plot, "ggplot")
+  vdiffr::expect_doppelganger("annot_date_line_plot", annot_date_line_plot, path = "make-layer")
+})
+
+# Curve ----
+
+annot_curve <- make_layer(geom = "curve",
+                          x = 2.20835965521693,
+                          y = 31.8618676116827, xend = 3.13939564982646, yend = 24.375414662927)
+
+annot_curve_plot <- base_plot +
+  eval(annot_curve)
+
+test_that("make_layer works with geom_curve", {
+  expect_is(annot_curve, "call")
+  expect_is(annot_curve_plot, "ggplot")
+  vdiffr::expect_doppelganger("annot_curve_plot", annot_curve_plot, path = "make-layer")
+})
