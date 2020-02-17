@@ -133,6 +133,22 @@ ggannotate <- function(plot_code) {
       user_input$facet_var2 <- input$plot_click$mapping$panelvar2
       user_input$facet_level2 <- input$plot_click$panelvar2
 
+      user_input$facet_var3 <- input$plot_click$mapping$panelvar3
+      user_input$facet_level3 <- input$plot_click$panelvar3
+
+      user_input$facet_var4 <- input$plot_click$mapping$panelvar4
+      user_input$facet_level4 <- input$plot_click$panelvar4
+
+      user_input$facet_vars <- list(user_input$facet_var1,
+                                    user_input$facet_var2,
+                                    user_input$facet_var3,
+                                    user_input$facet_var4)
+
+      user_input$facet_levels <- list(user_input$facet_level1,
+                                      user_input$facet_level2,
+                                      user_input$facet_level3,
+                                      user_input$facet_level4)
+
       # Date scales
       if (isTRUE(axis_classes()$x_date)) {
         user_input$x <- as.Date(user_input$x, origin = "1970-01-01")
@@ -271,10 +287,8 @@ ggannotate <- function(plot_code) {
         xend = xend,
         yend = yend,
         label = label,
-        facet_var1 = user_input$facet_var1,
-        facet_level1 = user_input$facet_level1,
-        facet_var2 = user_input$facet_var2,
-        facet_level2 = user_input$facet_level2,
+        facet_vars = user_input$facet_vars,
+        facet_levels = user_input$facet_levels,
         params = params_list
       )
 

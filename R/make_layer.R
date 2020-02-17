@@ -9,13 +9,11 @@
 #' @param yend Variable to map to yend (such as for `geom_curve`)
 #' @param label Variable to use as label (such as for `geom_text`)
 #' @param params List of parameters for geom, such as `list(colour = "black")`
-#' @param facet_var1 Character. Name of first facet variable.
-#' @param facet_level1 Value of first facet variable in the panel you wish to
-#' annotate.
-#' @param facet_var2 Character. Name of second facet variable.
-#' @param facet_level2 Value of second facet variable in the panel you wish to
-#' annotate.
-#' @param ... Additional aesthetics you wish to pass to `layer()`
+#' @param facet_vars List. The names of variables used to facet the plot,
+#' such as list("cyl").
+#' @param facet_levels List. The levels of variables you wish to annotation, such
+#' as list(4).
+#' @param ... Additional aesthetics you wish to pass to geom
 #'
 #'
 #' @importFrom tibble as_tibble tibble
@@ -32,10 +30,8 @@ make_layer <- function(geom,
                        yend = NULL,
                        label = NULL,
                        params = NULL,
-                       facet_var1 = NULL,
-                       facet_level1 = NULL,
-                       facet_var2 = NULL,
-                       facet_level2 = NULL,
+                       facet_vars = NULL,
+                       facet_levels = NULL,
                        ...) {
 
   aesthetics <- purrr::compact(list(x = x, y = y,
@@ -62,23 +58,28 @@ make_layer <- function(geom,
   data_cols <- purrr::map(data_cols, date_call)
 
   # Facets
-  facet_vars <- as.list(c(facet_level1, facet_level2))
-  facet_vars <- setNames(facet_vars, c(facet_var1, facet_var2))
+  facet_levels <- as.list(facet_levels)
+  facets <- setNames(facet_levels, facet_vars)
 
   # Combine data and facets
-  data_cols <- c(data_cols, facet_vars)
+  data_cols <- c(data_cols, facets)
   data_cols <- purrr::compact(data_cols)
   data_call <- rlang::call2("data.frame",!!!data_cols)
 
   params_list <- purrr::compact(params)
 
-  call("layer",
-       geom = geom,
+  geom_to_call <- switch (geom,
+    "text" = "geom_text",
+    "label" = "geom_label",
+    "curve" = "geom_curve"
+  )
+
+  rlang::call2(geom_to_call,
        data = data_call,
        mapping = aes_call,
-       params = params_list,
-       stat = "identity",
-       position = "identity",
+       !!!params_list,
+       #stat = "identity",
+       #position = "identity",
        inherit.aes = FALSE,
        show.legend = FALSE)
 

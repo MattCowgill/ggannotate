@@ -22,7 +22,7 @@ test_that("make_layer works with basic scatterplot", {
 facet_plot_1 <- base_plot +
   facet_wrap(~cyl)
 annot_facet_1 <- make_layer(geom = "text", x = 3, y = 30, label = "My\ntext",
-                            facet_var1 = "cyl", facet_level1 = 4)
+                            facet_vars = list("cyl"), facet_levels = list(4))
 annot_facet_1_plot <- facet_plot_1 +
   eval(annot_facet_1)
 
