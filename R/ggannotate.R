@@ -19,6 +19,7 @@
 #' @importFrom dplyr case_when if_else
 #' @importFrom clipr write_clip
 #' @importFrom stringr str_squish
+#' @importFrom miniUI miniPage
 #'
 
 ggannotate <- function(plot_code) {
@@ -48,7 +49,11 @@ ggannotate <- function(plot_code) {
 
   # Shiny UI ------
 
-  ggann_ui <- fluidPage(
+  ggann_ui <- miniUI::miniPage(
+
+    miniUI::gadgetTitleBar(title = "Annotate your plot",
+                           left = NULL,
+                           right = miniUI::miniTitleBarButton("done", "Done", primary = TRUE)),
 
     tags$head(
       tags$style(HTML(
@@ -70,9 +75,9 @@ ggannotate <- function(plot_code) {
         fluidRow(column(12, uiOutput("geom_opts"))),
         hr(class = "black"),
         fluidRow(column(4,
-                        numericInput("plot_width", "Plot width", value = 22.16, min = 0, step = 1)),
+                        numericInput("plot_width", "Plot width", value = 18, min = 0, step = 1)), #22.16
                  column(4,
-                        numericInput("plot_height", "Plot height", value = 14.5, min = 0, step = 1)),
+                        numericInput("plot_height", "Plot height", value = 10, min = 0, step = 1)), #14.5
                  column(4,
                         selectInput("size_units",
                                     "Units  ",
@@ -83,7 +88,7 @@ ggannotate <- function(plot_code) {
       mainPanel(
         width = 8,
         div(textOutput("instruction"),
-             style="color:black; font-weight:bold; line-height:2em; font-size:1.25em"),
+             style="color:black; font-weight:bold; line-height:1.6em; font-size:1em"),
         uiOutput("rendered_plot"),
         hr(class = "black"),
         fluidRow(
@@ -102,6 +107,8 @@ ggannotate <- function(plot_code) {
   # Shiny server ------
 
   ggann_server <- function(input, output) {
+
+    observeEvent(input$done, shiny::stopApp())
 
     user_input <- reactiveValues()
 
@@ -190,8 +197,13 @@ ggannotate <- function(plot_code) {
     params_list <- reactive({
 
       user_arrow <- if(input$geom_1 == "curve") {
+
+        arrow_length <- ifelse(is.null(input$arrow_length),
+                               0.1,
+                               input$arrow_length)
+
         arrow(angle = input$arrow_angle,
-              length = unit(0.1, "inches"),
+              length = unit(arrow_length, "inches"),
               ends = "last",
               type = "closed")
       } else {
@@ -259,7 +271,6 @@ ggannotate <- function(plot_code) {
         xend = xend,
         yend = yend,
         label = label,
-        annotate_all_facets = FALSE,
         facet_var1 = user_input$facet_var1,
         facet_level1 = user_input$facet_level1,
         facet_var2 = user_input$facet_var2,
@@ -286,6 +297,9 @@ ggannotate <- function(plot_code) {
            is.null(user_input$x_dbl) |
            is.null(user_input$y) |
            is.null(user_input$y_dbl)) {
+          FALSE
+        } else if (isTRUE(user_input$x == user_input$x_dbl) &
+                   isTRUE(user_input$y == user_input$y_dbl)) {
           FALSE
         }
       } else {
@@ -379,6 +393,9 @@ ggannotate <- function(plot_code) {
                              ticks = FALSE))),
         fluidRow(
           column(6,
+                 sliderInput("arrow_length", "Arrow length (in)",
+                             value = 0.1, min = 0, max = 1, step = 0.05, ticks = FALSE)),
+          column(6,
                  sliderInput("arrow_angle", "Arrowhead angle",
                              min = 0, max = 90, value = 30, step = 1, ticks = FALSE))
         )
@@ -403,7 +420,6 @@ ggannotate <- function(plot_code) {
       clip_code <- rlang::expr_text(annot_call())
       clip_code <- stringr::str_squish(clip_code)
       clip_code <- stringr::str_replace_all(clip_code, ", ", ",\n")
-
       clipr::write_clip(clip_code, object_type = "character")
     })
 
@@ -414,41 +430,11 @@ ggannotate <- function(plot_code) {
   }
 
   ggann_app <- shiny::shinyApp(ggann_ui, ggann_server)
+
   shiny::runGadget(app = ggann_app,
                    viewer = shiny::dialogViewer("Annotate plot with ggannotate",
                                                 width = 1300,
-                                                height = 750),
+                                                height = 780),
                    stopOnCancel = TRUE)
-}
-
-# from reprex
-rstudio_selection <- function(context = rstudio_context()) {
-  text <- rstudioapi::primary_selection(context)[["text"]]
-}
-
-rstudio_context <- function() {
-  rstudioapi::getSourceEditorContext()
-}
-
-rstudio_text_tidy <- function(x) {
-  Encoding(x) <- "UTF-8"
-  if (length(x) == 1) {
-    ## rstudio_selection() returns catenated text
-    x <- strsplit(x, "\n")[[1]]
-  }
-
-  n <- length(x)
-  if (!grepl("\n$", x[[n]])) {
-    x[[n]] <- newline(x[[n]])
-  }
-  x
-}
-
-newline <- function(x) {
-  paste0(x, "\n")
-}
-
-escape_newlines <- function (x) {
-  gsub("\n", "\\\\n", x, perl = TRUE)
 }
 

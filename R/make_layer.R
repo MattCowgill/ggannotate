@@ -9,9 +9,6 @@
 #' @param yend Variable to map to yend (such as for `geom_curve`)
 #' @param label Variable to use as label (such as for `geom_text`)
 #' @param params List of parameters for geom, such as `list(colour = "black")`
-#' @param annotate_all_facets Logical. `FALSE` by default. If `TRUE`, an
-#' identical annotation will be added to all facets of the graph at the same
-#' x-y location.
 #' @param facet_var1 Character. Name of first facet variable.
 #' @param facet_level1 Value of first facet variable in the panel you wish to
 #' annotate.
@@ -25,7 +22,7 @@
 #' @importFrom ggplot2 aes_all
 #' @importFrom dplyr bind_cols
 #' @importFrom purrr compact
-#' @importFrom rlang `:=` call2
+#' @importFrom rlang `:=` call2 syms `!!!`
 #' @importFrom stats setNames
 
 make_layer <- function(geom,
@@ -35,7 +32,6 @@ make_layer <- function(geom,
                        yend = NULL,
                        label = NULL,
                        params = NULL,
-                       annotate_all_facets = FALSE,
                        facet_var1 = NULL,
                        facet_level1 = NULL,
                        facet_var2 = NULL,
@@ -45,20 +41,36 @@ make_layer <- function(geom,
   aesthetics <- purrr::compact(list(x = x, y = y,
                              xend = xend, yend = yend,
                              label = label))
+
   aesthetics <- c(aesthetics, list(...))
+  aesthetics <- rlang::syms(names(aesthetics))
+  names(aesthetics) <- aesthetics
   aes_call <- rlang::call2("aes",!!!aesthetics)
 
-  data_cols <- aesthetics
+  data_cols <- list(x = x, y = y,
+                    xend = xend, yend = yend,
+                    label = label)
+
+  # Dates
+  date_call <- function(arg) {
+    if(inherits(arg, "Date")) {
+      arg <- as.character(arg)
+      arg <- rlang::call2("as.Date", arg)
+    }
+    arg
+  }
+  data_cols <- purrr::map(data_cols, date_call)
+
+  # Facets
   facet_vars <- as.list(c(facet_level1, facet_level2))
   facet_vars <- setNames(facet_vars, c(facet_var1, facet_var2))
+
+  # Combine data and facets
   data_cols <- c(data_cols, facet_vars)
   data_cols <- purrr::compact(data_cols)
   data_call <- rlang::call2("data.frame",!!!data_cols)
 
-
   params_list <- purrr::compact(params)
-
-  #data <- as.data.frame(data)
 
   call("layer",
        geom = geom,
