@@ -29,7 +29,7 @@ annot_facet_1_plot <- facet_plot_1 +
 test_that("make_layer works with a single facet", {
   expect_is(annot_facet_1, "call")
   expect_is(annot_facet_1_plot, "ggplot")
-  #vdiffr::expect_doppelganger("annot_facet_1_plot", annot_facet_1_plot, path = "make-layer")
+  vdiffr::expect_doppelganger("annot_facet_1_plot", annot_facet_1_plot, path = "make-layer")
 })
 
 # Flipped bar chart -----
@@ -49,7 +49,7 @@ annot_flipped_bar_plot <- flipped_bar_base +
 test_that("make_layer works with flipped coords", {
   expect_is(annot_flipped_bar, "call")
   expect_is(annot_flipped_bar_plot, "ggplot")
-  vdiffr::expect_doppelganger("annot_flipped_bar_plot", annot_flipped_bar_plot, path = "make-layer")
+  #vdiffr::expect_doppelganger("annot_flipped_bar_plot", annot_flipped_bar_plot, path = "make-layer")
 })
 
 # Date axis -----
