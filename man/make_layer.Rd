@@ -14,7 +14,6 @@ make_layer(
   yend = NULL,
   label = NULL,
   params = NULL,
-  annotate_all_facets = FALSE,
   facet_var1 = NULL,
   facet_level1 = NULL,
   facet_var2 = NULL,
@@ -36,10 +35,6 @@ make_layer(
 \item{label}{Variable to use as label (such as for `geom_text`)}
 
 \item{params}{List of parameters for geom, such as `list(colour = "black")`}
-
-\item{annotate_all_facets}{Logical. `FALSE` by default. If `TRUE`, an
-identical annotation will be added to all facets of the graph at the same
-x-y location.}
 
 \item{facet_var1}{Character. Name of first facet variable.}
 

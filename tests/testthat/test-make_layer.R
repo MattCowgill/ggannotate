@@ -28,7 +28,7 @@ facet_plot_1 <- base_plot +
   facet_wrap(~cyl)
 
 annot_facet_1 <- make_layer(geom = "text", x = 3, y = 30, label = "My\ntext",
-                            cyl = 4)
+                            facet_var1 = "cyl", facet_level1 = 4)
 
 annot_facet_1_plot <- facet_plot_1 +
   eval(annot_facet_1)
