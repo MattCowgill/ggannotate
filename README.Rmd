@@ -30,18 +30,6 @@ remotes::install_github("mattcowgill/ggannotate")
 
 The most convenient way to use `ggannotate` is as an RStudio add-in. Write some code to generate a ggplot2 plot, highlight the code, then select 'Annotate ggplot object' from the RStudio add-ins menu.
 
-You can also launch the ggannotate interface like this:
-
-```{r, eval = FALSE}
-
-p <- mtcars %>%
-  ggplot(aes(x = wt, y = mpg)) +
-  geom_point()
-
-ggannotate(p)
-
-```
-
 This will launch a Shiny app. Choose what type of annotation you want, click to place it in the right place, and click 'copy code' to copy the annotation code to the clipboard. Then paste the clipboard in your script!
 
 You can adjust the size of the plot in the Shiny app so you can set it to be the same as your intended output.
