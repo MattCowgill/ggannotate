@@ -40,6 +40,11 @@ ggannotate <- function(plot_code) {
       stop("ggannotate requires RStudio to see your selection.",
            " Supply `plot_code` instead.")
     }
+
+    if (is.null(rstudio_selection())) {
+      stop("Please select your plot code before invoking ggannotate.")
+    }
+
     plot_code <- rstudio_selection()
   }
 
