@@ -4,10 +4,10 @@
 \alias{ggannotate}
 \title{ggannotate}
 \usage{
-ggannotate(plot_code)
+ggannotate(plot)
 }
 \arguments{
-\item{plot_code}{Code to construct a ggplot2
+\item{plot}{Either a ggplot2 object, or code to construct a ggplot2
 object. If blank, your current selection in RStudio will be used.}
 }
 \description{
