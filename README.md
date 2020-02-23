@@ -8,6 +8,8 @@
 [![Build
 Status](https://travis-ci.org/MattCowgill/ggannotate.svg?branch=master)](https://travis-ci.org/MattCowgill/ggannotate)
 [![Lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Codecov test
+coverage](https://codecov.io/gh/mattcowgill/ggannotate/branch/master/graph/badge.svg)](https://codecov.io/gh/mattcowgill/ggannotate?branch=master)
 
 <!-- badges: end -->
 
