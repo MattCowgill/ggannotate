@@ -28,7 +28,7 @@ ggannotate <- function(plot) {
     stop("`ggannotate` only works in interactive sessions.")
   }
 
-  # Wrangle code input -------
+  # Wrangle selection -------
   if (missing(plot)) {
     if (isFALSE(rstudioapi::isAvailable())) {
       stop("ggannotate requires RStudio to see your selection.",
@@ -36,19 +36,14 @@ ggannotate <- function(plot) {
     }
 
     if (is.null(rstudio_selection())) {
-      stop("Please select your plot code before invoking ggannotate.")
+      stop("Please select some plot code before invoking ggannotate.")
     }
 
     plot <- rstudio_selection()
-    plot <- rstudio_text_tidy(plot)
-    plot <- escape_newlines(sub("\n$", "", enc2utf8(plot)))
-    plot <- paste(plot, collapse = "")
-    plot <- rlang::parse_expr(plot)
-    plot <- eval(plot)
+    plot <- selection_as_plot(plot)
   }
 
   built_base_plot <- ggplot2::ggplot_build(plot)
-
 
   # Shiny UI ------
   ggann_ui <- miniUI::miniPage(
