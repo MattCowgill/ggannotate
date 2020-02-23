@@ -1,7 +1,7 @@
 #' ggannotate
 #' @name ggannotate
 #'
-#' @param plot_code Code to construct a ggplot2
+#' @param plot Either a ggplot2 object, or code to construct a ggplot2
 #' object. If blank, your current selection in RStudio will be used.
 #'
 #' @examples
@@ -15,40 +15,42 @@
 #' @import shiny
 #' @import ggplot2
 #' @importFrom rstudioapi getSourceEditorContext primary_selection
-#' @importFrom rlang expr exec enquo get_expr expr_deparse
+#' @importFrom rlang expr exec enquo get_expr expr_deparse parse_expr
 #' @importFrom dplyr case_when if_else
 #' @importFrom clipr write_clip
 #' @importFrom stringr str_squish
 #' @importFrom miniUI miniPage
 #'
 
-ggannotate <- function(plot_code) {
+ggannotate <- function(plot) {
 
   if (!interactive()) {
     stop("`ggannotate` only works in interactive sessions.")
   }
 
   # Wrangle code input -------
-  if (!missing(plot_code)) {
-    plot_code <- rlang::enquo(plot_code)
-    plot_code <- rlang::get_expr(plot_code)
-    plot_code <- rlang::expr_deparse(plot_code)
-  }
-
-  if (missing(plot_code)) {
+  if (missing(plot)) {
     if (isFALSE(rstudioapi::isAvailable())) {
       stop("ggannotate requires RStudio to see your selection.",
-           " Supply `plot_code` instead.")
+           " Supply `plot` instead.")
     }
-    plot_code <- rstudio_selection()
+
+    if (is.null(rstudio_selection())) {
+      stop("Please select your plot code before invoking ggannotate.")
+    }
+
+    plot <- rstudio_selection()
+    plot <- rstudio_text_tidy(plot)
+    plot <- escape_newlines(sub("\n$", "", enc2utf8(plot)))
+    plot <- paste(plot, collapse = "")
+    plot <- rlang::parse_expr(plot)
+    plot <- eval(plot)
   }
 
-  plot_code <- rstudio_text_tidy(plot_code)
-  plot_code <- escape_newlines(sub("\n$", "", enc2utf8(plot_code)))
-  plot_code <- paste(plot_code, collapse = "")
+  built_base_plot <- ggplot2::ggplot_build(plot)
+
 
   # Shiny UI ------
-
   ggann_ui <- miniUI::miniPage(
 
     miniUI::gadgetTitleBar(title = "Annotate your plot",
@@ -112,15 +114,8 @@ ggannotate <- function(plot_code) {
 
     user_input <- reactiveValues()
 
-    built_base_plot <- reactive({
-      p <- eval(base_plot_code())
-      p <- ggplot2::ggplot_build(p)
-      p
-    })
-
     flipped_coords <- reactive({
-      p <- built_base_plot()
-      ggplot2::summarise_coord(p)$flip
+      ggplot2::summarise_coord(built_base_plot)$flip
     })
 
     observeEvent(input$plot_click, {
@@ -189,11 +184,10 @@ ggannotate <- function(plot_code) {
 
     })
 
-    base_plot_code <- reactive(rlang::parse_expr(plot_code))
 
     # Check whether axes are dates
     axis_classes <- reactive({
-      p <- built_base_plot()
+      p <- built_base_plot
 
       x_scale <- p$layout$panel_scales_x[[1]]
       y_scale <- p$layout$panel_scales_y[[1]]
@@ -321,9 +315,9 @@ ggannotate <- function(plot_code) {
       }
 
       if (isFALSE(show_annot)) {
-        eval(base_plot_code())
+        built_base_plot$plot
         } else {
-        eval(base_plot_code()) +
+        built_base_plot$plot +
           eval(annot_call())
       }
     })

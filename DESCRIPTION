@@ -27,4 +27,5 @@ URL: https://github.com/MattCowgill/ggannotate
 BugReports: https://github.com/MattCowgill/ggannotate/issues
 Suggests: 
     testthat (>= 2.1.0),
-    vdiffr
+    vdiffr,
+    covr
