@@ -319,104 +319,24 @@ ggannotate <- function(plot) {
 
     output$rendered_plot <- renderUI({
 
-      css_units <- input$size_units
+      size_units <- input$size_units
 
-      plot_width <- paste0(input$plot_width, css_units)
-      plot_height <- paste0(input$plot_height, css_units)
+      plot_width <- paste0(input$plot_width, size_units)
+      plot_height <- paste0(input$plot_height, size_units)
 
-      plotOutput("plot", click = "plot_click",
+      plotOutput("plot",
+                 click = "plot_click",
                  dblclick = "plot_dblclick",
                  width = plot_width,
                  height = plot_height)
     })
 
     output$geom_opts <- renderUI({
-      geom <- input$geom_1
-      show_arrow <- ifelse(is.null(input$show_arrow),
-                           TRUE,
-                           input$show_arrow)
-
-      base_text_ui <- tagList(
-
-        #sidebarPanel(width = 10,
-        fluidRow(column(12,
-                        textInput("annotation", "Annotation", value = "My annotation",
-                                  width = "100%"))),
-        fluidRow(column(4,
-                        numericInput("lineheight", "Lineheight", value = 1,
-                                     min = 0, step = 0.05)),
-                 column(4,
-                        textInput("colour", "colour", value = "black"))),
-        fluidRow(column(6,
-                        sliderInput("hjust", "hjust", value = 0.5,
-                                    min = 0, max = 1, step = 0.05, ticks = FALSE)),
-                 column(6,
-                        sliderInput("vjust", "vjust", value = 0.5,
-                                    min = 0, max = 1, step = 0.05, ticks = FALSE))),
-        fluidRow(column(6,
-                        textInput("font", "font", value = "sans")),
-                 column(6,
-                        selectInput("fontface", "fontface", selected = "plain",
-                                    choices = c("plain", "bold", "italic", "bold.italic"))))
-
+      switch (input$geom_1,
+        "text"   = text_ui,
+        "label"  = label_ui,
+        "curve"  = curve_ui
       )
-
-      text_ui <- c(base_text_ui,
-                   tagList(
-        fluidRow(column(4,
-                        numericInput("angle", "Angle", value = 0, min = -360, max = 360,
-                                                  step = 1))
-                   )
-        )
-      )
-
-      label_ui <- c(base_text_ui,
-                    tagList(
-                      fluidRow(column(4,
-                                      numericInput("label.padding", "Label padding",
-                                                   value = 0.25, step = 0.01)),
-                               column(4,
-                                      numericInput("label.r", "Label radius",
-                                                   value = 0.15, step = 0.01)),
-                               column(4,
-                                      numericInput("label.size", "Label size",
-                                                   value = 0.25, step = 0.01)))
-
-                    ))
-
-      curve_ui <- tagList(
-        fluidRow(
-          column(6,
-                 sliderInput("curvature", "Curvature",
-                             min = -1, max = 1, value = 0.5, step = 0.01,
-                             ticks = FALSE)),
-          column(6,
-                 sliderInput("angle", "Curve angle", value = 90, min = 0, max = 180,
-                              step = 1,
-                             ticks = FALSE))),
-        fluidRow(
-          column(6,
-                 sliderInput("arrow_length", "Arrow length (in)",
-                             value = 0.1, min = 0, max = 1, step = 0.05, ticks = FALSE)),
-          column(6,
-                 sliderInput("arrow_angle", "Arrowhead angle",
-                             min = 0, max = 90, value = 30, step = 1, ticks = FALSE))
-        )
-      )
-
-
-
-      if (geom == "text") {
-        text_ui
-      } else if (geom == "label") {
-        label_ui
-      } else if (geom == "curve") {
-        curve_ui
-      } else {
-        stop()
-      }
-
-
     })
 
     observeEvent(input$copy_button, {
