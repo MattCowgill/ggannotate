@@ -2,12 +2,32 @@
 % Please edit documentation in R/safe_unit.R
 \name{safe_unit}
 \alias{safe_unit}
+\alias{safe_arrow}
 \title{Functions to safely work with grid::unit() and grid::arrow() in Shiny
-If an input is NULL, NULL is returned; otherwise return a unit/arrow object}
+If an input is NULL, NULL is returned; otherwise return a unit/arrow object
+This is needed because `unit(NULL, "inches")` gives an error,
+whereas we want `NULL`.}
 \usage{
 safe_unit(x, units)
+
+safe_arrow(angle, length, ends = "last", type = "closed")
+}
+\arguments{
+\item{x}{Size of `grid::unit()` object}
+
+\item{units}{Units of `grid::unit()` object}
+
+\item{angle}{Angle of arrow created by `grid::arrow()`}
+
+\item{length}{Length of arrow created by `grid::arrow()`}
+
+\item{ends}{See `?grid::arrow()`}
+
+\item{type}{See `?grid::arrow()`}
 }
 \description{
 Functions to safely work with grid::unit() and grid::arrow() in Shiny
 If an input is NULL, NULL is returned; otherwise return a unit/arrow object
+This is needed because `unit(NULL, "inches")` gives an error,
+whereas we want `NULL`.
 }

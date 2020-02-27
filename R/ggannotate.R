@@ -234,9 +234,7 @@ ggannotate <- function(plot) {
     })
 
     annot_call <- reactive({
-
       annot <- input$annotation
-
       annot_no_esc <- gsub("\\n", "\n", annot, fixed = TRUE)
 
       params_list <- params_list()
