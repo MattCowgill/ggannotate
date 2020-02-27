@@ -10,7 +10,7 @@ base_text_ui <- tagList(
            column(4,
                   textInput("colour", "Colour", value = "black")),
            column(4,
-                  numericInput("fontsize", "Font size (pts)",
+                  numericInput("size", "Font size (pts)",
                                value = 11, min = 0, max = 48, step = 0.5))),
   fluidRow(column(6,
                   sliderInput("hjust", "hjust", value = 0.5,
@@ -39,7 +39,7 @@ label_ui <- c(base_text_ui,
               tagList(
                 fluidRow(column(4,
                                 numericInput("label.padding", "Label padding",
-                                             value = 0.25, step = 0.005)),
+                                             value = 0.25, step = 0.025)),
                          column(4,
                                 numericInput("label.r", "Label radius",
                                              value = 0.15, step = 0.025)),
@@ -50,6 +50,11 @@ label_ui <- c(base_text_ui,
               ))
 
 curve_ui <- tagList(
+  fluidRow(
+    column(6,
+           sliderInput("size", "Line size",
+                       min = 0.1, max = 20, value = 0.5, step = 0.05))
+  ),
   fluidRow(
     column(6,
            sliderInput("curvature", "Curvature",

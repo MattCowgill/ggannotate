@@ -201,40 +201,20 @@ ggannotate <- function(plot) {
 
     params_list <- reactive({
 
-      user_arrow <- if(input$geom_1 == "curve") {
+      user_arrow <- safe_arrow(angle = input$arrow_angle,
+                               length = input$arrow_length,
+                               ends = "last",
+                               type = "closed")
 
-        arrow_length <- ifelse(is.null(input$arrow_length),
-                               0.1,
-                               input$arrow_length)
+      user_label_padding <- safe_unit(input$label.padding, "lines")
+      user_label_r <- safe_unit(input$label.r, "lines")
 
-        arrow(angle = input$arrow_angle,
-              length = unit(arrow_length, "inches"),
-              ends = "last",
-              type = "closed")
-      } else {
-        NULL
-      }
-
-      user_label_padding <- if(input$geom_1 == "label") {
-        label.padding <- ifelse(is.null(input$label.padding),
-                          0.15,
-                          input$label.padding)
-        unit(label.padding, "lines")
-      } else {
-        NULL
-      }
-
-      user_label_r <- if(input$geom_1 == "label") {
-        label.r <- ifelse(is.null(input$label.r),
-                                0.15,
-                                input$label.r)
-        unit(label.r, "lines")
-      } else {
-        NULL
-      }
+      size <- ifelse(input$geom_1 %in% c("text", "label"),
+                     input$size / ggplot2::.pt,
+                     input$size)
 
       params <- list(
-        size = input$fontsize / ggplot2::.pt,
+        size = size,
         angle = input$angle,
         lineheight = input$lineheight,
         hjust = input$hjust,
