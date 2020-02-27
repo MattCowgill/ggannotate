@@ -19,7 +19,6 @@
 #' @importFrom dplyr case_when if_else
 #' @importFrom miniUI miniPage
 #' @importFrom clipr write_clip
-#' @importFrom stringr str_replace_all str_squish
 #'
 
 ggannotate <- function(plot) {
@@ -87,7 +86,7 @@ ggannotate <- function(plot) {
         fluidRow(
           column(2,
                  actionButton("copy_button", HTML("<b>Copy code<br/>and close</b>"), width = "100%",
-                              style = "height:93px; ")),
+                              style = "height:55px; ")),
           column(10,
                  verbatimTextOutput("code_output"))
 
@@ -332,10 +331,8 @@ ggannotate <- function(plot) {
     })
 
     observeEvent(input$copy_button, {
-      clip_code <- rlang::expr_text(annot_call())
-      clip_code <- stringr::str_squish(clip_code)
-      clip_code <- stringr::str_replace_all(clip_code, ", ", ",\n")
-      clipr::write_clip(clip_code, object_type = "character")
+      callstring <- call_to_string(annot_call())
+      clipr::write_clip(callstring, object_type = "character")
       stopApp()
     })
 
