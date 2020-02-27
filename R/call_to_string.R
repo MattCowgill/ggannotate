@@ -1,4 +1,5 @@
 #' Given a call, create a tidy string
+#' @param call A call
 #' @importFrom rlang expr_text
 #' @importFrom stringr str_squish str_replace_all
 

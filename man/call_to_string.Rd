@@ -6,6 +6,9 @@
 \usage{
 call_to_string(call)
 }
+\arguments{
+\item{call}{A call}
+}
 \description{
 Given a call, create a tidy string
 }

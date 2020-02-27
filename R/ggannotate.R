@@ -38,8 +38,8 @@ ggannotate <- function(plot) {
       stop("Please select some plot code before invoking ggannotate.")
     }
 
-    plot <- rstudio_selection()
-    plot <- selection_as_plot(plot)
+    selection <- rstudio_selection()
+    plot <- selection_as_plot(selection)
   }
 
   built_base_plot <- ggplot2::ggplot_build(plot)
