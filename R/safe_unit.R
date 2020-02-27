@@ -11,23 +11,27 @@
 #' @param type See `?grid::arrow()`
 
 safe_unit <- function(x, units) {
-  if (is.null(x)) {
-    ret <- x
+  if (is.null(x) || is.null(units)) {
+    NULL
   } else {
-    ret <- unit(x, units)
+    unit(x, units)
   }
-  return(ret)
 }
 
 #' @rdname safe_unit
-safe_arrow <- function(angle, length, ends = "last", type = "closed") {
-  if (is.null(angle) || is.null(length)) {
-    ret <- NULL
-  } else {
-    ret <- arrow(angle = angle,
-                       length = safe_unit(length, "inches"),
-                       ends = ends,
-                       type = type)
+safe_arrow <-
+  function(angle,
+           length,
+           ends = "last",
+           type = "closed") {
+    if (is.null(angle) || is.null(length)) {
+      NULL
+    } else {
+      arrow(
+        angle = angle,
+        length = safe_unit(length, "inches"),
+        ends = ends,
+        type = type
+      )
+    }
   }
-  return(ret)
-}
