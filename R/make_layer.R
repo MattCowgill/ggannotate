@@ -68,11 +68,7 @@ make_layer <- function(geom,
 
   params_list <- purrr::compact(params)
 
-  geom_to_call <- switch (geom,
-    "text" = "geom_text",
-    "label" = "geom_label",
-    "curve" = "geom_curve"
-  )
+  geom_to_call <- paste0("geom_", geom)
 
   rlang::call2(geom_to_call,
        data = data_call,

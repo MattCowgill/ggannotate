@@ -17,9 +17,9 @@
 #' @importFrom rstudioapi getSourceEditorContext primary_selection
 #' @importFrom rlang expr exec enquo get_expr expr_deparse parse_expr
 #' @importFrom dplyr case_when if_else
-#' @importFrom clipr write_clip
-#' @importFrom stringr str_squish
 #' @importFrom miniUI miniPage
+#' @importFrom clipr write_clip
+#' @importFrom stringr str_replace_all str_squish
 #'
 
 ggannotate <- function(plot) {
@@ -201,21 +201,20 @@ ggannotate <- function(plot) {
 
     params_list <- reactive({
 
-      user_arrow <- if(input$geom_1 == "curve") {
+      user_arrow <- safe_arrow(angle = input$arrow_angle,
+                               length = input$arrow_length,
+                               ends = "last",
+                               type = "closed")
 
-        arrow_length <- ifelse(is.null(input$arrow_length),
-                               0.1,
-                               input$arrow_length)
+      user_label_padding <- safe_unit(input$label.padding, "lines")
+      user_label_r <- safe_unit(input$label.r, "lines")
 
-        arrow(angle = input$arrow_angle,
-              length = unit(arrow_length, "inches"),
-              ends = "last",
-              type = "closed")
-      } else {
-        NULL
-      }
+      size <- ifelse(input$geom_1 %in% c("text", "label"),
+                     input$size / ggplot2::.pt,
+                     input$size)
 
       params <- list(
+        size = size,
         angle = input$angle,
         lineheight = input$lineheight,
         hjust = input$hjust,
@@ -223,6 +222,9 @@ ggannotate <- function(plot) {
         colour = input$colour,
         family = input$font,
         fontface = input$fontface,
+        label.padding = user_label_padding,
+        label.size = input$label.size,
+        label.r = user_label_r,
         curvature = input$curvature,
         arrow = user_arrow
       )
@@ -232,22 +234,18 @@ ggannotate <- function(plot) {
     })
 
     annot_call <- reactive({
-
       annot <- input$annotation
-
       annot_no_esc <- gsub("\\n", "\n", annot, fixed = TRUE)
 
       params_list <- params_list()
 
       geom <- input$geom_1
 
-      selected_geom <- if (geom == "text") {
-        ggplot2::GeomText
-      } else if (geom == "label") {
-        ggplot2::GeomLabel
-      } else if (geom == "curve") {
-        ggplot2::GeomCurve
-      }
+      selected_geom <- switch (geom,
+        "text"  = ggplot2::GeomText,
+        "label" = ggplot2::GeomLabel,
+        "curve" = ggplot2::GeomCurve
+      )
 
       known_aes <- selected_geom$aesthetics()
 
@@ -287,7 +285,7 @@ ggannotate <- function(plot) {
     output$instruction <- renderText({
       dplyr::case_when(input$geom_1 == "text" ~ "Click where you want to place your annotation",
                        input$geom_1 == "label" ~ "Click where you want to place your label",
-                       input$geom_1 == "curve" ~ "Click where want your line to begin and double-click where it should end",
+                       input$geom_1 == "curve" ~ "Click where you want your line to begin and double-click where it should end",
                        TRUE ~ "No instruction defined for geom")
     })
 
@@ -297,9 +295,7 @@ ggannotate <- function(plot) {
         FALSE
       } else if (input$geom_1 == "curve") {
         if(is.null(user_input$x) |
-           is.null(user_input$x_dbl) |
-           is.null(user_input$y) |
-           is.null(user_input$y_dbl)) {
+           is.null(user_input$x_dbl) ) {
           FALSE
         } else if (isTRUE(user_input$x == user_input$x_dbl) &
                    isTRUE(user_input$y == user_input$y_dbl)) {
@@ -318,105 +314,24 @@ ggannotate <- function(plot) {
     })
 
     output$rendered_plot <- renderUI({
+      size_units <- input$size_units
 
-      css_units <- input$size_units
+      plot_width <- paste0(input$plot_width, size_units)
+      plot_height <- paste0(input$plot_height, size_units)
 
-      plot_width <- paste0(input$plot_width, css_units)
-      plot_height <- paste0(input$plot_height, css_units)
-
-      plotOutput("plot", click = "plot_click",
+      plotOutput("plot",
+                 click = "plot_click",
                  dblclick = "plot_dblclick",
                  width = plot_width,
                  height = plot_height)
     })
 
     output$geom_opts <- renderUI({
-      geom <- input$geom_1
-      show_arrow <- ifelse(is.null(input$show_arrow),
-                           TRUE,
-                           input$show_arrow)
-
-      base_text_ui <- tagList(
-
-        #sidebarPanel(width = 10,
-        fluidRow(column(12,
-                        textInput("annotation", "Annotation", value = "My annotation",
-                                  width = "100%"))),
-        fluidRow(column(4,
-                        numericInput("lineheight", "Lineheight", value = 1,
-                                     min = 0, step = 0.05)),
-                 column(4,
-                        textInput("colour", "colour", value = "black"))),
-        fluidRow(column(6,
-                        sliderInput("hjust", "hjust", value = 0.5,
-                                    min = 0, max = 1, step = 0.05, ticks = FALSE)),
-                 column(6,
-                        sliderInput("vjust", "vjust", value = 0.5,
-                                    min = 0, max = 1, step = 0.05, ticks = FALSE))),
-        fluidRow(column(6,
-                        textInput("font", "font", value = "sans")),
-                 column(6,
-                        selectInput("fontface", "fontface", selected = "plain",
-                                    choices = c("plain", "bold", "italic", "bold.italic"))))
-
+      switch (input$geom_1,
+        "text"   = text_ui,
+        "label"  = label_ui,
+        "curve"  = curve_ui
       )
-
-      text_ui <- c(base_text_ui,
-                   tagList(
-        fluidRow(column(4,
-                        numericInput("angle", "Angle", value = 0, min = -360, max = 360,
-                                                  step = 1))
-                   )
-        )
-      )
-
-      label_ui <- c(base_text_ui,
-                    tagList(
-                      fluidRow(column(4,
-                                      numericInput("label.padding", "Label padding",
-                                                   value = 0.25, step = 0.01)),
-                               column(4,
-                                      numericInput("label.r", "Label radius",
-                                                   value = 0.15, step = 0.01)),
-                               column(4,
-                                      numericInput("label.size", "Label size",
-                                                   value = 0.25, step = 0.01)))
-
-                    ))
-
-      curve_ui <- tagList(
-        fluidRow(
-          column(6,
-                 sliderInput("curvature", "Curvature",
-                             min = -1, max = 1, value = 0.5, step = 0.01,
-                             ticks = FALSE)),
-          column(6,
-                 sliderInput("angle", "Curve angle", value = 90, min = 0, max = 180,
-                              step = 1,
-                             ticks = FALSE))),
-        fluidRow(
-          column(6,
-                 sliderInput("arrow_length", "Arrow length (in)",
-                             value = 0.1, min = 0, max = 1, step = 0.05, ticks = FALSE)),
-          column(6,
-                 sliderInput("arrow_angle", "Arrowhead angle",
-                             min = 0, max = 90, value = 30, step = 1, ticks = FALSE))
-        )
-      )
-
-
-
-      if (geom == "text") {
-        text_ui
-      } else if (geom == "label") {
-        label_ui
-      } else if (geom == "curve") {
-        curve_ui
-      } else {
-        stop()
-      }
-
-
     })
 
     observeEvent(input$copy_button, {
