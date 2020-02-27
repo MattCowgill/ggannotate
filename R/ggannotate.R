@@ -17,9 +17,9 @@
 #' @importFrom rstudioapi getSourceEditorContext primary_selection
 #' @importFrom rlang expr exec enquo get_expr expr_deparse parse_expr
 #' @importFrom dplyr case_when if_else
-#' @importFrom clipr write_clip
-#' @importFrom stringr str_squish
 #' @importFrom miniUI miniPage
+#' @importFrom clipr write_clip
+#' @importFrom stringr str_replace_all str_squish
 #'
 
 ggannotate <- function(plot) {
@@ -215,7 +215,26 @@ ggannotate <- function(plot) {
         NULL
       }
 
+      user_label_padding <- if(input$geom_1 == "label") {
+        label.padding <- ifelse(is.null(input$label.padding),
+                          0.15,
+                          input$label.padding)
+        unit(label.padding, "lines")
+      } else {
+        NULL
+      }
+
+      user_label_r <- if(input$geom_1 == "label") {
+        label.r <- ifelse(is.null(input$label.r),
+                                0.15,
+                                input$label.r)
+        unit(label.r, "lines")
+      } else {
+        NULL
+      }
+
       params <- list(
+        size = input$fontsize / ggplot2::.pt,
         angle = input$angle,
         lineheight = input$lineheight,
         hjust = input$hjust,
@@ -223,6 +242,9 @@ ggannotate <- function(plot) {
         colour = input$colour,
         family = input$font,
         fontface = input$fontface,
+        label.padding = user_label_padding,
+        label.size = input$label.size,
+        label.r = user_label_r,
         curvature = input$curvature,
         arrow = user_arrow
       )
@@ -241,13 +263,11 @@ ggannotate <- function(plot) {
 
       geom <- input$geom_1
 
-      selected_geom <- if (geom == "text") {
-        ggplot2::GeomText
-      } else if (geom == "label") {
-        ggplot2::GeomLabel
-      } else if (geom == "curve") {
-        ggplot2::GeomCurve
-      }
+      selected_geom <- switch (geom,
+        "text"  = ggplot2::GeomText,
+        "label" = ggplot2::GeomLabel,
+        "curve" = ggplot2::GeomCurve
+      )
 
       known_aes <- selected_geom$aesthetics()
 
@@ -287,7 +307,7 @@ ggannotate <- function(plot) {
     output$instruction <- renderText({
       dplyr::case_when(input$geom_1 == "text" ~ "Click where you want to place your annotation",
                        input$geom_1 == "label" ~ "Click where you want to place your label",
-                       input$geom_1 == "curve" ~ "Click where want your line to begin and double-click where it should end",
+                       input$geom_1 == "curve" ~ "Click where you want your line to begin and double-click where it should end",
                        TRUE ~ "No instruction defined for geom")
     })
 
@@ -297,9 +317,7 @@ ggannotate <- function(plot) {
         FALSE
       } else if (input$geom_1 == "curve") {
         if(is.null(user_input$x) |
-           is.null(user_input$x_dbl) |
-           is.null(user_input$y) |
-           is.null(user_input$y_dbl)) {
+           is.null(user_input$x_dbl) ) {
           FALSE
         } else if (isTRUE(user_input$x == user_input$x_dbl) &
                    isTRUE(user_input$y == user_input$y_dbl)) {
@@ -318,7 +336,6 @@ ggannotate <- function(plot) {
     })
 
     output$rendered_plot <- renderUI({
-
       size_units <- input$size_units
 
       plot_width <- paste0(input$plot_width, size_units)
