@@ -48,10 +48,6 @@ ggannotate <- function(plot) {
   # Shiny UI ------
   ggann_ui <- miniUI::miniPage(
 
-    miniUI::gadgetTitleBar(title = "Annotate your plot",
-                           left = NULL,
-                           right = miniUI::miniTitleBarButton("done", "Done", primary = TRUE)),
-
     tags$head(
       tags$style(HTML(
         "hr.black {
@@ -90,7 +86,8 @@ ggannotate <- function(plot) {
         hr(class = "black"),
         fluidRow(
           column(2,
-                 actionButton("copy_button", "Copy code", width = "100%")),
+                 actionButton("copy_button", HTML("<b>Copy code<br/>and close</b>"), width = "100%",
+                              style = "height:93px; ")),
           column(10,
                  verbatimTextOutput("code_output"))
 
@@ -339,6 +336,7 @@ ggannotate <- function(plot) {
       clip_code <- stringr::str_squish(clip_code)
       clip_code <- stringr::str_replace_all(clip_code, ", ", ",\n")
       clipr::write_clip(clip_code, object_type = "character")
+      stopApp()
     })
 
     output$code_output <- renderPrint({
