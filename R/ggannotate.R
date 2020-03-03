@@ -19,7 +19,6 @@
 #' @importFrom dplyr case_when if_else
 #' @importFrom miniUI miniPage
 #' @importFrom clipr write_clip
-#' @importFrom stringr str_replace_all str_squish
 #'
 
 ggannotate <- function(plot) {
@@ -39,18 +38,14 @@ ggannotate <- function(plot) {
       stop("Please select some plot code before invoking ggannotate.")
     }
 
-    plot <- rstudio_selection()
-    plot <- selection_as_plot(plot)
+    selection <- rstudio_selection()
+    plot <- selection_as_plot(selection)
   }
 
   built_base_plot <- ggplot2::ggplot_build(plot)
 
   # Shiny UI ------
   ggann_ui <- miniUI::miniPage(
-
-    miniUI::gadgetTitleBar(title = "Annotate your plot",
-                           left = NULL,
-                           right = miniUI::miniTitleBarButton("done", "Done", primary = TRUE)),
 
     tags$head(
       tags$style(HTML(
@@ -90,7 +85,8 @@ ggannotate <- function(plot) {
         hr(class = "black"),
         fluidRow(
           column(2,
-                 actionButton("copy_button", "Copy code", width = "100%")),
+                 actionButton("copy_button", HTML("<b>Copy code<br/>and close</b>"), width = "100%",
+                              style = "height:55px; ")),
           column(10,
                  verbatimTextOutput("code_output"))
 
@@ -182,21 +178,7 @@ ggannotate <- function(plot) {
 
     # Check whether axes are dates
     axis_classes <- reactive({
-      p <- built_base_plot
-
-      x_scale <- p$layout$panel_scales_x[[1]]
-      y_scale <- p$layout$panel_scales_y[[1]]
-
-      x_date <- dplyr::if_else(inherits(x_scale, "ScaleContinuousDate"),
-                               TRUE,
-                               FALSE)
-
-      y_date <- dplyr::if_else(inherits(y_scale, "ScaleContinuousDate"),
-                               TRUE,
-                               FALSE)
-
-      list("x_date" = x_date,
-           "y_date" = y_date)
+      check_if_date(built_base_plot)
     })
 
     params_list <- reactive({
@@ -335,10 +317,9 @@ ggannotate <- function(plot) {
     })
 
     observeEvent(input$copy_button, {
-      clip_code <- rlang::expr_text(annot_call())
-      clip_code <- stringr::str_squish(clip_code)
-      clip_code <- stringr::str_replace_all(clip_code, ", ", ",\n")
-      clipr::write_clip(clip_code, object_type = "character")
+      callstring <- call_to_string(annot_call())
+      clipr::write_clip(callstring, object_type = "character")
+      stopApp()
     })
 
     output$code_output <- renderPrint({
