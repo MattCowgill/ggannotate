@@ -99,7 +99,7 @@ ggannotate <- function(plot) {
 
   # Shiny server ------
 
-  ggann_server <- function(input, output) {
+  ggann_server <- function(input, output, session) {
 
     observeEvent(input$done, shiny::stopApp())
 
