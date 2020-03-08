@@ -2,17 +2,21 @@ library(ggplot2)
 library(vdiffr)
 library(tibble)
 
-base_plot <- ggplot(mtcars,
-                    aes(x = wt, y = mpg)) +
+base_plot <- ggplot(
+  mtcars,
+  aes(x = wt, y = mpg)
+) +
   geom_point()
 
 
 # Regular scatterplot ------
 annot <-
-  make_layer(geom = "text",
-             x = 3,
-             y = 30,
-             label = "My\ntext")
+  make_layer(
+    geom = "text",
+    x = 3,
+    y = 30,
+    label = "My\ntext"
+  )
 annot_plot <- base_plot +
   eval(annot)
 
@@ -24,7 +28,7 @@ test_that("make_layer works with basic scatterplot", {
 
 # Faceted scatterplot -----
 facet_plot_1 <- base_plot +
-  facet_wrap( ~ cyl)
+  facet_wrap(~cyl)
 annot_facet_1 <-
   make_layer(
     geom = "text",
@@ -55,10 +59,12 @@ flipped_bar_base <- mtcars %>%
   coord_flip()
 
 annot_flipped_bar <-
-  make_layer(x = 2,
-             y = 30,
-             label = "My\nannotation",
-             geom = "text")
+  make_layer(
+    x = 2,
+    y = 30,
+    label = "My\nannotation",
+    geom = "text"
+  )
 
 annot_flipped_bar_plot <- flipped_bar_base +
   eval(annot_flipped_bar)
@@ -66,7 +72,7 @@ annot_flipped_bar_plot <- flipped_bar_base +
 test_that("make_layer works with flipped coords", {
   expect_is(annot_flipped_bar, "call")
   expect_is(annot_flipped_bar_plot, "ggplot")
-  #vdiffr::expect_doppelganger("annot_flipped_bar_plot", annot_flipped_bar_plot, path = "make-layer")
+  # vdiffr::expect_doppelganger("annot_flipped_bar_plot", annot_flipped_bar_plot, path = "make-layer")
 })
 
 # Date axis -----

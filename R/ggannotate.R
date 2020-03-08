@@ -6,10 +6,10 @@
 #'
 #' @examples
 #'
-#'\donttest{
+#' \donttest{
 #' ggannotate("ggplot(mtcars, aes(x = wt, y = mpg)) +
 #'     geom_point(col = 'orange')")
-#'}
+#' }
 #'
 #' @export
 #' @import shiny
@@ -22,7 +22,6 @@
 #'
 
 ggannotate <- function(plot) {
-
   if (!interactive()) {
     stop("`ggannotate` only works in interactive sessions.")
   }
@@ -30,8 +29,10 @@ ggannotate <- function(plot) {
   # Wrangle selection -------
   if (missing(plot)) {
     if (isFALSE(rstudioapi::isAvailable())) {
-      stop("ggannotate requires RStudio to see your selection.",
-           " Supply `plot` instead.")
+      stop(
+        "ggannotate requires RStudio to see your selection.",
+        " Supply `plot` instead."
+      )
     }
 
     if (is.null(rstudio_selection())) {
@@ -46,61 +47,75 @@ ggannotate <- function(plot) {
 
   # Shiny UI ------
   ggann_ui <- miniUI::miniPage(
-
     tags$head(
       tags$style(HTML(
         "hr.black {
         border: 0.4px solid #6a737b;
         margin: 0.2em;
         }"
-        ))
-      ),
+      ))
+    ),
 
     sidebarLayout(
       sidebarPanel(
         width = 4,
-        fluidRow(column(6,
-                        selectInput("geom_1", "Geom",
-                                    choices = c("text", "label", "curve"),
-                                    selected = "text"))),
+        fluidRow(column(
+          6,
+          selectInput("geom_1", "Geom",
+            choices = c("text", "label", "curve"),
+            selected = "text"
+          )
+        )),
         hr(class = "black"),
         fluidRow(column(12, uiOutput("geom_opts"))),
         hr(class = "black"),
-        fluidRow(column(4,
-                        numericInput("plot_width", "Plot width", value = 18, min = 0, step = 1)), #22.16
-                 column(4,
-                        numericInput("plot_height", "Plot height", value = 10, min = 0, step = 1)), #14.5
-                 column(4,
-                        selectInput("size_units",
-                                    "Units  ",
-                                    choices = c("cm", "mm", "in", "px"),
-                                    selected = "cm"))),
+        fluidRow(
+          column(
+            4,
+            numericInput("plot_width", "Plot width", value = 18, min = 0, step = 1)
+          ), # 22.16
+          column(
+            4,
+            numericInput("plot_height", "Plot height", value = 10, min = 0, step = 1)
+          ), # 14.5
+          column(
+            4,
+            selectInput("size_units",
+              "Units  ",
+              choices = c("cm", "mm", "in", "px"),
+              selected = "cm"
+            )
+          )
+        ),
         hr(class = "black")
       ),
       mainPanel(
         width = 8,
         div(textOutput("instruction"),
-             style="color:black; font-weight:bold; line-height:1.6em; font-size:1em"),
+          style = "color:black; font-weight:bold; line-height:1.6em; font-size:1em"
+        ),
         uiOutput("rendered_plot"),
         hr(class = "black"),
         fluidRow(
-          column(2,
-                 actionButton("copy_button", HTML("<b>Copy code<br/>and close</b>"), width = "100%",
-                              style = "height:55px; ")),
-          column(10,
-                 verbatimTextOutput("code_output"))
-
+          column(
+            2,
+            actionButton("copy_button", HTML("<b>Copy code<br/>and close</b>"),
+              width = "100%",
+              style = "height:55px; "
+            )
+          ),
+          column(
+            10,
+            verbatimTextOutput("code_output")
+          )
         )
-
       )
     ),
-
   )
 
   # Shiny server ------
 
   ggann_server <- function(input, output, session) {
-
     observeEvent(input$done, shiny::stopApp())
 
     user_input <- reactiveValues()
@@ -125,15 +140,19 @@ ggannotate <- function(plot) {
       user_input$facet_var4 <- input$plot_click$mapping$panelvar4
       user_input$facet_level4 <- input$plot_click$panelvar4
 
-      user_input$facet_vars <- list(user_input$facet_var1,
-                                    user_input$facet_var2,
-                                    user_input$facet_var3,
-                                    user_input$facet_var4)
+      user_input$facet_vars <- list(
+        user_input$facet_var1,
+        user_input$facet_var2,
+        user_input$facet_var3,
+        user_input$facet_var4
+      )
 
-      user_input$facet_levels <- list(user_input$facet_level1,
-                                      user_input$facet_level2,
-                                      user_input$facet_level3,
-                                      user_input$facet_level4)
+      user_input$facet_levels <- list(
+        user_input$facet_level1,
+        user_input$facet_level2,
+        user_input$facet_level3,
+        user_input$facet_level4
+      )
 
       # Date scales
       if (isTRUE(axis_classes()$x_date)) {
@@ -150,10 +169,9 @@ ggannotate <- function(plot) {
         user_input$x <- temp_y
         user_input$y <- temp_x
       }
-
     })
 
-    observeEvent(input$plot_dblclick,{
+    observeEvent(input$plot_dblclick, {
       user_input$x_dbl <- input$plot_dblclick$x
       user_input$y_dbl <- input$plot_dblclick$y
 
@@ -172,7 +190,6 @@ ggannotate <- function(plot) {
         user_input$x_dbl <- temp_y_dbl
         user_input$y_dbl <- temp_x_dbl
       }
-
     })
 
 
@@ -182,18 +199,20 @@ ggannotate <- function(plot) {
     })
 
     params_list <- reactive({
-
-      user_arrow <- safe_arrow(angle = input$arrow_angle,
-                               length = input$arrow_length,
-                               ends = "last",
-                               type = "closed")
+      user_arrow <- safe_arrow(
+        angle = input$arrow_angle,
+        length = input$arrow_length,
+        ends = "last",
+        type = "closed"
+      )
 
       user_label_padding <- safe_unit(input$label.padding, "lines")
       user_label_r <- safe_unit(input$label.r, "lines")
 
       size <- ifelse(input$geom_1 %in% c("text", "label"),
-                     input$size / ggplot2::.pt,
-                     input$size)
+        input$size / ggplot2::.pt,
+        input$size
+      )
 
       params <- list(
         size = size,
@@ -212,7 +231,6 @@ ggannotate <- function(plot) {
       )
 
       purrr::compact(params)
-
     })
 
     annot_call <- reactive({
@@ -223,7 +241,7 @@ ggannotate <- function(plot) {
 
       geom <- input$geom_1
 
-      selected_geom <- switch (geom,
+      selected_geom <- switch(geom,
         "text"  = ggplot2::GeomText,
         "label" = ggplot2::GeomLabel,
         "curve" = ggplot2::GeomCurve
@@ -232,12 +250,16 @@ ggannotate <- function(plot) {
       known_aes <- selected_geom$aesthetics()
 
       # Remove parameters from the list if they are not known by the geom
-      known_params <- switch (geom,
+      known_params <- switch(geom,
         "text" = c(known_aes),
-        "label" = c(known_aes, "label.padding", "label.r",
-                        "label.size"),
-        "curve" = c(known_aes, "curvature", "angle",
-                          "arrow", "arrow.fill", "lineend")
+        "label" = c(
+          known_aes, "label.padding", "label.r",
+          "label.size"
+        ),
+        "curve" = c(
+          known_aes, "curvature", "angle",
+          "arrow", "arrow.fill", "lineend"
+        )
       )
       params_list <- params_list[names(params_list) %in% known_params]
 
@@ -265,22 +287,23 @@ ggannotate <- function(plot) {
     })
 
     output$instruction <- renderText({
-      dplyr::case_when(input$geom_1 == "text" ~ "Click where you want to place your annotation",
-                       input$geom_1 == "label" ~ "Click where you want to place your label",
-                       input$geom_1 == "curve" ~ "Click where you want your line to begin and double-click where it should end",
-                       TRUE ~ "No instruction defined for geom")
+      dplyr::case_when(
+        input$geom_1 == "text" ~ "Click where you want to place your annotation",
+        input$geom_1 == "label" ~ "Click where you want to place your label",
+        input$geom_1 == "curve" ~ "Click where you want your line to begin and double-click where it should end",
+        TRUE ~ "No instruction defined for geom"
+      )
     })
 
     output$plot <- renderPlot({
-
       show_annot <- if (is.null(user_input$x)) {
         FALSE
       } else if (input$geom_1 == "curve") {
-        if(is.null(user_input$x) |
-           is.null(user_input$x_dbl) ) {
+        if (is.null(user_input$x) |
+          is.null(user_input$x_dbl)) {
           FALSE
         } else if (isTRUE(user_input$x == user_input$x_dbl) &
-                   isTRUE(user_input$y == user_input$y_dbl)) {
+          isTRUE(user_input$y == user_input$y_dbl)) {
           FALSE
         }
       } else {
@@ -289,7 +312,7 @@ ggannotate <- function(plot) {
 
       if (isFALSE(show_annot)) {
         built_base_plot$plot
-        } else {
+      } else {
         built_base_plot$plot +
           eval(annot_call())
       }
@@ -302,14 +325,15 @@ ggannotate <- function(plot) {
       plot_height <- paste0(input$plot_height, size_units)
 
       plotOutput("plot",
-                 click = "plot_click",
-                 dblclick = "plot_dblclick",
-                 width = plot_width,
-                 height = plot_height)
+        click = "plot_click",
+        dblclick = "plot_dblclick",
+        width = plot_width,
+        height = plot_height
+      )
     })
 
     output$geom_opts <- renderUI({
-      switch (input$geom_1,
+      switch(input$geom_1,
         "text"   = text_ui,
         "label"  = label_ui,
         "curve"  = curve_ui
@@ -325,15 +349,16 @@ ggannotate <- function(plot) {
     output$code_output <- renderPrint({
       annot_call()
     })
-
   }
 
   ggann_app <- shiny::shinyApp(ggann_ui, ggann_server)
 
-  shiny::runGadget(app = ggann_app,
-                   viewer = shiny::dialogViewer("Annotate plot with ggannotate",
-                                                width = 1300,
-                                                height = 780),
-                   stopOnCancel = TRUE)
+  shiny::runGadget(
+    app = ggann_app,
+    viewer = shiny::dialogViewer("Annotate plot with ggannotate",
+      width = 1300,
+      height = 780
+    ),
+    stopOnCancel = TRUE
+  )
 }
-

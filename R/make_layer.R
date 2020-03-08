@@ -33,23 +33,26 @@ make_layer <- function(geom,
                        facet_vars = NULL,
                        facet_levels = NULL,
                        ...) {
-
-  aesthetics <- purrr::compact(list(x = x, y = y,
-                             xend = xend, yend = yend,
-                             label = label))
+  aesthetics <- purrr::compact(list(
+    x = x, y = y,
+    xend = xend, yend = yend,
+    label = label
+  ))
 
   aesthetics <- c(aesthetics, list(...))
   aesthetics <- rlang::syms(names(aesthetics))
   names(aesthetics) <- aesthetics
-  aes_call <- rlang::call2("aes",!!!aesthetics)
+  aes_call <- rlang::call2("aes", !!!aesthetics)
 
-  data_cols <- list(x = x, y = y,
-                    xend = xend, yend = yend,
-                    label = label)
+  data_cols <- list(
+    x = x, y = y,
+    xend = xend, yend = yend,
+    label = label
+  )
 
   # Dates
   date_call <- function(arg) {
-    if(inherits(arg, "Date")) {
+    if (inherits(arg, "Date")) {
       arg <- as.character(arg)
       arg <- rlang::call2("as.Date", arg)
     }
@@ -64,24 +67,19 @@ make_layer <- function(geom,
   # Combine data and facets
   data_cols <- c(data_cols, facets)
   data_cols <- purrr::compact(data_cols)
-  data_call <- rlang::call2("data.frame",!!!data_cols)
+  data_call <- rlang::call2("data.frame", !!!data_cols)
 
   params_list <- purrr::compact(params)
 
   geom_to_call <- paste0("geom_", geom)
 
   rlang::call2(geom_to_call,
-       data = data_call,
-       mapping = aes_call,
-       !!!params_list,
-       #stat = "identity",
-       #position = "identity",
-       inherit.aes = FALSE,
-       show.legend = FALSE)
-
+    data = data_call,
+    mapping = aes_call,
+    !!!params_list,
+    # stat = "identity",
+    # position = "identity",
+    inherit.aes = FALSE,
+    show.legend = FALSE
+  )
 }
-
-
-
-
-

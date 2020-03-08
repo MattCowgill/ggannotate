@@ -11,7 +11,8 @@ test_that("check_if_date returns appropriate values", {
   expect_length(date_plot_checked, 2)
   expect_is(date_plot_checked, "list")
 
-  non_date_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+  non_date_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+    geom_point()
   non_date_plot_built <- ggplot2::ggplot_build(non_date_plot)
 
   non_date_plot_checked <- check_if_date(non_date_plot_built)
