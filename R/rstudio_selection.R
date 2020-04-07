@@ -38,7 +38,6 @@ newline <- function(x) {
   paste0(x, "\n")
 }
 
-escape_newlines <- function (x) {
+escape_newlines <- function(x) {
   gsub("\n", "\\\\n", x, perl = TRUE)
 }
-

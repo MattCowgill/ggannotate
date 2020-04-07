@@ -10,7 +10,8 @@ test_that("multi-line code string parsed as ggplot2 object", {
   expect_is(plot_from_string_1, "gg")
 
   vdiffr::expect_doppelganger("plot_from_string_1", plot_from_string_1,
-                              path = "rstudio-selection")
+    path = "rstudio-selection"
+  )
 })
 
 
@@ -22,5 +23,6 @@ test_that("single line code string parsed as ggplot2 object", {
   expect_is(plot_from_string_2, "gg")
 
   vdiffr::expect_doppelganger("plot_from_string_2", plot_from_string_2,
-                              path = "rstudio-selection")
+    path = "rstudio-selection"
+  )
 })

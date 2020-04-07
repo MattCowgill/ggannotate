@@ -5,8 +5,10 @@ test_that("safe_unit returns expected output", {
 
   valid_unit <- safe_unit(1, "inches")
   expect_is(valid_unit, "unit")
-  expect_identical(as.character(valid_unit),
-                   "1inches")
+  expect_identical(
+    as.character(valid_unit),
+    "1inches"
+  )
 })
 
 test_that("safe_arrow returns expected output", {

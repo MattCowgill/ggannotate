@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ggannotate
+# ggannotate <img src='man/figures/ggannotate_hex.png' align='right' height='138.5'/>
 
 <!-- badges: start -->
 
@@ -10,14 +10,18 @@ Status](https://travis-ci.org/MattCowgill/ggannotate.svg?branch=master)](https:/
 [![Lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![Codecov test
 coverage](https://codecov.io/gh/mattcowgill/ggannotate/branch/master/graph/badge.svg)](https://codecov.io/gh/mattcowgill/ggannotate?branch=master)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/ggannotate)](https://CRAN.R-project.org/package=ggannotate)
 
 <!-- badges: end -->
 
-ggannotate is a tool to help you put your annotations exactly where you
-want them to go.
+## Overview
 
-With ggannotate, you can interactively annotate ggplots using a
-Shiny-based RStudio add-in.
+ggannotate is a point-and-click tool to help you put your annotations
+exactly where you want them to go.
+
+With ggannotate, you interactively annotate ggplots using a Shiny-based
+RStudio add-in.
 
 ## Installation
 
