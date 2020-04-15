@@ -23,6 +23,10 @@ exactly where you want them to go.
 With ggannotate, you interactively annotate ggplots using a Shiny-based
 RStudio add-in.
 
+## Lifecycle
+
+This package is still in an 'experimental' phase. Features are still being added, and the user interface has not yet been finalised. Feedback and suggestions are welcome, via GitHub issue or email to mattcowgill at gmail dot com. 
+
 ## Installation
 
 Install from GitHub:
