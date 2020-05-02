@@ -4,9 +4,8 @@
 \alias{safe_unit}
 \alias{safe_arrow}
 \title{Functions to safely work with grid::unit() and grid::arrow() in Shiny
-If an input is NULL, NULL is returned; otherwise return a unit/arrow object
-This is needed because `unit(NULL, "inches")` gives an error,
-whereas we want `NULL`.}
+If an input is NULL, NULL is returned; otherwise return a call to
+unit/arrow.}
 \usage{
 safe_unit(x, units)
 
@@ -26,8 +25,6 @@ safe_arrow(angle, length, ends = "last", type = "closed")
 \item{type}{See `?grid::arrow()`}
 }
 \description{
-Functions to safely work with grid::unit() and grid::arrow() in Shiny
-If an input is NULL, NULL is returned; otherwise return a unit/arrow object
 This is needed because `unit(NULL, "inches")` gives an error,
 whereas we want `NULL`.
 }
