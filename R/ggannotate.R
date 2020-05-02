@@ -120,8 +120,14 @@ ggannotate <- function(plot) {
 
     user_input <- reactiveValues()
 
+    # Check whether coordinates are flipped
     flipped_coords <- reactive({
       ggplot2::summarise_coord(built_base_plot)$flip
+    })
+
+    # Check whether axes are dates
+    axis_classes <- reactive({
+      check_if_date(built_base_plot)
     })
 
     observeEvent(input$plot_click, {
@@ -192,13 +198,7 @@ ggannotate <- function(plot) {
       }
     })
 
-
-    # Check whether axes are dates
-    axis_classes <- reactive({
-      check_if_date(built_base_plot)
-    })
-
-    params_list <- reactive({
+        params_list <- reactive({
       user_arrow <- safe_arrow(
         angle = input$arrow_angle,
         length = input$arrow_length,

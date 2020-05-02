@@ -15,6 +15,7 @@
 #' as list(4).
 #' @param ... Additional aesthetics you wish to pass to geom
 #'
+#' @export
 #'
 #' @importFrom tibble as_tibble tibble
 #' @importFrom ggplot2 aes_all
