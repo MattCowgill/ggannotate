@@ -134,33 +134,15 @@ ggannotate <- function(plot) {
       user_input$x <- input$plot_click$x
       user_input$y <- input$plot_click$y
 
-      user_input$facet_var1 <- input$plot_click$mapping$panelvar1
-      user_input$facet_level1 <- input$plot_click$panelvar1
+      # Get facet variable names + levels
+      num_facet_vars <- count_facet_vars(input$plot_click)
+      user_input$facet_vars <- list_facet_vars(input$plot_click,
+                                    num_facet_vars = num_facet_vars)
+      user_input$facet_levels <- list_facet_levels(input$plot_click,
+                                        num_facet_vars = num_facet_vars)
 
-      user_input$facet_var2 <- input$plot_click$mapping$panelvar2
-      user_input$facet_level2 <- input$plot_click$panelvar2
 
-      user_input$facet_var3 <- input$plot_click$mapping$panelvar3
-      user_input$facet_level3 <- input$plot_click$panelvar3
-
-      user_input$facet_var4 <- input$plot_click$mapping$panelvar4
-      user_input$facet_level4 <- input$plot_click$panelvar4
-
-      user_input$facet_vars <- list(
-        user_input$facet_var1,
-        user_input$facet_var2,
-        user_input$facet_var3,
-        user_input$facet_var4
-      )
-
-      user_input$facet_levels <- list(
-        user_input$facet_level1,
-        user_input$facet_level2,
-        user_input$facet_level3,
-        user_input$facet_level4
-      )
-
-      # Date scales
+      # Deal with date scales
       if (isTRUE(axis_classes()$x_date)) {
         user_input$x <- as.Date(user_input$x, origin = "1970-01-01")
       }
@@ -168,7 +150,7 @@ ggannotate <- function(plot) {
         user_input$y <- as.Date(user_input$y, origin = "1970-01-01")
       }
 
-      # Flipped scales
+      # Deal with flipped scales
       if (isTRUE(flipped_coords())) {
         temp_x <- user_input$x
         temp_y <- user_input$y
