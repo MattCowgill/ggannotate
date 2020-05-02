@@ -6,7 +6,7 @@
 #'
 #' @examples
 #'
-#' \donttest{
+#' \dontrun{
 #' ggannotate("ggplot(mtcars, aes(x = wt, y = mpg)) +
 #'     geom_point(col = 'orange')")
 #' }
