@@ -135,11 +135,9 @@ ggannotate <- function(plot) {
       user_input$y <- input$plot_click$y
 
       # Get facet variable names + levels
-      num_facet_vars <- count_facet_vars(input$plot_click)
-      user_input$facet_vars <- list_facet_vars(input$plot_click,
-                                    num_facet_vars = num_facet_vars)
-      user_input$facet_levels <- list_facet_levels(input$plot_click,
-                                        num_facet_vars = num_facet_vars)
+      facets <- plot_facets(input$plot_click)
+      user_input$facet_levels <- facets$levels
+      user_input$facet_vars <- facets$vars
 
 
       # Deal with date scales
