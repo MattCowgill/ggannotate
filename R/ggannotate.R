@@ -151,8 +151,7 @@ ggannotate <- function(plot) {
       # Deal with flipped scales
       if (isTRUE(flipped_coords())) {
         temp_x <- user_input$x
-        temp_y <- user_input$y
-        user_input$x <- temp_y
+        user_input$x <- user_input$y
         user_input$y <- temp_x
       }
     })
@@ -172,8 +171,7 @@ ggannotate <- function(plot) {
       # Flipped scales
       if (isTRUE(flipped_coords())) {
         temp_x_dbl <- user_input$x_dbl
-        temp_y_dbl <- user_input$y_dbl
-        user_input$x_dbl <- temp_y_dbl
+        user_input$x_dbl <- user_input$y_dbl
         user_input$y_dbl <- temp_x_dbl
       }
     })
