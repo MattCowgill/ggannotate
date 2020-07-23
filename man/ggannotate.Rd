@@ -15,9 +15,11 @@ ggannotate
 }
 \examples{
 
-\dontrun{
-ggannotate("ggplot(mtcars, aes(x = wt, y = mpg)) +
-    geom_point(col = 'orange')")
+\donttest{
+p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+       geom_point()
+
+ggannotate(p)
 }
 
 }
