@@ -6,7 +6,7 @@
 #'
 #' @examples
 #'
-#' \donttest{
+#' \dontrun{
 #' p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
 #'        geom_point()
 #'
