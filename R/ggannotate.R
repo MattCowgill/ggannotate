@@ -6,9 +6,11 @@
 #'
 #' @examples
 #'
-#' \donttest{
-#' ggannotate("ggplot(mtcars, aes(x = wt, y = mpg)) +
-#'     geom_point(col = 'orange')")
+#' \dontrun{
+#' p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+#'        geom_point()
+#'
+#' ggannotate(p)
 #' }
 #'
 #' @export
@@ -45,73 +47,7 @@ ggannotate <- function(plot) {
 
   built_base_plot <- ggplot2::ggplot_build(plot)
 
-  # Shiny UI ------
-  ggann_ui <- miniUI::miniPage(
-    tags$head(
-      tags$style(HTML(
-        "hr.black {
-        border: 0.4px solid #6a737b;
-        margin: 0.2em;
-        }"
-      ))
-    ),
 
-    sidebarLayout(
-      sidebarPanel(
-        width = 4,
-        fluidRow(column(
-          6,
-          selectInput("geom_1", "Geom",
-            choices = c("text", "label", "curve"),
-            selected = "text"
-          )
-        )),
-        hr(class = "black"),
-        fluidRow(column(12, uiOutput("geom_opts"))),
-        hr(class = "black"),
-        fluidRow(
-          column(
-            4,
-            numericInput("plot_width", "Plot width", value = 18, min = 0, step = 1)
-          ), # 22.16
-          column(
-            4,
-            numericInput("plot_height", "Plot height", value = 10, min = 0, step = 1)
-          ), # 14.5
-          column(
-            4,
-            selectInput("size_units",
-              "Units  ",
-              choices = c("cm", "mm", "in", "px"),
-              selected = "cm"
-            )
-          )
-        ),
-        hr(class = "black")
-      ),
-      mainPanel(
-        width = 8,
-        div(textOutput("instruction"),
-          style = "color:black; font-weight:bold; line-height:1.6em; font-size:1em"
-        ),
-        uiOutput("rendered_plot"),
-        hr(class = "black"),
-        fluidRow(
-          column(
-            2,
-            actionButton("copy_button", HTML("<b>Copy code<br/>and close</b>"),
-              width = "100%",
-              style = "height:55px; "
-            )
-          ),
-          column(
-            10,
-            verbatimTextOutput("code_output")
-          )
-        )
-      )
-    ),
-  )
 
   # Shiny server ------
 
@@ -128,31 +64,9 @@ ggannotate <- function(plot) {
       user_input$x <- input$plot_click$x
       user_input$y <- input$plot_click$y
 
-      user_input$facet_var1 <- input$plot_click$mapping$panelvar1
-      user_input$facet_level1 <- input$plot_click$panelvar1
-
-      user_input$facet_var2 <- input$plot_click$mapping$panelvar2
-      user_input$facet_level2 <- input$plot_click$panelvar2
-
-      user_input$facet_var3 <- input$plot_click$mapping$panelvar3
-      user_input$facet_level3 <- input$plot_click$panelvar3
-
-      user_input$facet_var4 <- input$plot_click$mapping$panelvar4
-      user_input$facet_level4 <- input$plot_click$panelvar4
-
-      user_input$facet_vars <- list(
-        user_input$facet_var1,
-        user_input$facet_var2,
-        user_input$facet_var3,
-        user_input$facet_var4
-      )
-
-      user_input$facet_levels <- list(
-        user_input$facet_level1,
-        user_input$facet_level2,
-        user_input$facet_level3,
-        user_input$facet_level4
-      )
+      facets <- plot_facets(input$plot_click)
+      user_input$facet_vars <- facets$vars
+      user_input$facet_levels <- facets$levels
 
       # Date scales
       if (isTRUE(axis_classes()$x_date)) {

@@ -15,6 +15,7 @@
 #' as list(4).
 #' @param ... Additional aesthetics you wish to pass to geom
 #'
+#' @export
 #'
 #' @importFrom tibble as_tibble tibble
 #' @importFrom ggplot2 aes_all
@@ -67,6 +68,7 @@ make_layer <- function(geom,
   # Combine data and facets
   data_cols <- c(data_cols, facets)
   data_cols <- purrr::compact(data_cols)
+
   data_call <- rlang::call2("data.frame", !!!data_cols)
 
   params_list <- purrr::compact(params)
@@ -77,9 +79,6 @@ make_layer <- function(geom,
     data = data_call,
     mapping = aes_call,
     !!!params_list,
-    # stat = "identity",
-    # position = "identity",
-    inherit.aes = FALSE,
-    show.legend = FALSE
+    inherit.aes = FALSE
   )
 }

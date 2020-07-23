@@ -16,8 +16,7 @@ selection_as_plot <- function(selection) {
   x <- escape_newlines(sub("\n$", "", enc2utf8(x)))
   x <- paste(x, collapse = "")
   x <- rlang::parse_expr(x)
-  plot <- eval(x)
-  plot
+  eval(x)
 }
 
 rstudio_text_tidy <- function(x) {
