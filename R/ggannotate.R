@@ -64,31 +64,9 @@ ggannotate <- function(plot) {
       user_input$x <- input$plot_click$x
       user_input$y <- input$plot_click$y
 
-      user_input$facet_var1 <- input$plot_click$mapping$panelvar1
-      user_input$facet_level1 <- input$plot_click$panelvar1
-
-      user_input$facet_var2 <- input$plot_click$mapping$panelvar2
-      user_input$facet_level2 <- input$plot_click$panelvar2
-
-      user_input$facet_var3 <- input$plot_click$mapping$panelvar3
-      user_input$facet_level3 <- input$plot_click$panelvar3
-
-      user_input$facet_var4 <- input$plot_click$mapping$panelvar4
-      user_input$facet_level4 <- input$plot_click$panelvar4
-
-      user_input$facet_vars <- list(
-        user_input$facet_var1,
-        user_input$facet_var2,
-        user_input$facet_var3,
-        user_input$facet_var4
-      )
-
-      user_input$facet_levels <- list(
-        user_input$facet_level1,
-        user_input$facet_level2,
-        user_input$facet_level3,
-        user_input$facet_level4
-      )
+      facets <- plot_facets(input$plot_click)
+      user_input$facet_vars <- facets$vars
+      user_input$facet_levels <- facets$levels
 
       # Date scales
       if (isTRUE(axis_classes()$x_date)) {
