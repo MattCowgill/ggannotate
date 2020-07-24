@@ -131,6 +131,13 @@ ggannotate <- function(plot) {
         input$size
       )
 
+
+      fontface <- case_when(input$fontface == "plain" ~ 1,
+                input$fontface == "bold" ~ 2,
+                input$fontface == "italic" ~ 3,
+                input$fontface == "bold.italic" ~ 4,
+                TRUE ~ NA_real_)
+
       params <- list(
         size = size,
         angle = input$angle,
@@ -139,7 +146,7 @@ ggannotate <- function(plot) {
         vjust = input$vjust,
         colour = input$colour,
         family = input$font,
-        fontface = input$fontface,
+        fontface = fontface,
         label.padding = user_label_padding,
         label.size = input$label.size,
         label.r = user_label_r,
