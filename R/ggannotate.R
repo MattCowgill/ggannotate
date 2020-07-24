@@ -47,7 +47,9 @@ ggannotate <- function(plot) {
 
   built_base_plot <- ggplot2::ggplot_build(plot)
 
-
+  if (inherits(built_base_plot$layout$coord, "CoordPolar")) {
+    stop("ggannotate() does not work with polar coordinates.")
+  }
 
   # Shiny server ------
 
@@ -65,6 +67,7 @@ ggannotate <- function(plot) {
       user_input$y <- input$plot_click$y
 
       facets <- plot_facets(input$plot_click)
+      facets <- strip_facet_brackets(facets, built_base_plot)
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
 
@@ -128,6 +131,13 @@ ggannotate <- function(plot) {
         input$size
       )
 
+
+      fontface <- case_when(input$fontface == "plain" ~ 1,
+                input$fontface == "bold" ~ 2,
+                input$fontface == "italic" ~ 3,
+                input$fontface == "bold.italic" ~ 4,
+                TRUE ~ NA_real_)
+
       params <- list(
         size = size,
         angle = input$angle,
@@ -136,7 +146,7 @@ ggannotate <- function(plot) {
         vjust = input$vjust,
         colour = input$colour,
         family = input$font,
-        fontface = input$fontface,
+        fontface = fontface,
         label.padding = user_label_padding,
         label.size = input$label.size,
         label.r = user_label_r,

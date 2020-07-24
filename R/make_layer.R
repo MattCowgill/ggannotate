@@ -75,6 +75,8 @@ make_layer <- function(geom,
 
   geom_to_call <- paste0("geom_", geom)
 
+  params_list <- remove_default_params(geom_to_call, params_list)
+
   rlang::call2(geom_to_call,
     data = data_call,
     mapping = aes_call,
@@ -82,3 +84,4 @@ make_layer <- function(geom,
     inherit.aes = FALSE
   )
 }
+

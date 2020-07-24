@@ -12,7 +12,7 @@ base_text_ui <- tagList(
     column(
       4,
       numericInput("lineheight", "Lineheight",
-        value = 1,
+        value = 1.2,
         min = 0, step = 0.05
       )
     ),
@@ -46,7 +46,7 @@ base_text_ui <- tagList(
   fluidRow(
     column(
       6,
-      textInput("font", "font", value = "sans")
+      textInput("font", "font", value = "")
     ),
     column(
       6,

@@ -19,3 +19,28 @@ plot_facets <- function(plot_click) {
   facets
 }
 
+#' If a facet variable is specified as (eg.) "factor(cyl)" rather than
+#' "cyl", we want the annotation to just refer to "cyl". This function takes
+#' the facets returned by plot_facets() and takes the text out from between
+#' brackets (eg. "factor(cyl)" becomes "cyl"). It then checks that the result
+#' is present in the list of columns in the plot data; if so, it modifies the
+#' facet var(s) used by ggannotate; if not it leaves them unchanged.
+#' @noRd
+
+strip_facet_brackets <- function(facets, built_plot) {
+  vars <- facets$vars
+
+  vars_nobrackets <- gsub(".*\\((.*)\\).*", "\\1", vars)
+
+  vars_in_data <- built_plot$layout$facet_params$.possible_columns
+
+  all_modified_vars_in_data <- all(vars_nobrackets %in% vars_in_data)
+
+  if (isTRUE(all_modified_vars_in_data)) {
+    new_vars <- as.list(vars_nobrackets)
+    names(new_vars) <- names(vars)
+    facets$vars <- new_vars
+  }
+
+  facets
+}
