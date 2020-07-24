@@ -47,7 +47,9 @@ ggannotate <- function(plot) {
 
   built_base_plot <- ggplot2::ggplot_build(plot)
 
-
+  if (inherits(built_base_plot$layout$coord, "CoordPolar")) {
+    stop("ggannotate() does not work with polar coordinates.")
+  }
 
   # Shiny server ------
 
