@@ -67,6 +67,7 @@ ggannotate <- function(plot) {
       user_input$y <- input$plot_click$y
 
       facets <- plot_facets(input$plot_click)
+      facets <- strip_facet_brackets(facets, built_base_plot)
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
 
