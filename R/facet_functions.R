@@ -37,7 +37,9 @@ strip_facet_brackets <- function(facets, built_plot) {
   all_modified_vars_in_data <- all(vars_nobrackets %in% vars_in_data)
 
   if (isTRUE(all_modified_vars_in_data)) {
-    facets$vars <- vars_nobrackets
+    new_vars <- as.list(vars_nobrackets)
+    names(new_vars) <- names(vars)
+    facets$vars <- new_vars
   }
 
   facets
