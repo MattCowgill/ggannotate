@@ -27,12 +27,16 @@ plot_facets <- function(plot_click) {
 #' (input$click modified by ggannotate::plot_facets()) and the corresponding
 #' built plot and returns facets ready to be included in ggannotate's output
 #' @importFrom purrr compact
+#' @param clicked_facets list returned by plot_facets()
+#' @param built_plot ggplot built with ggplot2::ggplot_build()
 correct_facets <- function(clicked_facets, built_plot) {
   plot_facets <- list(built_plot$layout$facet_params$rows,
                       built_plot$layout$facet_params$cols,
-                      built_plot$layout$facet_params$facets) %>%
-    compact() %>%
-    unlist()
+                      built_plot$layout$facet_params$facets)
+
+  plot_facets <- purrr::compact(plot_facets)
+  plot_facets <- unlist(plot_facets)
+
 
   facet_data <- ggann_eval_facets(plot_facets, built_plot$plot$data)
   plot_data <- built_plot$plot$data
@@ -57,6 +61,7 @@ correct_facets <- function(clicked_facets, built_plot) {
   clicked_facets
 }
 
+#' @noRd
 match_facet <- function(facet_data, plot_data) {
   matches <- list()
 
@@ -72,19 +77,24 @@ match_facet <- function(facet_data, plot_data) {
   facet_data_cols <- colnames(facet_data)
   plot_data_cols <- colnames(plot_data)
 
-  col_combinations <- crossing(facet_data_cols, plot_data_cols)
+  col_combinations <- tidyr::crossing(facet_data_cols, plot_data_cols)
+  # col_combinations <- expand.grid(facet_data_cols = facet_data_cols,
+  #                                 plot_data_cols = plot_data_cols)
 
-  map2(col_combinations$facet_data_cols, col_combinations$plot_data_cols,
-       get_match) %>%
-    compact() %>%
-    transpose()
+  out <- purrr::map2(col_combinations$facet_data_cols,
+                     col_combinations$plot_data_cols,
+                     get_match)
+  out <- purrr::compact(out)
+  out <- purrr::transpose(out)
+  out
 }
 
 #' This function is a copy of ggplot2:::eval_facet()
 #' Copied here as that function is non-exported
+#' @noRd
 ggann_eval_facet <- function(facet, data, possible_columns = NULL) {
   if (rlang::quo_is_symbol(facet)) {
-    facet <- as.character(quo_get_expr(facet))
+    facet <- as.character(rlang::quo_get_expr(facet))
     if (facet %in% names(data)) {
       out <- data[[facet]]
     }
@@ -95,7 +105,7 @@ ggann_eval_facet <- function(facet, data, possible_columns = NULL) {
   }
   env <- rlang::new_environment(data)
   missing_columns <- setdiff(possible_columns, names(data))
-  undefined_error <- function(e) abort("", class = "ggplot2_missing_facet_var")
+  undefined_error <- function(e) rlang::abort("", class = "ggplot2_missing_facet_var")
   bindings <- rlang::rep_named(missing_columns, list(undefined_error))
   rlang::env_bind_active(env, !!!bindings)
   mask <- rlang::new_data_mask(env)
@@ -105,7 +115,7 @@ ggann_eval_facet <- function(facet, data, possible_columns = NULL) {
 
 #' This function is a copy of ggplot2:::eval_facets()
 #' Copied here as that function is non-exported
-
+#' @noRd
 ggann_eval_facets <- function(facets, data, possible_columns = NULL) {
   vars <- purrr::compact(lapply(facets, ggann_eval_facet, data, possible_columns = possible_columns))
   vctrs::new_data_frame(tibble::as_tibble(vars))
