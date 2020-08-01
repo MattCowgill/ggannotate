@@ -14,13 +14,15 @@ Imports:
     ggplot2 (>= 3.2.1),
     rlang (>= 0.4.4),
     rstudioapi (>= 0.10),
-    shiny (>= 1.4.0),
+    shiny (>= 1.5.0),
     dplyr,
     tibble,
     purrr,
     clipr,
     stringr,
-    miniUI
+    miniUI,
+    vctrs,
+    tidyr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1

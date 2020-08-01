@@ -63,13 +63,16 @@ ggannotate <- function(plot) {
     })
 
     observeEvent(input$plot_click, {
-      user_input$x <- input$plot_click$x
-      user_input$y <- input$plot_click$y
-
       facets <- plot_facets(input$plot_click)
-      facets <- strip_facet_brackets(facets, built_base_plot)
+      # facets <- strip_facet_brackets(facets, built_base_plot)
+      facets <- correct_facets(facets, built_base_plot)
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
+    })
+
+    observeEvent(input$plot_click, {
+      user_input$x <- input$plot_click$x
+      user_input$y <- input$plot_click$y
 
       # Date scales
       if (isTRUE(axis_classes()$x_date)) {
