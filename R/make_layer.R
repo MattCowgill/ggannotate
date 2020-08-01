@@ -7,6 +7,10 @@
 #' @param y Variable to map to y aesthetic
 #' @param xend Variable to map to xend (such as for `geom_curve`)
 #' @param yend Variable to map to yend (such as for `geom_curve`)
+#' @param xmin Variable to map to xmin aesthetic (such as for `geom_rect`)
+#' @param xmax Variable to map to xmax aesthetic (such as for `geom_rect`)
+#' @param ymin Variable to map to ymin aesthetic (such as for `geom_rect`)
+#' @param ymax Variable to map to ymax aesthetic (such as for `geom_rect`)
 #' @param label Variable to use as label (such as for `geom_text`)
 #' @param params List of parameters for geom, such as `list(colour = "black")`
 #' @param facet_vars List. The names of variables used to facet the plot,
@@ -29,6 +33,10 @@ make_layer <- function(geom,
                        y = NULL,
                        xend = NULL,
                        yend = NULL,
+                       xmin = NULL,
+                       xmax = NULL,
+                       ymin = NULL,
+                       ymax = NULL,
                        label = NULL,
                        params = NULL,
                        facet_vars = NULL,
@@ -37,6 +45,7 @@ make_layer <- function(geom,
   aesthetics <- purrr::compact(list(
     x = x, y = y,
     xend = xend, yend = yend,
+    xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax,
     label = label
   ))
 
@@ -48,6 +57,7 @@ make_layer <- function(geom,
   data_cols <- list(
     x = x, y = y,
     xend = xend, yend = yend,
+    xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax,
     label = label
   )
 

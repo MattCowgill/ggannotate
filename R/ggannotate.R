@@ -109,6 +109,38 @@ ggannotate <- function(plot) {
       }
     })
 
+    observeEvent(input$plot_brush, {
+      user_input$xmin <- input$plot_brush$xmin
+      user_input$xmax <- input$plot_brush$xmax
+      user_input$ymin <- input$plot_brush$ymin
+      user_input$ymax <- input$plot_brush$ymax
+
+      # Date scales
+      if (isTRUE(axis_classes()$x_date)) {
+        user_input$xmin <- as.Date(user_input$xmin, origin = "1970-01-01")
+      }
+      if (isTRUE(axis_classes()$x_date)) {
+        user_input$xmax <- as.Date(user_input$xmax, origin = "1970-01-01")
+      }
+      if (isTRUE(axis_classes()$y_date)) {
+        user_input$ymin <- as.Date(user_input$ymin, origin = "1970-01-01")
+      }
+      if (isTRUE(axis_classes()$y_date)) {
+        user_input$ymax <- as.Date(user_input$ymax, origin = "1970-01-01")
+      }
+
+      # Flipped scales
+      if (isTRUE(flipped_coords())) {
+        temp_xmin <- user_input$xmin
+        temp_xmax <- user_input$xmax
+        temp_ymin <- user_input$ymin
+        temp_ymax <- user_input$ymax
+        user_input$xmin <- temp_ymin
+        user_input$xmax <- temp_ymax
+        user_input$ymin <- temp_xmin
+        user_input$ymax <- temp_xmax
+      }
+    })
 
     # Check whether axes are dates
     axis_classes <- reactive({
@@ -131,7 +163,6 @@ ggannotate <- function(plot) {
         input$size
       )
 
-
       fontface <- case_when(input$fontface == "plain" ~ 1,
                 input$fontface == "bold" ~ 2,
                 input$fontface == "italic" ~ 3,
@@ -151,7 +182,8 @@ ggannotate <- function(plot) {
         label.size = input$label.size,
         label.r = user_label_r,
         curvature = input$curvature,
-        arrow = user_arrow
+        arrow = user_arrow,
+        alpha = input$alpha
       )
 
       purrr::compact(params)
@@ -168,7 +200,8 @@ ggannotate <- function(plot) {
       selected_geom <- switch(geom,
         "text"  = ggplot2::GeomText,
         "label" = ggplot2::GeomLabel,
-        "curve" = ggplot2::GeomCurve
+        "curve" = ggplot2::GeomCurve,
+        "rect" = ggplot2::GeomRect
       )
 
       known_aes <- selected_geom$aesthetics()
@@ -183,7 +216,8 @@ ggannotate <- function(plot) {
         "curve" = c(
           known_aes, "curvature", "angle",
           "arrow", "arrow.fill", "lineend"
-        )
+        ),
+        "rect" = c(known_aes),
       )
       params_list <- params_list[names(params_list) %in% known_params]
 
@@ -192,6 +226,10 @@ ggannotate <- function(plot) {
       y <- switch("y" %in% known_aes, user_input$y, NULL)
       xend <- switch("xend" %in% known_aes, user_input$x_dbl, NULL)
       yend <- switch("yend" %in% known_aes, user_input$y_dbl, NULL)
+      xmin <- switch("xmin" %in% known_aes, user_input$xmin, NULL)
+      xmax <- switch("xmax" %in% known_aes, user_input$xmax, NULL)
+      ymin <- switch("ymin" %in% known_aes, user_input$ymin, NULL)
+      ymax <- switch("ymax" %in% known_aes, user_input$ymax, NULL)
       label <- switch("label" %in% known_aes, annot_no_esc, NULL)
 
       # Create the layer call
@@ -201,6 +239,10 @@ ggannotate <- function(plot) {
         y = y,
         xend = xend,
         yend = yend,
+        xmin = xmin,
+        xmax = xmax,
+        ymin = ymin,
+        ymax = ymax,
         label = label,
         facet_vars = user_input$facet_vars,
         facet_levels = user_input$facet_levels,
@@ -215,6 +257,7 @@ ggannotate <- function(plot) {
         input$geom_1 == "text" ~ "Click where you want to place your annotation",
         input$geom_1 == "label" ~ "Click where you want to place your label",
         input$geom_1 == "curve" ~ "Click where you want your line to begin and double-click where it should end",
+        input$geom_1 == "rect" ~ "Click and drag to draw and adjust the rectangle, then click once anywhere else to set it",
         TRUE ~ "No instruction defined for geom"
       )
     })
@@ -228,6 +271,13 @@ ggannotate <- function(plot) {
           FALSE
         } else if (isTRUE(user_input$x == user_input$x_dbl) &
           isTRUE(user_input$y == user_input$y_dbl)) {
+          FALSE
+        }
+      } else if (input$geom_1 == "rect") {
+        if (is.null(user_input$xmin) | is.null(user_input$xmax)) {
+          FALSE
+        } else if (isTRUE(user_input$xmin == user_input$xmax) &
+          isTRUE(user_input$ymin == user_input$ymax)) {
           FALSE
         }
       } else {
@@ -251,6 +301,7 @@ ggannotate <- function(plot) {
       plotOutput("plot",
         click = "plot_click",
         dblclick = "plot_dblclick",
+        brush = shiny::brushOpts(id = "plot_brush"),
         width = plot_width,
         height = plot_height
       )
@@ -260,7 +311,8 @@ ggannotate <- function(plot) {
       switch(input$geom_1,
         "text"   = text_ui,
         "label"  = label_ui,
-        "curve"  = curve_ui
+        "curve"  = curve_ui,
+        "rect"  = rect_ui
       )
     })
 

@@ -138,3 +138,30 @@ curve_ui <- tagList(
     )
   )
 )
+
+rect_ui <- tagList(
+  fluidRow(
+    column(
+      6,
+      sliderInput("alpha", "Fill opacity",
+        min = 0, max = 1, value = 0.25, step = 0.05
+      )
+    ),
+    column(
+      6,
+      textInput("fill", "Fill colour", value = "grey55")
+    )
+  ),
+  fluidRow(
+    column(
+      6,
+      textInput("colour", "Border colour", value = "black")
+    ),
+    column(
+      6,
+      numericInput("size", "Border size",
+        value = 0, min = 0, max = 5, step = 0.5
+      )
+    )
+  )
+)
