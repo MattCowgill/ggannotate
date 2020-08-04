@@ -172,6 +172,8 @@ ggannotate <- function(plot) {
                 input$fontface == "bold.italic" ~ 4,
                 TRUE ~ NA_real_)
 
+      user_alpha <- ifelse(input$geom_1 == "rect", input$alpha, 1)
+
       params <- list(
         size = size,
         angle = input$angle,
@@ -187,7 +189,7 @@ ggannotate <- function(plot) {
         label.r = user_label_r,
         curvature = input$curvature,
         arrow = user_arrow,
-        alpha = input$alpha
+        alpha = user_alpha
       )
 
       purrr::compact(params)
