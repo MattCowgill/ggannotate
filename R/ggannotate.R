@@ -325,6 +325,7 @@ ggannotate <- function(plot) {
     observeEvent(input$copy_button, {
       callstring <- call_to_string(annot_call())
       clipr::write_clip(callstring, object_type = "character")
+      ggplot2::set_last_plot(built_base_plot$plot)
       stopApp()
     })
 
