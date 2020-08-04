@@ -2,11 +2,15 @@ Package: ggannotate
 Title: Interactively annotate ggplot2 plots
 Version: 0.0.0.9100
 Authors@R: 
-    person(given = "Matt",
+    c(person(given = "Matt",
            family = "Cowgill",
            role = c("aut", "cre"),
            email = "mattcowgill@gmail.com",
-           comment = c(ORCID = "0000-0003-0422-3300"))
+           comment = c(ORCID = "0000-0003-0422-3300")),
+      person(given = "John",
+             family = "Helveston",
+             role = "ctb",
+             email = "john.helveston@gmail.com"))
 Description: Place annotations exactly where you want them to go by 
     pointing and clicking.
 License: MIT + file LICENSE
