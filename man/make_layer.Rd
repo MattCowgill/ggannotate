@@ -12,6 +12,10 @@ make_layer(
   y = NULL,
   xend = NULL,
   yend = NULL,
+  xmin = NULL,
+  xmax = NULL,
+  ymin = NULL,
+  ymax = NULL,
   label = NULL,
   params = NULL,
   facet_vars = NULL,
@@ -29,6 +33,14 @@ make_layer(
 \item{xend}{Variable to map to xend (such as for `geom_curve`)}
 
 \item{yend}{Variable to map to yend (such as for `geom_curve`)}
+
+\item{xmin}{Variable to map to xmin aesthetic (such as for `geom_rect`)}
+
+\item{xmax}{Variable to map to xmax aesthetic (such as for `geom_rect`)}
+
+\item{ymin}{Variable to map to ymin aesthetic (such as for `geom_rect`)}
+
+\item{ymax}{Variable to map to ymax aesthetic (such as for `geom_rect`)}
 
 \item{label}{Variable to use as label (such as for `geom_text`)}
 
