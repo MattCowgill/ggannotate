@@ -179,6 +179,7 @@ ggannotate <- function(plot) {
         hjust = input$hjust,
         vjust = input$vjust,
         colour = input$colour,
+        fill = input$fill,
         family = input$font,
         fontface = fontface,
         label.padding = user_label_padding,
