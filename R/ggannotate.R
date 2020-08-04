@@ -172,6 +172,8 @@ ggannotate <- function(plot) {
                 input$fontface == "bold.italic" ~ 4,
                 TRUE ~ NA_real_)
 
+      user_alpha <- ifelse(input$geom_1 == "rect", input$alpha, 1)
+
       params <- list(
         size = size,
         angle = input$angle,
@@ -179,6 +181,7 @@ ggannotate <- function(plot) {
         hjust = input$hjust,
         vjust = input$vjust,
         colour = input$colour,
+        fill = input$fill,
         family = input$font,
         fontface = fontface,
         label.padding = user_label_padding,
@@ -186,7 +189,7 @@ ggannotate <- function(plot) {
         label.r = user_label_r,
         curvature = input$curvature,
         arrow = user_arrow,
-        alpha = input$alpha
+        alpha = user_alpha
       )
 
       purrr::compact(params)
@@ -322,6 +325,7 @@ ggannotate <- function(plot) {
     observeEvent(input$copy_button, {
       callstring <- call_to_string(annot_call())
       clipr::write_clip(callstring, object_type = "character")
+      ggplot2::set_last_plot(built_base_plot$plot)
       stopApp()
     })
 

@@ -1,8 +1,8 @@
 test_that("call_to_string() returns expected string", {
-  mycall <- call("annotate", x = 3, y = 30, geom = "text", label = "test")
+  mycall <- make_layer("text")
 
   expect_identical(
     call_to_string(mycall),
-    "annotate(x = 3,\ny = 30,\ngeom = \"text\",\nlabel = \"test\")"
+    "geom_text(data = data.frame(),\nmapping = aes(),\ninherit.aes = FALSE)"
   )
 })
