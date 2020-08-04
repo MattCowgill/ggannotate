@@ -23,3 +23,11 @@ check_if_date <- function(built_plot) {
     "y_date" = y_date
   )
 }
+
+#' When you click on a plot that contains date scale(s), Shiny's
+#' `input$plot_click` and similar lists return the clicked value as a number,
+#' not a date
+#' @noRd
+num_to_date <- function(numdate) {
+    as.Date(numdate, origin = "1970-01-01")
+}

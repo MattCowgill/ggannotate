@@ -22,3 +22,8 @@ test_that("check_if_date returns appropriate values", {
   expect_length(date_plot_checked, 2)
   expect_is(date_plot_checked, "list")
 })
+
+test_that("num_to_date() returns expected values", {
+  expect_identical(num_to_date(12025), as.Date("2002-12-04"))
+  expect_error(num_to_date("12025"))
+})

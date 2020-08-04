@@ -58,32 +58,31 @@ ggannotate <- function(plot) {
 
     user_input <- reactiveValues()
 
-    flipped_coords <- reactive({
-      ggplot2::summarise_coord(built_base_plot)$flip
-    })
+    # Check whether axes are flipped
+    flipped_coords <- ggplot2::summarise_coord(built_base_plot)$flip
+
+    # Check whether axes are dates
+    axis_classes <- check_if_date(built_base_plot)
 
     observeEvent(input$plot_click, {
       facets <- plot_facets(input$plot_click)
-      # facets <- strip_facet_brackets(facets, built_base_plot)
       facets <- correct_facets(facets, built_base_plot)
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
-    })
 
-    observeEvent(input$plot_click, {
       user_input$x <- input$plot_click$x
       user_input$y <- input$plot_click$y
 
       # Date scales
-      if (isTRUE(axis_classes()$x_date)) {
-        user_input$x <- as.Date(user_input$x, origin = "1970-01-01")
+      if (isTRUE(axis_classes$x_date)) {
+        user_input$x <- num_to_date(user_input$x)
       }
-      if (isTRUE(axis_classes()$y_date)) {
-        user_input$y <- as.Date(user_input$y, origin = "1970-01-01")
+      if (isTRUE(axis_classes$y_date)) {
+        user_input$y <- num_to_date(user_input$y)
       }
 
       # Flipped scales
-      if (isTRUE(flipped_coords())) {
+      if (isTRUE(flipped_coords)) {
         temp_x <- user_input$x
         temp_y <- user_input$y
         user_input$x <- temp_y
@@ -96,15 +95,15 @@ ggannotate <- function(plot) {
       user_input$y_dbl <- input$plot_dblclick$y
 
       # Date scales
-      if (isTRUE(axis_classes()$x_date)) {
-        user_input$x_dbl <- as.Date(user_input$x_dbl, origin = "1970-01-01")
+      if (isTRUE(axis_classes$x_date)) {
+        user_input$x_dbl <- num_to_date(user_input$x_dbl)
       }
-      if (isTRUE(axis_classes()$y_date)) {
-        user_input$y_dbl <- as.Date(user_input$y_dbl, origin = "1970-01-01")
+      if (isTRUE(axis_classes$y_date)) {
+        user_input$y_dbl <- num_to_date(user_input$y_dbl)
       }
 
       # Flipped scales
-      if (isTRUE(flipped_coords())) {
+      if (isTRUE(flipped_coords)) {
         temp_x_dbl <- user_input$x_dbl
         temp_y_dbl <- user_input$y_dbl
         user_input$x_dbl <- temp_y_dbl
@@ -113,27 +112,29 @@ ggannotate <- function(plot) {
     })
 
     observeEvent(input$plot_brush, {
+      facets <- plot_facets(input$plot_brush)
+      facets <- correct_facets(facets, built_base_plot)
+      user_input$facet_vars <- facets$vars
+      user_input$facet_levels <- facets$levels
+
       user_input$xmin <- input$plot_brush$xmin
       user_input$xmax <- input$plot_brush$xmax
       user_input$ymin <- input$plot_brush$ymin
       user_input$ymax <- input$plot_brush$ymax
 
       # Date scales
-      if (isTRUE(axis_classes()$x_date)) {
-        user_input$xmin <- as.Date(user_input$xmin, origin = "1970-01-01")
+      if (isTRUE(axis_classes$x_date)) {
+        user_input$xmin <- num_to_date(user_input$xmin)
+        user_input$xmax <- num_to_date(user_input$xmax)
       }
-      if (isTRUE(axis_classes()$x_date)) {
-        user_input$xmax <- as.Date(user_input$xmax, origin = "1970-01-01")
-      }
-      if (isTRUE(axis_classes()$y_date)) {
-        user_input$ymin <- as.Date(user_input$ymin, origin = "1970-01-01")
-      }
-      if (isTRUE(axis_classes()$y_date)) {
-        user_input$ymax <- as.Date(user_input$ymax, origin = "1970-01-01")
+
+      if (isTRUE(axis_classes$y_date)) {
+        user_input$ymin <- num_to_date(user_input$ymin)
+        user_input$ymax <- num_to_date(user_input$ymax)
       }
 
       # Flipped scales
-      if (isTRUE(flipped_coords())) {
+      if (isTRUE(flipped_coords)) {
         temp_xmin <- user_input$xmin
         temp_xmax <- user_input$xmax
         temp_ymin <- user_input$ymin
@@ -145,10 +146,6 @@ ggannotate <- function(plot) {
       }
     })
 
-    # Check whether axes are dates
-    axis_classes <- reactive({
-      check_if_date(built_base_plot)
-    })
 
     params_list <- reactive({
       user_arrow <- safe_arrow(
