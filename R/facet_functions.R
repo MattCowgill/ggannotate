@@ -54,7 +54,7 @@ correct_facets <- function(clicked_facets, built_plot) {
     clicked_facets$vars[[panelvar]] <- bare_var_name
 
     if (var_class == "factor") {
-      clicked_facets$levels[[panelvar]] <- rlang::call2("factor", clicked_facets$levels[[panelvar]])
+      clicked_facets$levels[[panelvar]] <- call("factor", clicked_facets$levels[[panelvar]])
     }
   }
 
@@ -78,8 +78,6 @@ match_facet <- function(facet_data, plot_data) {
   plot_data_cols <- colnames(plot_data)
 
   col_combinations <- tidyr::crossing(facet_data_cols, plot_data_cols)
-  # col_combinations <- expand.grid(facet_data_cols = facet_data_cols,
-  #                                 plot_data_cols = plot_data_cols)
 
   out <- purrr::map2(col_combinations$facet_data_cols,
                      col_combinations$plot_data_cols,

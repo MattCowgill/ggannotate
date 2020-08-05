@@ -6,13 +6,13 @@ check_if_date <- function(built_plot) {
   x_scale <- p$layout$panel_scales_x[[1]]
   y_scale <- p$layout$panel_scales_y[[1]]
 
-  x_date <- dplyr::if_else(
+  x_date <- ifelse(
     inherits(x_scale, "ScaleContinuousDate"),
     TRUE,
     FALSE
   )
 
-  y_date <- dplyr::if_else(
+  y_date <- ifelse(
     inherits(y_scale, "ScaleContinuousDate"),
     TRUE,
     FALSE
