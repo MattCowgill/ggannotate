@@ -25,5 +25,31 @@ test_that("check_if_date returns appropriate values", {
 
 test_that("num_to_date() returns expected values", {
   expect_identical(num_to_date(12025), as.Date("2002-12-04"))
+  expect_null(num_to_date(NULL))
   expect_error(num_to_date("12025"))
+})
+
+
+
+test_that("correct_scales() corrects scales", {
+  p <- ggplot(ggplot2::economics, aes(x = date, y = unemploy)) +
+    geom_line() +
+    coord_flip()
+
+  built_plot <- ggplot2::ggplot_build(p)
+
+  plot_click <- list(x = 9492.364,
+                     y = 11950.13,
+                     coords_css = list(x = 487,
+                                       y = 108))
+
+  corrected_scales <- correct_scales(plot_click,
+                                     check_if_date(built_plot),
+                                     ggplot2::summarise_coord(built_plot)$flip)
+
+  expect_null(corrected_scales$xmin)
+  expect_identical(corrected_scales$x, as.Date(plot_click$y, origin = "1970-01-01"))
+  expect_identical(corrected_scales$y, plot_click$x)
+
+
 })

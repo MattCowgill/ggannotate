@@ -70,47 +70,24 @@ ggannotate <- function(plot) {
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
 
-      user_input$x <- input$plot_click$x
-      user_input$y <- input$plot_click$y
 
-      # Flipped scales
-      if (isTRUE(flipped_coords)) {
-        temp_x <- user_input$x
-        temp_y <- user_input$y
-        user_input$x <- temp_y
-        user_input$y <- temp_x
-      }
+      corrected_scales <- correct_scales(input$plot_click,
+                                         axis_classes,
+                                         flipped_coords)
 
-      # Date scales
-      if (isTRUE(axis_classes$x_date)) {
-        user_input$x <- num_to_date(user_input$x)
-      }
-      if (isTRUE(axis_classes$y_date)) {
-        user_input$y <- num_to_date(user_input$y)
-      }
+      user_input$x <- corrected_scales$x
+      user_input$y <- corrected_scales$y
 
     })
 
     observeEvent(input$plot_dblclick, {
-      user_input$x_dbl <- input$plot_dblclick$x
-      user_input$y_dbl <- input$plot_dblclick$y
 
-      # Flipped scales
-      if (isTRUE(flipped_coords)) {
-        temp_x_dbl <- user_input$x_dbl
-        temp_y_dbl <- user_input$y_dbl
-        user_input$x_dbl <- temp_y_dbl
-        user_input$y_dbl <- temp_x_dbl
-      }
+      corrected_scales <- correct_scales(input$plot_dblclick,
+                                         axis_classes,
+                                         flipped_coords)
 
-      # Date scales
-      if (isTRUE(axis_classes$x_date)) {
-        user_input$x_dbl <- num_to_date(user_input$x_dbl)
-      }
-      if (isTRUE(axis_classes$y_date)) {
-        user_input$y_dbl <- num_to_date(user_input$y_dbl)
-      }
-
+      user_input$x_dbl <- corrected_scales$x
+      user_input$y_dbl <- corrected_scales$y
 
     })
 
@@ -120,34 +97,14 @@ ggannotate <- function(plot) {
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
 
-      user_input$xmin <- input$plot_brush$xmin
-      user_input$xmax <- input$plot_brush$xmax
-      user_input$ymin <- input$plot_brush$ymin
-      user_input$ymax <- input$plot_brush$ymax
+      corrected_scales <- correct_scales(input$plot_brush,
+                                         axis_classes,
+                                         flipped_coords)
 
-      # Flipped scales
-      if (isTRUE(flipped_coords)) {
-        temp_xmin <- user_input$xmin
-        temp_xmax <- user_input$xmax
-        temp_ymin <- user_input$ymin
-        temp_ymax <- user_input$ymax
-        user_input$xmin <- temp_ymin
-        user_input$xmax <- temp_ymax
-        user_input$ymin <- temp_xmin
-        user_input$ymax <- temp_xmax
-      }
-
-      # Date scales
-      if (isTRUE(axis_classes$x_date)) {
-        user_input$xmin <- num_to_date(user_input$xmin)
-        user_input$xmax <- num_to_date(user_input$xmax)
-      }
-
-      if (isTRUE(axis_classes$y_date)) {
-        user_input$ymin <- num_to_date(user_input$ymin)
-        user_input$ymax <- num_to_date(user_input$ymax)
-      }
-
+      user_input$xmin <- corrected_scales$xmin
+      user_input$xmax <- corrected_scales$xmax
+      user_input$ymin <- corrected_scales$ymin
+      user_input$ymax <- corrected_scales$ymax
 
     })
 
@@ -231,8 +188,8 @@ ggannotate <- function(plot) {
 
       aes <- list(x = user_input$x,
                   y = user_input$y,
-                  xend = user_input$xend,
-                  yend = user_input$yend,
+                  xend = user_input$x_dbl,
+                  yend = user_input$y_dbl,
                   xmin = user_input$xmin,
                   xmax = user_input$xmax,
                   ymin = user_input$ymin,
@@ -294,6 +251,7 @@ ggannotate <- function(plot) {
     })
 
     output$rendered_plot <- renderUI({
+
       size_units <- input$size_units
 
       plot_width <- paste0(input$plot_width, size_units)

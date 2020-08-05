@@ -17,7 +17,9 @@
 #'
 #' base_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
 #'
-#' my_annot_call <- make_layer("text", aes = list(x = 3, y = 30, label = "A label"), params = list(col = "orange"))
+#' my_annot_call <- make_layer("text",
+#'     aes = list(x = 3, y = 30, label = "A label"),
+#'     params = list(col = "orange"))
 #'
 #' my_annotation <- eval(my_annot_call)
 #'
