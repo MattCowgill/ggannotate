@@ -41,7 +41,7 @@ num_to_date <- function(numdate) {
 #' function corrects the date and/or flipped scales.
 #' @param input_list List; returned by Shiny on input, such as `input$plot_click`
 #' @param axis_classes List; output of `check_if_date()`
-#' @param flipped_coords List; returned by `ggplot2::summarise_coord()`
+#' @param flipped_coords Logical; returned by `ggplot2::summarise_coord()$flip`
 #' @noRd
 
 correct_scales <- function(input, axis_classes, flipped_coords) {
