@@ -73,6 +73,14 @@ ggannotate <- function(plot) {
       user_input$x <- input$plot_click$x
       user_input$y <- input$plot_click$y
 
+      # Flipped scales
+      if (isTRUE(flipped_coords)) {
+        temp_x <- user_input$x
+        temp_y <- user_input$y
+        user_input$x <- temp_y
+        user_input$y <- temp_x
+      }
+
       # Date scales
       if (isTRUE(axis_classes$x_date)) {
         user_input$x <- num_to_date(user_input$x)
@@ -81,18 +89,19 @@ ggannotate <- function(plot) {
         user_input$y <- num_to_date(user_input$y)
       }
 
-      # Flipped scales
-      if (isTRUE(flipped_coords)) {
-        temp_x <- user_input$x
-        temp_y <- user_input$y
-        user_input$x <- temp_y
-        user_input$y <- temp_x
-      }
     })
 
     observeEvent(input$plot_dblclick, {
       user_input$x_dbl <- input$plot_dblclick$x
       user_input$y_dbl <- input$plot_dblclick$y
+
+      # Flipped scales
+      if (isTRUE(flipped_coords)) {
+        temp_x_dbl <- user_input$x_dbl
+        temp_y_dbl <- user_input$y_dbl
+        user_input$x_dbl <- temp_y_dbl
+        user_input$y_dbl <- temp_x_dbl
+      }
 
       # Date scales
       if (isTRUE(axis_classes$x_date)) {
@@ -102,13 +111,7 @@ ggannotate <- function(plot) {
         user_input$y_dbl <- num_to_date(user_input$y_dbl)
       }
 
-      # Flipped scales
-      if (isTRUE(flipped_coords)) {
-        temp_x_dbl <- user_input$x_dbl
-        temp_y_dbl <- user_input$y_dbl
-        user_input$x_dbl <- temp_y_dbl
-        user_input$y_dbl <- temp_x_dbl
-      }
+
     })
 
     observeEvent(input$plot_brush, {
@@ -122,17 +125,6 @@ ggannotate <- function(plot) {
       user_input$ymin <- input$plot_brush$ymin
       user_input$ymax <- input$plot_brush$ymax
 
-      # Date scales
-      if (isTRUE(axis_classes$x_date)) {
-        user_input$xmin <- num_to_date(user_input$xmin)
-        user_input$xmax <- num_to_date(user_input$xmax)
-      }
-
-      if (isTRUE(axis_classes$y_date)) {
-        user_input$ymin <- num_to_date(user_input$ymin)
-        user_input$ymax <- num_to_date(user_input$ymax)
-      }
-
       # Flipped scales
       if (isTRUE(flipped_coords)) {
         temp_xmin <- user_input$xmin
@@ -144,6 +136,19 @@ ggannotate <- function(plot) {
         user_input$ymin <- temp_xmin
         user_input$ymax <- temp_xmax
       }
+
+      # Date scales
+      if (isTRUE(axis_classes$x_date)) {
+        user_input$xmin <- num_to_date(user_input$xmin)
+        user_input$xmax <- num_to_date(user_input$xmax)
+      }
+
+      if (isTRUE(axis_classes$y_date)) {
+        user_input$ymin <- num_to_date(user_input$ymin)
+        user_input$ymax <- num_to_date(user_input$ymax)
+      }
+
+
     })
 
 
