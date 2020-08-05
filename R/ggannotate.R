@@ -224,29 +224,22 @@ ggannotate <- function(plot) {
       )
       params_list <- params_list[names(params_list) %in% known_params]
 
-      # Set aes to NULL if they are not known by the geom
-      x <- switch("x" %in% known_aes, user_input$x, NULL)
-      y <- switch("y" %in% known_aes, user_input$y, NULL)
-      xend <- switch("xend" %in% known_aes, user_input$x_dbl, NULL)
-      yend <- switch("yend" %in% known_aes, user_input$y_dbl, NULL)
-      xmin <- switch("xmin" %in% known_aes, user_input$xmin, NULL)
-      xmax <- switch("xmax" %in% known_aes, user_input$xmax, NULL)
-      ymin <- switch("ymin" %in% known_aes, user_input$ymin, NULL)
-      ymax <- switch("ymax" %in% known_aes, user_input$ymax, NULL)
-      label <- switch("label" %in% known_aes, annot_no_esc, NULL)
+      aes <- list(x = user_input$x,
+                  y = user_input$y,
+                  xend = user_input$xend,
+                  yend = user_input$yend,
+                  xmin = user_input$xmin,
+                  xmax = user_input$xmax,
+                  ymin = user_input$ymin,
+                  ymax = user_input$ymax,
+                  label = annot_no_esc)
+
+      aes <- aes[names(aes) %in% known_aes]
 
       # Create the layer call
       layer_call <- make_layer(
         geom = geom,
-        aes = list(x = x,
-                   y = y,
-                   xend = xend,
-                   yend = yend,
-                   xmin = xmin,
-                   xmax = xmax,
-                   ymin = ymin,
-                   ymax = ymax,
-                   label = label),
+        aes = aes,
         facet_vars = user_input$facet_vars,
         facet_levels = user_input$facet_levels,
         params = params_list
