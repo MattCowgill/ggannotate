@@ -49,7 +49,7 @@ test_base_list <- list(
 
 test_that("plot with no facets treated as expected", {
 
-  facets <- plot_facets(test_base_list)
+  facets <- get_facets(test_base_list)
 
   expect_is(facets, "list")
 
@@ -72,7 +72,7 @@ test_that("plot with regular facet names treated as expected", {
   test_list_facets$mapping$panelvar1 <- "carb"
   test_list_facets$mapping$panelvar2 <- "cyl"
 
-  facets <- plot_facets(test_list_facets)
+  facets <- get_facets(test_list_facets)
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -96,7 +96,7 @@ test_that("plot with 'factor' in name treated as expected", {
   test_list_facets$mapping$panelvar1 <- "carb"
   test_list_facets$mapping$panelvar2 <- "factor(cyl)"
 
-  facets <- plot_facets(test_list_facets)
+  facets <- get_facets(test_list_facets)
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -124,7 +124,7 @@ test_that("factor transformation in facet call treated as expected", {
   test_list_facets$mapping$panelvar1 <- "carb"
   test_list_facets$mapping$panelvar2 <- "factor(cyl, levels = c(2, 4, 6, 8))"
 
-  facets <- plot_facets(test_list_facets)
+  facets <- get_facets(test_list_facets)
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -154,7 +154,7 @@ test_that("factor in raw data for faceting recognised", {
   test_list_facets$mapping$panelvar1 <- "carb"
   test_list_facets$mapping$panelvar2 <- "cyl"
 
-  facets <- plot_facets(test_list_facets)
+  facets <- get_facets(test_list_facets)
 
   expect_type(facets, "list")
   expect_length(facets, 2)

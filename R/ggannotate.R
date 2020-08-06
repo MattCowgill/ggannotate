@@ -65,7 +65,7 @@ ggannotate <- function(plot) {
     axis_classes <- check_if_date(built_base_plot)
 
     observeEvent(input$plot_click, {
-      facets <- plot_facets(input$plot_click)
+      facets <- get_facets(input$plot_click)
       facets <- correct_facets(facets, built_base_plot)
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
@@ -92,7 +92,7 @@ ggannotate <- function(plot) {
     })
 
     observeEvent(input$plot_brush, {
-      facets <- plot_facets(input$plot_brush)
+      facets <- get_facets(input$plot_brush)
       facets <- correct_facets(facets, built_base_plot)
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels

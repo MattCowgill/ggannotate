@@ -3,7 +3,7 @@
 #' click location
 #' @noRd
 
-plot_facets <- function(plot_click) {
+get_facets <- function(plot_click) {
 
   is_panel_var <- grepl("panelvar", names(plot_click), fixed = TRUE)
 
@@ -24,10 +24,10 @@ plot_facets <- function(plot_click) {
 #' +facet_wrap(~factor(cyl)). We instead want to return "cyl", but where the
 #' faceted variable is a factor, we want the variable in the dataframe returned
 #' by ggannoate to be a factor as well. This function takes the clicked facets
-#' (input$click modified by ggannotate::plot_facets()) and the corresponding
+#' (input$click modified by ggannotate::get_facets()) and the corresponding
 #' built plot and returns facets ready to be included in ggannotate's output
 #' @importFrom purrr compact
-#' @param clicked_facets list returned by plot_facets()
+#' @param clicked_facets list returned by get_facets()
 #' @param built_plot ggplot built with ggplot2::ggplot_build()
 correct_facets <- function(clicked_facets, built_plot) {
   plot_facets <- list(built_plot$layout$facet_params$rows,
@@ -37,9 +37,9 @@ correct_facets <- function(clicked_facets, built_plot) {
   plot_facets <- purrr::compact(plot_facets)
   plot_facets <- unlist(plot_facets)
 
-
-  facet_data <- ggann_eval_facets(plot_facets, built_plot$plot$data)
   plot_data <- built_plot$plot$data
+
+  facet_data <- ggann_eval_facets(plot_facets, plot_data)
 
   matched_facets <- match_facet(facet_data, plot_data)
 
@@ -87,10 +87,10 @@ match_facet <- function(facet_data, plot_data) {
   out
 }
 
-#' This function is a copy of ggplot2:::eval_facet()
+#' This function is a modified copy of ggplot2:::eval_facet()
 #' Copied here as that function is non-exported
 #' @noRd
-ggann_eval_facet <- function(facet, data, possible_columns = NULL) {
+ggann_eval_facet <- function(facet, data) {
   if (rlang::quo_is_symbol(facet)) {
     facet <- as.character(rlang::quo_get_expr(facet))
     if (facet %in% names(data)) {
@@ -102,19 +102,15 @@ ggann_eval_facet <- function(facet, data, possible_columns = NULL) {
     return(out)
   }
   env <- rlang::new_environment(data)
-  missing_columns <- setdiff(possible_columns, names(data))
-  undefined_error <- function(e) rlang::abort("", class = "ggplot2_missing_facet_var")
-  bindings <- rlang::rep_named(missing_columns, list(undefined_error))
-  rlang::env_bind_active(env, !!!bindings)
   mask <- rlang::new_data_mask(env)
   mask$.data <- rlang::as_data_pronoun(mask)
   tryCatch(rlang::eval_tidy(facet, mask), ggplot2_missing_facet_var = function(e) NULL)
 }
 
-#' This function is a copy of ggplot2:::eval_facets()
+#' This function is a modified copy of ggplot2:::eval_facets()
 #' Copied here as that function is non-exported
 #' @noRd
-ggann_eval_facets <- function(facets, data, possible_columns = NULL) {
-  vars <- purrr::compact(lapply(facets, ggann_eval_facet, data, possible_columns = possible_columns))
+ggann_eval_facets <- function(facets, data) {
+  vars <- purrr::compact(lapply(facets, ggann_eval_facet, data))
   vctrs::new_data_frame(tibble::as_tibble(vars))
 }
