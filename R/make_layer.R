@@ -52,7 +52,7 @@ make_layer <- function(geom,
   date_call <- function(arg) {
     if (inherits(arg, "Date")) {
       arg <- as.character(arg)
-      arg <- rlang::call2("as.Date", arg)
+      arg <- call("as.Date", arg)
     }
     arg
   }
@@ -62,7 +62,6 @@ make_layer <- function(geom,
   if (isFALSE(missing(facet_vars))) {
     facet_levels <- as.list(facet_levels)
     facets <- setNames(facet_levels, facet_vars)
-    facets <- purrr::compact(facets)
     data_cols <- c(data_cols, facets)
   }
 

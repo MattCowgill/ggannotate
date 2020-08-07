@@ -18,7 +18,9 @@ remove_default_params <- function(geom_as_string, params) {
 
   default_params <- get_param_defaults(geom_as_string)
 
-  for (param in names(params)) {
+  param_names <- names(params)
+
+  for (param in param_names) {
     # Note: using all.equal() rather than identical() because we want to
     # treat integers and doubles as being equal
     if (isTRUE(all.equal(params[[param]], default_params[[param]]))) {
