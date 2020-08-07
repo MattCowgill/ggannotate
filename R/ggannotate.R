@@ -58,97 +58,56 @@ ggannotate <- function(plot) {
 
     user_input <- reactiveValues()
 
-    flipped_coords <- reactive({
-      ggplot2::summarise_coord(built_base_plot)$flip
-    })
+    # Check whether axes are flipped
+    flipped_coords <- ggplot2::summarise_coord(built_base_plot)$flip
+
+    # Check whether axes are dates
+    axis_classes <- check_if_date(built_base_plot)
 
     observeEvent(input$plot_click, {
-      facets <- plot_facets(input$plot_click)
-      # facets <- strip_facet_brackets(facets, built_base_plot)
+      facets <- get_facets(input$plot_click)
       facets <- correct_facets(facets, built_base_plot)
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
-    })
 
-    observeEvent(input$plot_click, {
-      user_input$x <- input$plot_click$x
-      user_input$y <- input$plot_click$y
 
-      # Date scales
-      if (isTRUE(axis_classes()$x_date)) {
-        user_input$x <- as.Date(user_input$x, origin = "1970-01-01")
-      }
-      if (isTRUE(axis_classes()$y_date)) {
-        user_input$y <- as.Date(user_input$y, origin = "1970-01-01")
-      }
+      corrected_scales <- correct_scales(input$plot_click,
+                                         axis_classes,
+                                         flipped_coords)
 
-      # Flipped scales
-      if (isTRUE(flipped_coords())) {
-        temp_x <- user_input$x
-        temp_y <- user_input$y
-        user_input$x <- temp_y
-        user_input$y <- temp_x
-      }
+      user_input$x <- corrected_scales$x
+      user_input$y <- corrected_scales$y
+
     })
 
     observeEvent(input$plot_dblclick, {
-      user_input$x_dbl <- input$plot_dblclick$x
-      user_input$y_dbl <- input$plot_dblclick$y
 
-      # Date scales
-      if (isTRUE(axis_classes()$x_date)) {
-        user_input$x_dbl <- as.Date(user_input$x_dbl, origin = "1970-01-01")
-      }
-      if (isTRUE(axis_classes()$y_date)) {
-        user_input$y_dbl <- as.Date(user_input$y_dbl, origin = "1970-01-01")
-      }
+      corrected_scales <- correct_scales(input$plot_dblclick,
+                                         axis_classes,
+                                         flipped_coords)
 
-      # Flipped scales
-      if (isTRUE(flipped_coords())) {
-        temp_x_dbl <- user_input$x_dbl
-        temp_y_dbl <- user_input$y_dbl
-        user_input$x_dbl <- temp_y_dbl
-        user_input$y_dbl <- temp_x_dbl
-      }
+      user_input$x_dbl <- corrected_scales$x
+      user_input$y_dbl <- corrected_scales$y
+
     })
 
     observeEvent(input$plot_brush, {
-      user_input$xmin <- input$plot_brush$xmin
-      user_input$xmax <- input$plot_brush$xmax
-      user_input$ymin <- input$plot_brush$ymin
-      user_input$ymax <- input$plot_brush$ymax
+      facets <- get_facets(input$plot_brush)
+      facets <- correct_facets(facets, built_base_plot)
+      user_input$facet_vars <- facets$vars
+      user_input$facet_levels <- facets$levels
 
-      # Date scales
-      if (isTRUE(axis_classes()$x_date)) {
-        user_input$xmin <- as.Date(user_input$xmin, origin = "1970-01-01")
-      }
-      if (isTRUE(axis_classes()$x_date)) {
-        user_input$xmax <- as.Date(user_input$xmax, origin = "1970-01-01")
-      }
-      if (isTRUE(axis_classes()$y_date)) {
-        user_input$ymin <- as.Date(user_input$ymin, origin = "1970-01-01")
-      }
-      if (isTRUE(axis_classes()$y_date)) {
-        user_input$ymax <- as.Date(user_input$ymax, origin = "1970-01-01")
-      }
+      corrected_scales <- correct_scales(input$plot_brush,
+                                         axis_classes,
+                                         flipped_coords)
 
-      # Flipped scales
-      if (isTRUE(flipped_coords())) {
-        temp_xmin <- user_input$xmin
-        temp_xmax <- user_input$xmax
-        temp_ymin <- user_input$ymin
-        temp_ymax <- user_input$ymax
-        user_input$xmin <- temp_ymin
-        user_input$xmax <- temp_ymax
-        user_input$ymin <- temp_xmin
-        user_input$ymax <- temp_xmax
-      }
+      user_input$xmin <- corrected_scales$xmin
+      user_input$xmax <- corrected_scales$xmax
+      user_input$ymin <- corrected_scales$ymin
+      user_input$ymax <- corrected_scales$ymax
+
     })
 
-    # Check whether axes are dates
-    axis_classes <- reactive({
-      check_if_date(built_base_plot)
-    })
 
     params_list <- reactive({
       user_arrow <- safe_arrow(
@@ -227,29 +186,22 @@ ggannotate <- function(plot) {
       )
       params_list <- params_list[names(params_list) %in% known_params]
 
-      # Set aes to NULL if they are not known by the geom
-      x <- switch("x" %in% known_aes, user_input$x, NULL)
-      y <- switch("y" %in% known_aes, user_input$y, NULL)
-      xend <- switch("xend" %in% known_aes, user_input$x_dbl, NULL)
-      yend <- switch("yend" %in% known_aes, user_input$y_dbl, NULL)
-      xmin <- switch("xmin" %in% known_aes, user_input$xmin, NULL)
-      xmax <- switch("xmax" %in% known_aes, user_input$xmax, NULL)
-      ymin <- switch("ymin" %in% known_aes, user_input$ymin, NULL)
-      ymax <- switch("ymax" %in% known_aes, user_input$ymax, NULL)
-      label <- switch("label" %in% known_aes, annot_no_esc, NULL)
+      aes <- list(x = user_input$x,
+                  y = user_input$y,
+                  xend = user_input$x_dbl,
+                  yend = user_input$y_dbl,
+                  xmin = user_input$xmin,
+                  xmax = user_input$xmax,
+                  ymin = user_input$ymin,
+                  ymax = user_input$ymax,
+                  label = annot_no_esc)
+
+      aes <- aes[names(aes) %in% known_aes]
 
       # Create the layer call
       layer_call <- make_layer(
         geom = geom,
-        x = x,
-        y = y,
-        xend = xend,
-        yend = yend,
-        xmin = xmin,
-        xmax = xmax,
-        ymin = ymin,
-        ymax = ymax,
-        label = label,
+        aes = aes,
         facet_vars = user_input$facet_vars,
         facet_levels = user_input$facet_levels,
         params = params_list
@@ -299,6 +251,7 @@ ggannotate <- function(plot) {
     })
 
     output$rendered_plot <- renderUI({
+
       size_units <- input$size_units
 
       plot_width <- paste0(input$plot_width, size_units)

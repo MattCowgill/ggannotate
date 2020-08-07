@@ -6,6 +6,6 @@
 call_to_string <- function(call) {
   x <- rlang::expr_text(call)
   x <- stringr::str_squish(x)
-  x <- stringr::str_replace_all(x, "\\), ", "\\),\n")
+  x <- gsub("\\), ", "\\),\n", x)
   x
 }

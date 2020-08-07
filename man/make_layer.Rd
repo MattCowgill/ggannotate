@@ -8,41 +8,17 @@ Can handle limiting annotations to (specified) facet level(s)}
 \usage{
 make_layer(
   geom,
-  x = NULL,
-  y = NULL,
-  xend = NULL,
-  yend = NULL,
-  xmin = NULL,
-  xmax = NULL,
-  ymin = NULL,
-  ymax = NULL,
-  label = NULL,
+  aes = NULL,
   params = NULL,
   facet_vars = NULL,
-  facet_levels = NULL,
-  ...
+  facet_levels = NULL
 )
 }
 \arguments{
 \item{geom}{Geom to annotate, such as "text".}
 
-\item{x}{Variable to map to x aesthetic}
-
-\item{y}{Variable to map to y aesthetic}
-
-\item{xend}{Variable to map to xend (such as for `geom_curve`)}
-
-\item{yend}{Variable to map to yend (such as for `geom_curve`)}
-
-\item{xmin}{Variable to map to xmin aesthetic (such as for `geom_rect`)}
-
-\item{xmax}{Variable to map to xmax aesthetic (such as for `geom_rect`)}
-
-\item{ymin}{Variable to map to ymin aesthetic (such as for `geom_rect`)}
-
-\item{ymax}{Variable to map to ymax aesthetic (such as for `geom_rect`)}
-
-\item{label}{Variable to use as label (such as for `geom_text`)}
+\item{aes}{List of aesthetics with corresponding data values, as in
+`list(x = 3, y = 30, label = "A label")`.}
 
 \item{params}{List of parameters for geom, such as `list(colour = "black")`}
 
@@ -51,11 +27,26 @@ such as list("cyl").}
 
 \item{facet_levels}{List. The levels of variables you wish to annotation, such
 as list(4).}
-
-\item{...}{Additional aesthetics you wish to pass to geom}
+}
+\value{
+A call
 }
 \description{
 Generate a call to ggplot2::layer() given some aesthetics and parameters
 Based on ggplot2::annotate()
 Can handle limiting annotations to (specified) facet level(s)
+}
+\examples{
+library(ggplot2)
+
+base_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+
+my_annot_call <- make_layer("text",
+    aes = list(x = 3, y = 30, label = "A label"),
+    params = list(col = "orange"))
+
+my_annotation <- eval(my_annot_call)
+
+base_plot + my_annotation
+
 }

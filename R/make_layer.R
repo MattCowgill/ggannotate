@@ -3,21 +3,27 @@
 #' Can handle limiting annotations to (specified) facet level(s)
 #'
 #' @param geom Geom to annotate, such as "text".
-#' @param x Variable to map to x aesthetic
-#' @param y Variable to map to y aesthetic
-#' @param xend Variable to map to xend (such as for `geom_curve`)
-#' @param yend Variable to map to yend (such as for `geom_curve`)
-#' @param xmin Variable to map to xmin aesthetic (such as for `geom_rect`)
-#' @param xmax Variable to map to xmax aesthetic (such as for `geom_rect`)
-#' @param ymin Variable to map to ymin aesthetic (such as for `geom_rect`)
-#' @param ymax Variable to map to ymax aesthetic (such as for `geom_rect`)
-#' @param label Variable to use as label (such as for `geom_text`)
+#' @param aes List of aesthetics with corresponding data values, as in
+#' `list(x = 3, y = 30, label = "A label")`.
 #' @param params List of parameters for geom, such as `list(colour = "black")`
 #' @param facet_vars List. The names of variables used to facet the plot,
 #' such as list("cyl").
 #' @param facet_levels List. The levels of variables you wish to annotation, such
 #' as list(4).
-#' @param ... Additional aesthetics you wish to pass to geom
+#' @return A call
+#'
+#' @examples
+#' library(ggplot2)
+#'
+#' base_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+#'
+#' my_annot_call <- make_layer("text",
+#'     aes = list(x = 3, y = 30, label = "A label"),
+#'     params = list(col = "orange"))
+#'
+#' my_annotation <- eval(my_annot_call)
+#'
+#' base_plot + my_annotation
 #'
 #' @export
 #'
@@ -29,55 +35,35 @@
 #' @importFrom stats setNames
 
 make_layer <- function(geom,
-                       x = NULL,
-                       y = NULL,
-                       xend = NULL,
-                       yend = NULL,
-                       xmin = NULL,
-                       xmax = NULL,
-                       ymin = NULL,
-                       ymax = NULL,
-                       label = NULL,
+                       aes = NULL,
                        params = NULL,
                        facet_vars = NULL,
-                       facet_levels = NULL,
-                       ...) {
-  aesthetics <- purrr::compact(list(
-    x = x, y = y,
-    xend = xend, yend = yend,
-    xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax,
-    label = label
-  ))
+                       facet_levels = NULL) {
 
-  aesthetics <- c(aesthetics, list(...))
-  aesthetics <- rlang::syms(names(aesthetics))
+  compact_aes <- purrr::compact(aes)
+
+  aesthetics <- rlang::syms(names(compact_aes))
   names(aesthetics) <- aesthetics
   aes_call <- rlang::call2("aes", !!!aesthetics)
 
-  data_cols <- list(
-    x = x, y = y,
-    xend = xend, yend = yend,
-    xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax,
-    label = label
-  )
+  data_cols <- compact_aes
 
   # Dates
   date_call <- function(arg) {
     if (inherits(arg, "Date")) {
       arg <- as.character(arg)
-      arg <- rlang::call2("as.Date", arg)
+      arg <- call("as.Date", arg)
     }
     arg
   }
-  data_cols <- purrr::map(data_cols, date_call)
+  data_cols <- lapply(data_cols, date_call)
 
   # Facets
-  facet_levels <- as.list(facet_levels)
-  facets <- setNames(facet_levels, facet_vars)
-
-  # Combine data and facets
-  data_cols <- c(data_cols, facets)
-  data_cols <- purrr::compact(data_cols)
+  if (isFALSE(missing(facet_vars))) {
+    facet_levels <- as.list(facet_levels)
+    facets <- setNames(facet_levels, facet_vars)
+    data_cols <- c(data_cols, facets)
+  }
 
   data_call <- rlang::call2("data.frame", !!!data_cols)
 

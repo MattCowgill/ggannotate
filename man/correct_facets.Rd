@@ -7,13 +7,13 @@ this includes (eg.) "factor(cyl)" when the plot includes
 +facet_wrap(~factor(cyl)). We instead want to return "cyl", but where the
 faceted variable is a factor, we want the variable in the dataframe returned
 by ggannoate to be a factor as well. This function takes the clicked facets
-(input$click modified by ggannotate::plot_facets()) and the corresponding
+(input$click modified by ggannotate::get_facets()) and the corresponding
 built plot and returns facets ready to be included in ggannotate's output}
 \usage{
 correct_facets(clicked_facets, built_plot)
 }
 \arguments{
-\item{clicked_facets}{list returned by plot_facets()}
+\item{clicked_facets}{list returned by get_facets()}
 
 \item{built_plot}{ggplot built with ggplot2::ggplot_build()}
 }
@@ -23,6 +23,6 @@ this includes (eg.) "factor(cyl)" when the plot includes
 +facet_wrap(~factor(cyl)). We instead want to return "cyl", but where the
 faceted variable is a factor, we want the variable in the dataframe returned
 by ggannoate to be a factor as well. This function takes the clicked facets
-(input$click modified by ggannotate::plot_facets()) and the corresponding
+(input$click modified by ggannotate::get_facets()) and the corresponding
 built plot and returns facets ready to be included in ggannotate's output
 }
