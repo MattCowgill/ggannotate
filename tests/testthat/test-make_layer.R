@@ -1,6 +1,5 @@
 library(ggplot2)
 library(vdiffr)
-library(tibble)
 
 base_plot <- ggplot(
   mtcars,
@@ -48,8 +47,12 @@ test_that("make_layer works with a single facet", {
 })
 
 # Flipped bar chart -----
-flipped_bar_base <- mtcars %>%
-  rownames_to_column("car") %>%
+
+mtcars_with_rownames <- mtcars
+mtcars_with_rownames$car <- rownames(mtcars)
+
+
+flipped_bar_base <- mtcars_with_rownames %>%
   ggplot(aes(
     x = reorder(car, mpg),
     y = mpg,

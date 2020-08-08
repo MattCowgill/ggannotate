@@ -77,11 +77,14 @@ match_facet <- function(facet_data, plot_data) {
   facet_data_cols <- colnames(facet_data)
   plot_data_cols <- colnames(plot_data)
 
-  col_combinations <- tidyr::crossing(facet_data_cols, plot_data_cols)
+  col_combinations <- expand.grid(facet_data_cols = facet_data_cols,
+                                  plot_data_cols = plot_data_cols,
+                                  stringsAsFactors = FALSE)
 
   out <- purrr::map2(col_combinations$facet_data_cols,
                      col_combinations$plot_data_cols,
                      get_match)
+
   out <- purrr::compact(out)
   out <- purrr::transpose(out)
   out
@@ -112,5 +115,5 @@ ggann_eval_facet <- function(facet, data) {
 #' @noRd
 ggann_eval_facets <- function(facets, data) {
   vars <- purrr::compact(lapply(facets, ggann_eval_facet, data))
-  vctrs::new_data_frame(tibble::as_tibble(vars))
+  dplyr::as_tibble(vars)
 }
