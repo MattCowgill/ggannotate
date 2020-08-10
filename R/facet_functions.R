@@ -117,3 +117,66 @@ ggann_eval_facets <- function(facets, data) {
   vars <- purrr::compact(lapply(facets, ggann_eval_facet, data))
   dplyr::as_tibble(vars)
 }
+
+correct_facet_var <- function(facet_var, built_plot) {
+  stopifnot(inherits(built_plot, "ggplot_built"))
+
+  plot_data <- built_plot$plot$data
+
+  # If the string facet name can be uniquely matched to the colnames of the
+  # plot data, we don't need to do anything to the facet name
+  if (!is.null(plot_data[[facet_var]])) {
+    matched_facet_var <- facet_var
+
+  # If the facet name cannot be matched, evaluate the facet and then see if the
+  # data corresponding to the facet column can be matched to the plot data
+  } else {
+    facet_quos <- get_facet_quos(built_plot)
+    facet_quo <- facet_quos[[facet_var]]
+    facet_data_col <- ggann_eval_facet(facet_quo, plot_data)
+
+    matching_cols <- dplyr::select(plot_data,
+                            tidyselect::vars_select_helpers$where(function(x) all(x == facet_data_col)))
+
+    if (ncol(matching_cols) == 1) {
+      matched_facet_var <- names(matching_cols)
+    } else if (ncol(matching_cols) < 1) {
+      stop("facet var could not be matched to the plot data")
+    } else {
+      #stop("more than one column in the plot data matches the facet var")
+
+      var_between_brackets <- sub("^.*?\\((.*)\\)[^)]*$", "\\1", facet_var)
+
+
+      if (is.null(plot_data[[var_between_brackets]])) {
+        stop("facet variable ",facet_var,
+             " could not be found"," in the plot data")
+      }
+      matched_facet_var <- var_between_brackets
+    }
+  }
+  matched_facet_var
+}
+
+correct_facet_class <- function(facet_var, facet_level, plot_data) {
+
+  if (inherits(plot_data[[facet_var]], "factor")) {
+    call("factor", facet_level)
+  } else {
+    facet_level
+  }
+
+}
+
+
+get_facet_quos <- function(built_plot) {
+  plot_facets <- list(built_plot$layout$facet_params$rows,
+                      built_plot$layout$facet_params$cols,
+                      built_plot$layout$facet_params$facets)
+
+  plot_facets <- purrr::compact(plot_facets)
+  unlist(plot_facets)
+}
+
+
+

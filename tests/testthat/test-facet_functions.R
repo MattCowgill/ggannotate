@@ -172,14 +172,81 @@ test_that("factor in raw data for faceting recognised", {
 
 })
 
-# list_with_facets <- test_base_list
-#
-# list_with_facets$panelvar1 =
-#
-#   expect_equal(facets$levels,
-#                list(panelvar1 = 6,
-#                     panelvar2 = 0))
-#
-# expect_equal(facets$vars,
-#              list(panelvar1 = "carb",
-#                   panelvar2 = "cyl"))
+### Test correct_facet_var ---
+
+test_that("correct_facet_var() handles normally-specified factors", {
+  regular_facet_plot <- test_base_plot +
+    facet_wrap(~cyl)
+
+  expect_identical(correct_facet_var("cyl", ggplot_build(regular_facet_plot)),
+                   "cyl")
+
+  facet_grid_plot <- test_base_plot +
+    facet_grid(rows = "cyl")
+
+  expect_identical(correct_facet_var("cyl", ggplot_build(facet_grid_plot)),
+                   "cyl")
+
+  facet_grid_plot_2 <- test_base_plot +
+    facet_grid(cols = vars(cyl))
+
+  expect_identical(correct_facet_var("cyl", ggplot_build(facet_grid_plot_2)),
+                   "cyl")
+
+})
+
+test_that("correct_facet_var() deals with other facets", {
+
+  factor_facet <- test_base_plot +
+    facet_wrap(~factor(cyl))
+
+  expect_identical(correct_facet_var("factor(cyl)", ggplot_build(factor_facet)),
+                   "cyl")
+
+  mtcars_2 <- mtcars
+  mtcars_2$cyl2 <- mtcars$cyl
+
+  double_var_plot <- ggplot(mtcars_2, aes(x = wt, y = mpg)) +
+    geom_point() +
+    facet_wrap(~cyl)
+
+  expect_identical(correct_facet_var("cyl", ggplot_build(double_var_plot)),
+                   "cyl")
+
+  double_var_plot <- ggplot(mtcars_2, aes(x = wt, y = mpg)) +
+    geom_point() +
+    facet_wrap(~factor(cyl))
+
+  expect_identical(correct_facet_var("factor(cyl)", ggplot_build(double_var_plot)),
+                   "cyl")
+
+  double_var_plot <- ggplot(mtcars_2, aes(x = wt, y = mpg)) +
+    geom_point() +
+    facet_wrap(~factor(cyl, levels = c("8", "6", "4")))
+
+  expect_error(correct_facet_var('factor(cyl, levels = c("8", "6", "4")',
+                                     ggplot_build(double_var_plot)))
+
+})
+
+test_that("correct_facet_class() returns a call to factor() when var is factor", {
+  mtcars2 <- mtcars
+  mtcars2$cyl2 <- factor(mtcars$cyl)
+
+  expect_type(correct_facet_class("cyl", 6, mtcars2),
+              "double")
+
+  expect_identical(
+    correct_facet_class("cyl", 6, mtcars2),
+    6
+  )
+
+  expect_type(correct_facet_class("cyl2", 6, mtcars2),
+              "language")
+
+
+  expect_identical(correct_facet_class("cyl2", 6, mtcars2),
+                   call("factor", 6))
+
+
+})
