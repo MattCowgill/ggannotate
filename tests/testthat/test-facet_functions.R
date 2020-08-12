@@ -234,3 +234,46 @@ test_that("factor with multiple matching columns works/fails as expected", {
   expect_error(correct_facets(facets, ggplot2::ggplot_build(facet_plot)))
 
 })
+
+test_that("character facets + facet_grid() works", {
+  facet1 <- "gear"
+  facet2 <- "factor(cyl)"
+
+  base_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+    geom_point()
+
+  p <- base_plot +
+    facet_wrap(c(facet1, facet2))
+
+  built_plot <- ggplot_build(p)
+
+  plot_click <- list(
+    panelvar1 = 3,
+    panelvar2 = 6,
+    mapping = list(panelvar1 = facet1,
+                   panelvar2 = facet2)
+  )
+
+  facets <- get_facets(plot_click)
+  corrected_facets <- correct_facets(facets, built_plot)
+
+  expect_identical(corrected_facets$vars$panelvar2, "cyl")
+  expect_identical(eval(corrected_facets$levels$panelvar2),
+                   factor(6))
+
+  p <- base_plot +
+    facet_grid(rows = vars(gear),
+               cols = vars(factor(cyl)))
+
+  built_plot <- ggplot_build(p)
+  facets <- get_facets(plot_click)
+  corrected_facets <- correct_facets(facets, built_plot)
+
+  expect_identical(corrected_facets$levels$panelvar1, 3)
+  expect_identical(corrected_facets$vars$panelvar2, "cyl")
+  expect_identical(eval(corrected_facets$levels$panelvar2),
+                   factor(6))
+
+})
+
+
