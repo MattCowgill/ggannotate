@@ -24,45 +24,76 @@ get_facets <- function(plot_click) {
 #' when the plot includes +facet_wrap(~factor(cyl)).
 #' We instead want to return "cyl". Where the faceted variable is a factor,
 #' we want the variable in the dataframe returned
-#' by ggannoate to be a factor as well. This function takes the clicked facets
-#' (eg. `input$click` modified by `ggannotate::get_facets()`) and the
-#' corresponding built plot and returns a list of facets ready to be
-#' included in ggannotate's output.
-#' @param facets list returned by `get_facets()`
-#' @param built_plot ggplot built with `ggplot2::ggplot_build()`
+#' by ggannoate to be a factor as well. This function helps us do that.
+#'
+#' This function returns a list with one
+#' element per facet. Each element of the list is a list with three elements:
+#' 'facet_name' is the string name of the facet (such as "factor(cyl)"),
+#' 'data_name' is the name of the column from the data that facet_name refers to
+#' (such as "cyl"), and 'facet_factor' is a logical, TRUE if the column is a
+#' factor.
+#' @param built_plot a ggplot2 plot built with `ggplot2::ggplot_built()`
 #' @noRd
-correct_facets <- function(facets, built_plot) {
-  facets_out <- facets
+get_facet_characteristics <- function(built_plot) {
   facets_quos <- get_facet_quos(built_plot)
+  facets_names <- names(facets_quos)
+
   plot_data <- built_plot$plot$data
 
   facets_data <- lapply(facets_quos,
                         ggann_eval_facet,
                         data = plot_data)
 
-  for (panelvar in names(facets$vars)) {
+  facets_out <- list()
 
-    facet <- facets$vars[[panelvar]]
-    facet_data <- facets_data[[facet]]
+  for (facet_name in facets_names) {
+    facet_data <- facets_data[[facet_name]]
 
     # Attempt to get matching facet names (eg. 'cyl' rather than 'factor(cyl)')
     # for facets that are not found in the colnames of the data
-    if (!facet %in% names(plot_data)) {
-      facets_out$vars[[panelvar]] <- match_facet_var(facet,
-                                                     facet_data,
-                                                     plot_data)
+    if (!facet_name %in% names(plot_data)) {
+      data_name <- match_facet_var(facet_name,
+                                   facet_data,plot_data)
+    } else {
+      data_name <- facet_name
     }
 
     # Where facet is a factor, the level should be 'factor(x)' rather than 'x'
-    facet_factor <- inherits(facets_data[[facet]], "factor")
-    if (isTRUE(facet_factor)) {
-      facets_out$levels[[panelvar]] <- call("factor",
-                                            facets$levels[[panelvar]])
-    }
+    facet_factor <- inherits(facets_data[[facet_name]], "factor")
+
+    facet_list <- list(facet = list(facet_name = facet_name,
+                                    data_name = data_name,
+                                    facet_factor = facet_factor))
+
+    names(facet_list) <- facet_name
+
+    facets_out <- c(facets_out, facet_list)
   }
 
   facets_out
+}
 
+#' @param clicked_facets A list returned by `get_facets()`
+#' @param facet_characteristics A list returned by `get_facet_characteristics()`
+#' @noRd
+correct_facets <- function(clicked_facets, facet_characteristics) {
+  facets_out <- clicked_facets
+
+  if (length(clicked_facets$vars) > 0) {
+    for (panelvar in names(clicked_facets$vars)) {
+      facet_name <- clicked_facets$vars[[panelvar]]
+
+      facets_out$vars[[panelvar]] <- facet_characteristics[[facet_name]]$data_name
+
+      facet_factor <- facet_characteristics[[facet_name]]$facet_factor
+
+      if (isTRUE(facet_factor)) {
+        facets_out$levels[[panelvar]] <- call("factor",
+                                              facets_out$levels[[panelvar]])
+      }
+    }
+  }
+  facets_out
 }
 
 
@@ -109,7 +140,8 @@ get_facet_quos <- function(built_plot) {
 #' @noRd
 
 match_facet_var <- function(facet, facet_data, plot_data) {
-    matching_cols <- purrr::map_lgl(plot_data, function(x) all(x == facet_data))
+    matching_cols <- purrr::map_lgl(plot_data,
+                                    function(x) all(as.character(x) == as.character(facet_data)))
 
     matching_cols <- matching_cols[matching_cols == TRUE]
 
@@ -117,20 +149,33 @@ match_facet_var <- function(facet, facet_data, plot_data) {
       # Unique match, return the name of the matching data column
       matched_facet_var <- names(matching_cols)
 
-    } else if (length(matching_cols) < 1) {
-      stop("facet variable `", facet,
-           "` could not be found in the plot data")
+    # } else if (length(matching_cols) < 1) {
+    #   stop("facet variable `", facet,
+    #        "` could not be found in the plot data")
 
       # More than 1 match in the data, try and resolve if possible
     } else {
+      # First strip brackets, so that eg. 'factor(cyl)' becomes 'cyl' and
+      # look for matches
       var_between_brackets <- sub("^.*?\\((.*)\\)[^)]*$", "\\1", facet)
 
-      if (!var_between_brackets %in% names(matching_cols)) {
-        stop("facet variable `", facet,
-             "` could not be found in the plot data")
+      if (!var_between_brackets %in% names(plot_data)) {
+        # Now look before commas, so that 'factor(cyl, levels = c(1, 2, 3))
+        # becomes 'cyl' and look for matches
+        var_before_comma <- sub(",.*", "\\1", var_between_brackets)
+
+        if (!var_before_comma %in% names(plot_data)) {
+          stop("facet variable `", facet,
+               "` could not be found in the plot data")
+        }
+
+        matched_facet_var <- var_before_comma
+      } else {
+        matched_facet_var <- var_between_brackets
       }
-      matched_facet_var <- var_between_brackets
+
     }
 
   matched_facet_var
 }
+

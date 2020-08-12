@@ -44,6 +44,33 @@ test_base_list <- list(
   )
 )
 
+test_that("get_facet_characteristics() returns expected output", {
+  p1 <- ggplot(economics, aes(x = date, y = unemploy)) + geom_line()
+
+  expect_length(get_facet_characteristics(ggplot_build(p1)), 0)
+
+  p2 <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+
+  expect_length(get_facet_characteristics(ggplot_build(p2)), 0)
+
+  p3 <- p2 + facet_wrap(~cyl)
+
+  p3_char <- get_facet_characteristics(ggplot_build(p3))
+
+  expect_type(p3_char, "list")
+  expect_length(p3_char, 1)
+  expect_identical(names(p3_char), "cyl")
+
+  p4 <- p2 + facet_grid(rows = vars(cyl), cols = vars(factor(mpg)))
+
+  p4_char <- get_facet_characteristics(ggplot_build(p4))
+
+  expect_type(p4_char, "list")
+  expect_length(p4_char, 2)
+  expect_identical(names(p4_char), c("cyl", "factor(mpg)"))
+  expect_false(p4_char$cyl$facet_factor)
+  expect_true(p4_char$`factor(mpg)`$facet_factor)
+})
 
 
 
@@ -78,7 +105,8 @@ test_that("plot with regular facet names treated as expected", {
   expect_length(facets, 2)
   expect_identical(facets$vars$panelvar2, "cyl")
 
-  facets <- correct_facets(facets, ggplot2::ggplot_build(facet_plot))
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
+  facets <- correct_facets(facets, facet_characteristics)
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -97,6 +125,7 @@ test_that("plot with 'factor' in name treated as expected", {
   test_list_facets$mapping$panelvar2 <- "factor(cyl)"
 
   facets <- get_facets(test_list_facets)
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -104,7 +133,7 @@ test_that("plot with 'factor' in name treated as expected", {
   expect_identical(facets$levels$panelvar2, 3)
   expect_type(facets$levels$panelvar2, "double")
 
-  facets <- correct_facets(facets, ggplot2::ggplot_build(facet_plot))
+  facets <- correct_facets(facets, facet_characteristics)
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -125,6 +154,7 @@ test_that("factor transformation in facet call treated as expected", {
   test_list_facets$mapping$panelvar2 <- "factor(cyl, levels = c(2, 4, 6, 8))"
 
   facets <- get_facets(test_list_facets)
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -132,7 +162,7 @@ test_that("factor transformation in facet call treated as expected", {
   expect_identical(facets$levels$panelvar2, 3)
   expect_type(facets$levels$panelvar2, "double")
 
-  facets <- correct_facets(facets, ggplot2::ggplot_build(facet_plot))
+  facets <- correct_facets(facets, facet_characteristics)
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -155,6 +185,8 @@ test_that("factor in raw data for faceting recognised", {
   test_list_facets$mapping$panelvar2 <- "cyl"
 
   facets <- get_facets(test_list_facets)
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
+
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -162,7 +194,8 @@ test_that("factor in raw data for faceting recognised", {
   expect_identical(facets$levels$panelvar2, 3)
   expect_type(facets$levels$panelvar2, "double")
 
-  facets <- correct_facets(facets, ggplot2::ggplot_build(facet_plot))
+
+  facets <- correct_facets(facets, facet_characteristics)
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -172,7 +205,7 @@ test_that("factor in raw data for faceting recognised", {
 
 })
 
-test_that("factor with multiple matching columns works/fails as expected", {
+test_that("factor with multiple matching columns works as expected", {
   plot_data <- mtcars
   plot_data$cyl2 <- plot_data$cyl
   plot_data$cyl <- factor(plot_data$cyl)
@@ -188,6 +221,7 @@ test_that("factor with multiple matching columns works/fails as expected", {
   test_list_facets$mapping$panelvar2 <- "cyl"
 
   facets <- get_facets(test_list_facets)
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -195,7 +229,7 @@ test_that("factor with multiple matching columns works/fails as expected", {
   expect_identical(facets$levels$panelvar2, 3)
   expect_type(facets$levels$panelvar2, "double")
 
-  facets <- correct_facets(facets, ggplot2::ggplot_build(facet_plot))
+  facets <- correct_facets(facets, facet_characteristics)
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -213,25 +247,27 @@ test_that("factor with multiple matching columns works/fails as expected", {
   test_list_facets$mapping$panelvar2 <- "factor(cyl)"
 
   facets <- get_facets(test_list_facets)
-  facets <- correct_facets(facets, ggplot2::ggplot_build(facet_plot))
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
+  facets <- correct_facets(facets, facet_characteristics)
 
   expect_identical(eval(facets$levels$panelvar2), factor(3))
   expect_identical(facets$vars$panelvar2, "cyl")
 
   # Case where there are identical columns and one is wrapped in a longer
   # function call
-  facet_plot <- ggplot(plot_data, aes(x = wt, y = mpg)) + facet_grid(carb~factor(cyl, levels = c("8", "6", "4")))
-
+  facet_plot <- ggplot(plot_data, aes(x = wt, y = mpg)) + facet_grid(carb~factor(cyl2, levels = c("8", "6", "4")))
 
   test_list_facets <- test_base_list
   test_list_facets$panelvar1 <- 6
   test_list_facets$panelvar2 <- 3
   test_list_facets$mapping$panelvar1 <- "carb"
-  test_list_facets$mapping$panelvar2 <- 'factor(cyl, levels = c("8", "6", "4")'
+  test_list_facets$mapping$panelvar2 <- 'factor(cyl2, levels = c("8", "6", "4"))'
 
   facets <- get_facets(test_list_facets)
-  # This should fail
-  expect_error(correct_facets(facets, ggplot2::ggplot_build(facet_plot)))
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
+  facets <- correct_facets(facets, facet_characteristics)
+  expect_identical(eval(facets$levels$panelvar2), factor(3))
+  expect_identical(facets$vars$panelvar2, "cyl2")
 
 })
 
@@ -255,7 +291,9 @@ test_that("character facets + facet_grid() works", {
   )
 
   facets <- get_facets(plot_click)
-  corrected_facets <- correct_facets(facets, built_plot)
+  facet_characteristics <- get_facet_characteristics(built_plot)
+
+  corrected_facets <- correct_facets(facets, facet_characteristics)
 
   expect_identical(corrected_facets$vars$panelvar2, "cyl")
   expect_identical(eval(corrected_facets$levels$panelvar2),
@@ -267,7 +305,9 @@ test_that("character facets + facet_grid() works", {
 
   built_plot <- ggplot_build(p)
   facets <- get_facets(plot_click)
-  corrected_facets <- correct_facets(facets, built_plot)
+  facet_characteristics <- get_facet_characteristics(built_plot)
+
+  corrected_facets <- correct_facets(facets, facet_characteristics)
 
   expect_identical(corrected_facets$levels$panelvar1, 3)
   expect_identical(corrected_facets$vars$panelvar2, "cyl")
