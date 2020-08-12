@@ -27,11 +27,8 @@
 #'
 #' @export
 #'
-#' @importFrom tibble as_tibble tibble
-#' @importFrom ggplot2 aes_all
-#' @importFrom dplyr bind_cols
 #' @importFrom purrr compact
-#' @importFrom rlang `:=` call2 syms `!!!`
+#' @importFrom rlang call2 syms `!!!`
 #' @importFrom stats setNames
 
 make_layer <- function(geom,
@@ -46,8 +43,6 @@ make_layer <- function(geom,
   names(aesthetics) <- aesthetics
   aes_call <- rlang::call2("aes", !!!aesthetics)
 
-  data_cols <- compact_aes
-
   # Dates
   date_call <- function(arg) {
     if (inherits(arg, "Date")) {
@@ -56,7 +51,7 @@ make_layer <- function(geom,
     }
     arg
   }
-  data_cols <- lapply(data_cols, date_call)
+  data_cols <- lapply(compact_aes, date_call)
 
   # Facets
   if (isFALSE(missing(facet_vars))) {
