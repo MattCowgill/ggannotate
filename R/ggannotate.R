@@ -56,7 +56,14 @@ ggannotate <- function(plot) {
   ggann_server <- function(input, output, session) {
     observeEvent(input$done, shiny::stopApp())
 
-    user_input <- reactiveValues()
+    user_input <- reactiveValues(x = NULL,
+                                 y = NULL,
+                                 x_dbl = NULL,
+                                 y_dbl = NULL,
+                                 xmin = NULL,
+                                 xmax = NULL,
+                                 ymin = NULL,
+                                 ymax = NULL)
 
     # Check whether axes are flipped
     flipped_coords <- ggplot2::summarise_coord(built_base_plot)$flip
@@ -84,7 +91,6 @@ ggannotate <- function(plot) {
     })
 
     observeEvent(input$plot_dblclick, {
-
       corrected_scales <- correct_scales(input$plot_dblclick,
                                          axis_classes,
                                          flipped_coords)

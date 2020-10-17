@@ -1,6 +1,6 @@
 Package: ggannotate
-Title: Interactively annotate ggplot2 plots
-Version: 0.0.0.9100
+Title: Interactively Annotate ggplot2 Plots
+Version: 0.0.0.9300
 Authors@R: 
     c(person(given = "Matt",
            family = "Cowgill",
@@ -24,7 +24,7 @@ Imports:
     clipr,
     stringr,
     miniUI,
-    tidyselect
+    lifecycle
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
@@ -34,3 +34,4 @@ Suggests:
     testthat (>= 2.1.0),
     vdiffr,
     covr
+RdMacros: lifecycle
