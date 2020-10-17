@@ -23,8 +23,7 @@ Imports:
     purrr,
     clipr,
     stringr,
-    miniUI,
-    lifecycle
+    miniUI
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
@@ -34,4 +33,3 @@ Suggests:
     testthat (>= 2.1.0),
     vdiffr,
     covr
-RdMacros: lifecycle
