@@ -18,10 +18,6 @@ ggann_ui <- miniUI::miniPage(
             fluidRow(
               column(
                 6,
-                selectInput("layer", "Layer", choices = c(1:10))
-              ),
-              column(
-                6,
                 selectInput("geom_1", "Geom",
                   choices = c("text", "label", "curve", "rect"),
                   selected = "text"
