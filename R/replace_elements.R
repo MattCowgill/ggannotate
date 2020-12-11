@@ -10,4 +10,3 @@ replace_elements <- function(list_a, list_b) {
   }
   list_out
 }
-

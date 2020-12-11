@@ -15,16 +15,17 @@
 #' @examples
 #' library(ggplot2)
 #'
-#' base_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+#' base_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+#'   geom_point()
 #'
 #' my_annot_call <- make_layer("text",
-#'     aes = list(x = 3, y = 30, label = "A label"),
-#'     params = list(col = "orange"))
+#'   aes = list(x = 3, y = 30, label = "A label"),
+#'   params = list(col = "orange")
+#' )
 #'
 #' my_annotation <- eval(my_annot_call)
 #'
 #' base_plot + my_annotation
-#'
 #' @export
 #'
 #' @importFrom purrr compact
@@ -36,7 +37,6 @@ make_layer <- function(geom,
                        params = NULL,
                        facet_vars = NULL,
                        facet_levels = NULL) {
-
   compact_aes <- purrr::compact(aes)
 
   aesthetics <- rlang::syms(names(compact_aes))
@@ -75,4 +75,3 @@ make_layer <- function(geom,
     inherit.aes = FALSE
   )
 }
-

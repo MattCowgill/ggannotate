@@ -9,7 +9,6 @@
 #' @noRd
 
 remove_default_params <- function(geom_as_string, params) {
-
   get_param_defaults <- function(geom_as_string) {
     geom <- call(geom_as_string)
     geom <- eval(geom)

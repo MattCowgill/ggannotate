@@ -18,7 +18,11 @@ test_that("safe_arrow returns expected output", {
 
   valid_arrow <- safe_arrow(30, 0.1)
   expect_is(valid_arrow, "call")
-  expect_identical(eval(valid_arrow),
-                   arrow(angle = 30, length = unit(0.1, "inches"),
-                         "last", "closed"))
+  expect_identical(
+    eval(valid_arrow),
+    arrow(
+      angle = 30, length = unit(0.1, "inches"),
+      "last", "closed"
+    )
+  )
 })

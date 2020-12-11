@@ -8,7 +8,7 @@
 #'
 #' \dontrun{
 #' p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
-#'        geom_point()
+#'   geom_point()
 #'
 #' ggannotate(p)
 #' }
@@ -56,14 +56,16 @@ ggannotate <- function(plot) {
   ggann_server <- function(input, output, session) {
     observeEvent(input$done, shiny::stopApp())
 
-    user_input <- reactiveValues(x = NULL,
-                                 y = NULL,
-                                 x_dbl = NULL,
-                                 y_dbl = NULL,
-                                 xmin = NULL,
-                                 xmax = NULL,
-                                 ymin = NULL,
-                                 ymax = NULL)
+    user_input <- reactiveValues(
+      x = NULL,
+      y = NULL,
+      x_dbl = NULL,
+      y_dbl = NULL,
+      xmin = NULL,
+      xmax = NULL,
+      ymin = NULL,
+      ymax = NULL
+    )
 
     # Check whether axes are flipped
     flipped_coords <- ggplot2::summarise_coord(built_base_plot)$flip
@@ -81,23 +83,25 @@ ggannotate <- function(plot) {
       user_input$facet_levels <- facets$levels
 
 
-      corrected_scales <- correct_scales(input$plot_click,
-                                         axis_classes,
-                                         flipped_coords)
+      corrected_scales <- correct_scales(
+        input$plot_click,
+        axis_classes,
+        flipped_coords
+      )
 
       user_input$x <- corrected_scales$x
       user_input$y <- corrected_scales$y
-
     })
 
     observeEvent(input$plot_dblclick, {
-      corrected_scales <- correct_scales(input$plot_dblclick,
-                                         axis_classes,
-                                         flipped_coords)
+      corrected_scales <- correct_scales(
+        input$plot_dblclick,
+        axis_classes,
+        flipped_coords
+      )
 
       user_input$x_dbl <- corrected_scales$x
       user_input$y_dbl <- corrected_scales$y
-
     })
 
     observeEvent(input$plot_brush, {
@@ -106,15 +110,16 @@ ggannotate <- function(plot) {
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
 
-      corrected_scales <- correct_scales(input$plot_brush,
-                                         axis_classes,
-                                         flipped_coords)
+      corrected_scales <- correct_scales(
+        input$plot_brush,
+        axis_classes,
+        flipped_coords
+      )
 
       user_input$xmin <- corrected_scales$xmin
       user_input$xmax <- corrected_scales$xmax
       user_input$ymin <- corrected_scales$ymin
       user_input$ymax <- corrected_scales$ymax
-
     })
 
 
@@ -134,11 +139,13 @@ ggannotate <- function(plot) {
         input$size
       )
 
-      fontface <- case_when(input$fontface == "plain" ~ 1,
-                input$fontface == "bold" ~ 2,
-                input$fontface == "italic" ~ 3,
-                input$fontface == "bold.italic" ~ 4,
-                TRUE ~ NA_real_)
+      fontface <- case_when(
+        input$fontface == "plain" ~ 1,
+        input$fontface == "bold" ~ 2,
+        input$fontface == "italic" ~ 3,
+        input$fontface == "bold.italic" ~ 4,
+        TRUE ~ NA_real_
+      )
 
       user_alpha <- ifelse(input$geom_1 == "rect", input$alpha, 1)
 
@@ -195,15 +202,17 @@ ggannotate <- function(plot) {
       )
       params_list <- params_list[names(params_list) %in% known_params]
 
-      aes <- list(x = user_input$x,
-                  y = user_input$y,
-                  xend = user_input$x_dbl,
-                  yend = user_input$y_dbl,
-                  xmin = user_input$xmin,
-                  xmax = user_input$xmax,
-                  ymin = user_input$ymin,
-                  ymax = user_input$ymax,
-                  label = annot_no_esc)
+      aes <- list(
+        x = user_input$x,
+        y = user_input$y,
+        xend = user_input$x_dbl,
+        yend = user_input$y_dbl,
+        xmin = user_input$xmin,
+        xmax = user_input$xmax,
+        ymin = user_input$ymin,
+        ymax = user_input$ymax,
+        label = annot_no_esc
+      )
 
       aes <- aes[names(aes) %in% known_aes]
 
@@ -260,7 +269,6 @@ ggannotate <- function(plot) {
     })
 
     output$rendered_plot <- renderUI({
-
       size_units <- input$size_units
 
       plot_width <- paste0(input$plot_width, size_units)
