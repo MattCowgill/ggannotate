@@ -15,19 +15,26 @@ ggann_ui <- miniUI::miniPage(
         shiny::fillRow(
           flex = c(1, 2),
           shiny::wellPanel(
-            fluidRow(column(
-              6,
-              selectInput("geom_1", "Geom",
-                          choices = c("text", "label", "curve", "rect"),
-                          selected = "text")
-            )),
+            fluidRow(
+              column(
+                6,
+                selectInput("layer", "Layer", choices = c(1:10))
+              ),
+              column(
+                6,
+                selectInput("geom_1", "Geom",
+                  choices = c("text", "label", "curve", "rect"),
+                  selected = "text"
+                )
+              )
+            ),
             hr(class = "black"),
             fluidRow(column(12, uiOutput("geom_opts")))
           ),
           shiny::column(
             width = 12,
             div(textOutput("instruction"),
-                style = "color:black; font-weight:bold; line-height:1.6em; font-size:1em"
+              style = "color:black; font-weight:bold; line-height:1.6em; font-size:1em"
             ),
             uiOutput("rendered_plot"),
             shiny::wellPanel(
@@ -43,9 +50,9 @@ ggann_ui <- miniUI::miniPage(
                 column(
                   4,
                   selectInput("size_units",
-                              "Units  ",
-                              choices = c("cm", "mm", "in", "px"),
-                              selected = "cm"
+                    "Units  ",
+                    choices = c("cm", "mm", "in", "px"),
+                    selected = "cm"
                   )
                 )
               ),
@@ -61,12 +68,14 @@ ggann_ui <- miniUI::miniPage(
           column(
             2,
             actionButton("copy_button", HTML("<b>Copy code<br/>and close</b>"),
-                         width = "100%",
-                         style = "height:55px; ")
+              width = "100%",
+              style = "height:55px; "
+            )
           ),
           column(
             10,
-            verbatimTextOutput("code_output"))
+            verbatimTextOutput("code_output")
+          )
         )
       )
     )

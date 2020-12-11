@@ -9,8 +9,6 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![R build
 status](https://github.com/mattcowgill/ggannotate/workflows/R-CMD-check/badge.svg)](https://github.com/mattcowgill/ggannotate/actions)
-[![Travis build
-status](https://travis-ci.com/mattcowgill/ggannotate.svg?branch=master)](https://travis-ci.com/mattcowgill/ggannotate)
 [![Codecov test
 coverage](https://codecov.io/gh/mattcowgill/ggannotate/branch/master/graph/badge.svg)](https://codecov.io/gh/mattcowgill/ggannotate?branch=master)
 [![CRAN
@@ -45,8 +43,6 @@ There are three ways to use `ggannotate`:
 
 2.  Create a ggplot2 object, then call `ggannotate()`, like this:
 
-<!-- end list -->
-
 ``` r
 library(ggplot2)
 p <- ggplot(mtcars, 
@@ -56,10 +52,8 @@ p <- ggplot(mtcars,
 ggannotate::ggannotate(p)
 ```
 
-3.  Wrap some code that creates a ggplot2 object in `ggannotate()`, like
+1.  Wrap some code that creates a ggplot2 object in `ggannotate()`, like
     this:
-
-<!-- end list -->
 
 ``` r
 ggannotate::ggannotate(ggplot(mtcars, 
@@ -69,8 +63,8 @@ ggannotate::ggannotate(ggplot(mtcars,
 
 Each of these options will launch a Shiny app. Choose what type of
 annotation you want, click to place it in the right place, and click
-‘copy code’ to copy the annotation code to the clipboard. Then paste
-the copied code in your script and you’re done\!
+‘copy code’ to copy the annotation code to the clipboard. Then paste the
+copied code in your script and you’re done!
 
 You can adjust the size of the plot in the Shiny app so you can set it
 to be the same as your intended output. You can keep repeat the process

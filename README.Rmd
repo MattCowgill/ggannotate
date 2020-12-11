@@ -18,7 +18,6 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![R build status](https://github.com/mattcowgill/ggannotate/workflows/R-CMD-check/badge.svg)](https://github.com/mattcowgill/ggannotate/actions)
-[![Travis build status](https://travis-ci.com/mattcowgill/ggannotate.svg?branch=master)](https://travis-ci.com/mattcowgill/ggannotate)
 [![Codecov test coverage](https://codecov.io/gh/mattcowgill/ggannotate/branch/master/graph/badge.svg)](https://codecov.io/gh/mattcowgill/ggannotate?branch=master)
 [![CRAN status](https://www.r-pkg.org/badges/version/ggannotate)](https://CRAN.R-project.org/package=ggannotate)
 <!-- badges: end -->
