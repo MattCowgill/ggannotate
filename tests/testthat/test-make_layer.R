@@ -12,9 +12,11 @@ base_plot <- ggplot(
 annot <-
   make_layer(
     geom = "text",
-    aes = list(x = 3,
-               y = 30,
-               label = "My\ntext")
+    aes = list(
+      x = 3,
+      y = 30,
+      label = "My\ntext"
+    )
   )
 annot_plot <- base_plot +
   eval(annot)
@@ -31,9 +33,11 @@ facet_plot_1 <- base_plot +
 annot_facet_1 <-
   make_layer(
     geom = "text",
-    aes = list(x = 3,
-               y = 30,
-               label = "My\ntext"),
+    aes = list(
+      x = 3,
+      y = 30,
+      label = "My\ntext"
+    ),
     facet_vars = list("cyl"),
     facet_levels = list(4)
   )
@@ -63,9 +67,11 @@ flipped_bar_base <- mtcars_with_rownames %>%
 
 annot_flipped_bar <-
   make_layer(
-    aes = list(x = 2,
-               y = 30,
-               label = "My\nannotation"),
+    aes = list(
+      x = 2,
+      y = 30,
+      label = "My\nannotation"
+    ),
     geom = "text"
   )
 
@@ -86,9 +92,11 @@ date_line_base <- economics %>%
 annot_date_line <-
   make_layer(
     geom = "text",
-    aes = list(x = as.Date("1982-06-08"),
-               y = 12781.0431364006,
-               label = "My annotation")
+    aes = list(
+      x = as.Date("1982-06-08"),
+      y = 12781.0431364006,
+      label = "My annotation"
+    )
   )
 
 annot_date_line_plot <- date_line_base +
@@ -104,10 +112,12 @@ test_that("make_layer works with date axes", {
 
 annot_curve <- make_layer(
   geom = "curve",
-  aes = list(x = 2.20835965521693,
-             y = 31.8618676116827,
-             xend = 3.13939564982646,
-             yend = 24.375414662927)
+  aes = list(
+    x = 2.20835965521693,
+    y = 31.8618676116827,
+    xend = 3.13939564982646,
+    yend = 24.375414662927
+  )
 )
 
 annot_curve_plot <- base_plot +

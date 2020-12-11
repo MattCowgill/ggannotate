@@ -38,18 +38,22 @@ test_that("correct_scales() corrects scales", {
 
   built_plot <- ggplot2::ggplot_build(p)
 
-  plot_click <- list(x = 9492.364,
-                     y = 11950.13,
-                     coords_css = list(x = 487,
-                                       y = 108))
+  plot_click <- list(
+    x = 9492.364,
+    y = 11950.13,
+    coords_css = list(
+      x = 487,
+      y = 108
+    )
+  )
 
-  corrected_scales <- correct_scales(plot_click,
-                                     check_if_date(built_plot),
-                                     ggplot2::summarise_coord(built_plot)$flip)
+  corrected_scales <- correct_scales(
+    plot_click,
+    check_if_date(built_plot),
+    ggplot2::summarise_coord(built_plot)$flip
+  )
 
   expect_null(corrected_scales$xmin)
   expect_identical(corrected_scales$x, as.Date(plot_click$y, origin = "1970-01-01"))
   expect_identical(corrected_scales$y, plot_click$x)
-
-
 })

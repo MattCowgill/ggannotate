@@ -29,13 +29,14 @@ safe_arrow <-
            type = "closed") {
     if (is.null(angle) || is.null(length)) {
       NULL
-
     } else {
       length <- safe_unit(length, "inches")
 
       arrow_params <- list(angle, length, ends, type)
 
-      rlang::call2("arrow",
-                   !!!arrow_params)
+      rlang::call2(
+        "arrow",
+        !!!arrow_params
+      )
     }
   }
