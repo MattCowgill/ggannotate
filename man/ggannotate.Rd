@@ -4,11 +4,11 @@
 \alias{ggannotate}
 \title{ggannotate}
 \usage{
-ggannotate(plot)
+ggannotate(plot = selected_plot())
 }
 \arguments{
-\item{plot}{Either a ggplot2 object, or code to construct a ggplot2
-object. If blank, your current selection in RStudio will be used.}
+\item{plot}{A ggplot2 object.
+If blank, your current selection in RStudio will be used.}
 }
 \description{
 ggannotate
@@ -17,7 +17,7 @@ ggannotate
 
 \dontrun{
 p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
-       geom_point()
+  geom_point()
 
 ggannotate(p)
 }

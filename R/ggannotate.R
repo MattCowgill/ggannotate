@@ -1,8 +1,8 @@
 #' ggannotate
 #' @name ggannotate
 #'
-#' @param plot Either a ggplot2 object, or code to construct a ggplot2
-#' object. If blank, your current selection in RStudio will be used.
+#' @param plot A ggplot2 object.
+#' If blank, your current selection in RStudio will be used.
 #'
 #' @examples
 #'
@@ -23,26 +23,9 @@
 #' @importFrom clipr write_clip
 #'
 
-ggannotate <- function(plot) {
+ggannotate <- function(plot = selected_plot()) {
   if (!interactive()) {
     stop("`ggannotate` only works in interactive sessions.")
-  }
-
-  # Wrangle selection -------
-  if (missing(plot)) {
-    if (isFALSE(rstudioapi::isAvailable())) {
-      stop(
-        "ggannotate requires RStudio to see your selection.",
-        " Supply `plot` instead."
-      )
-    }
-
-    if (is.null(rstudio_selection())) {
-      stop("Please select some plot code before invoking ggannotate.")
-    }
-
-    selection <- rstudio_selection()
-    plot <- selection_as_plot(selection)
   }
 
   built_base_plot <- ggplot2::ggplot_build(plot)
