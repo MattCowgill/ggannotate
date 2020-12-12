@@ -1,8 +1,8 @@
 #' ggannotate
 #' @name ggannotate
 #'
-#' @param plot A ggplot2 object.
-#' If blank, your current selection in RStudio will be used.
+#' @param plot Either a ggplot2 object, or code (as string) to create a
+#' ggplot2 object. If blank, your current selection in RStudio will be used.
 #'
 #' @examples
 #'

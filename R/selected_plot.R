@@ -11,6 +11,13 @@ selected_plot <- function(text = rstudio_selection()) {
     )
   }
   plot <- text_as_plot(text)
+
+  if (!inherits(plot, "gg")) {
+    stop("Could not parse text '",
+         text,
+         "' as a ggplot2 object.")
+  }
+
   plot
 }
 
