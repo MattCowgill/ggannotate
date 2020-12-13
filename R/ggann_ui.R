@@ -18,7 +18,7 @@ ggann_ui <- miniUI::miniPage(
             fluidRow(
               column(
                 6,
-                selectInput("layer", "Annotation",
+                selectInput("annot_layer", "Annotation",
                   choices = 1:10,
                   selected = 1,
                   multiple = FALSE
@@ -26,7 +26,7 @@ ggann_ui <- miniUI::miniPage(
               ),
               column(
                 6,
-                selectInput("geom_1", "Geom",
+                selectInput("geom", "Geom",
                   choices = c("text", "label", "curve", "rect"),
                   selected = "text"
                 )

@@ -2,9 +2,8 @@
 % Please edit documentation in R/make_layer.R
 \name{make_layer}
 \alias{make_layer}
-\title{Generate a call to ggplot2::layer() given some aesthetics and parameters
-Based on ggplot2::annotate()
-Can handle limiting annotations to (specified) facet level(s)}
+\title{Create a ggplot2 annotation given some aesthetics, parameters, and
+facet variables + values.}
 \usage{
 make_layer(
   geom,
@@ -32,19 +31,22 @@ as list(4).}
 A call
 }
 \description{
-Generate a call to ggplot2::layer() given some aesthetics and parameters
-Based on ggplot2::annotate()
-Can handle limiting annotations to (specified) facet level(s)
+This function is based on ggplot2::annotate(). The two main differences are:
+it returns an unevaluated function call rather than a ggproto object; and
+it can handle limiting annotations to (specified) facet level(s).
 }
 \examples{
 library(ggplot2)
 
 base_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) +
-  geom_point()
+  geom_point() +
+  facet_wrap(~cyl)
 
 my_annot_call <- make_layer("text",
   aes = list(x = 3, y = 30, label = "A label"),
-  params = list(col = "orange")
+  facet_vars = list("cyl"),
+  facet_levels = list(6),
+  params = list(col = "red")
 )
 
 my_annotation <- eval(my_annot_call)

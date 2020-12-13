@@ -1,6 +1,9 @@
-#' Generate a call to ggplot2::layer() given some aesthetics and parameters
-#' Based on ggplot2::annotate()
-#' Can handle limiting annotations to (specified) facet level(s)
+#' Create a ggplot2 annotation given some aesthetics, parameters, and
+#' facet variables + values.
+#'
+#' This function is based on ggplot2::annotate(). The two main differences are:
+#' it returns an unevaluated function call rather than a ggproto object; and
+#' it can handle limiting annotations to (specified) facet level(s).
 #'
 #' @param geom Geom to annotate, such as "text".
 #' @param aes List of aesthetics with corresponding data values, as in
@@ -16,11 +19,14 @@
 #' library(ggplot2)
 #'
 #' base_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) +
-#'   geom_point()
+#'   geom_point() +
+#'   facet_wrap(~cyl)
 #'
 #' my_annot_call <- make_layer("text",
 #'   aes = list(x = 3, y = 30, label = "A label"),
-#'   params = list(col = "orange")
+#'   facet_vars = list("cyl"),
+#'   facet_levels = list(6),
+#'   params = list(col = "red")
 #' )
 #'
 #' my_annotation <- eval(my_annot_call)
