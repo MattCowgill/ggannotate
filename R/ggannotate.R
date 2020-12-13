@@ -245,19 +245,6 @@ ggannotate <- function(plot = selected_plot()) {
                                   facets = .x$facets))
     })
 
-
-    observe(print(this_layer()$facets))
-    # annot_call <- reactive({
-    #   make_layer(
-    #     # geom = selected_geom(),
-    #     geom = this_layer()$geom,
-    #     # aes = aes_list(),
-    #     aes = this_layer()$aes,
-    #     facets = facets_list(),
-    #     params = params_list()
-    #   )
-    # })
-
     output$instruction <- renderText({
       dplyr::case_when(
         selected_geom() == "text" ~ "Click where you want to place your annotation",
@@ -330,7 +317,7 @@ ggannotate <- function(plot = selected_plot()) {
     })
 
     output$code_output <- renderPrint({
-      annot_call()
+      annot_calls()
     })
   }
 

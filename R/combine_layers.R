@@ -45,7 +45,7 @@
 #'
 #' # The resulting list can be used to create ggplot2 annotations
 #'
-#' annots <-   purrr::map(layers,
+#' annots <- purrr::map(layers,
 #'                        ~make_layer(geom = .x$geom,
 #'                                    aes = .x$aes,
 #'                                    params = .x$params) %>%
@@ -62,7 +62,6 @@ combine_layers <- function(lists) {
     stop("Must supply list of lists")
   }
 
-  # lists <- list(...)
   if (inherits(lists, "reactivevalues")) {
     lists <- shiny::reactiveValuesToList(lists)
   }
@@ -74,8 +73,14 @@ combine_layers <- function(lists) {
 
   x <- dplyr::tibble(layer = lists)
   x <- tidyr::unnest_wider(x, .data$layer)
+
+  if (is.null(x[["facets"]])) {
+    x <- dplyr::group_by(x, .data$geom, .data$params)
+  } else {
+    x <- dplyr::group_by(x, .data$geom, .data$params, .data$facets)
+  }
+
   x <- x %>%
-    dplyr::group_by(.data$geom, .data$params, .data$facets) %>%
     dplyr::summarise(aes = list(.data$aes), .groups = "drop") %>%
     dplyr::mutate(annot = dplyr::row_number())
 
@@ -97,7 +102,15 @@ combine_layers <- function(lists) {
 
   geoms <- purrr::map(x, ~.x[["geom"]])
 
-  facets <- purrr::map(x, ~purrr::flatten(.x[["facets"]]))
+  add_facet_or_flatten <- function(list) {
+    if (is.null(list[["facets"]])) {
+      out <- list()
+    } else {
+      out <- purrr::flatten(list[["facets"]])
+    }
+    out
+  }
+  facets <- purrr::map(x, add_facet_or_flatten)
 
   out <- list(aes = aes,
        params = params,
