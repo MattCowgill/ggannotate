@@ -5,27 +5,19 @@
 \title{Create a ggplot2 annotation given some aesthetics, parameters, and
 facet variables + values.}
 \usage{
-make_layer(
-  geom,
-  aes = NULL,
-  params = NULL,
-  facet_vars = NULL,
-  facet_levels = NULL
-)
+make_layer(geom, aes = NULL, params = NULL, facets = NULL)
 }
 \arguments{
 \item{geom}{Geom to annotate, such as "text".}
 
-\item{aes}{List of aesthetics with corresponding data values, as in
+\item{aes}{Named list of aesthetics with corresponding data values, as in
 `list(x = 3, y = 30, label = "A label")`.}
 
-\item{params}{List of parameters for geom, such as `list(colour = "black")`}
+\item{params}{Optional. Named list of parameters for geom,
+such as `list(colour = "black")`}
 
-\item{facet_vars}{List. The names of variables used to facet the plot,
-such as list("cyl").}
-
-\item{facet_levels}{List. The levels of variables you wish to annotation, such
-as list(4).}
+\item{facets}{Optional. Named list of facets; the name is the variable and
+the value if the level, such as `list(cyl = 4)`.}
 }
 \value{
 A call
@@ -44,8 +36,7 @@ base_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) +
 
 my_annot_call <- make_layer("text",
   aes = list(x = 3, y = 30, label = "A label"),
-  facet_vars = list("cyl"),
-  facet_levels = list(6),
+  facets = list(cyl = 6),
   params = list(col = "red")
 )
 

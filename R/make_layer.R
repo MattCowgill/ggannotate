@@ -6,13 +6,12 @@
 #' it can handle limiting annotations to (specified) facet level(s).
 #'
 #' @param geom Geom to annotate, such as "text".
-#' @param aes List of aesthetics with corresponding data values, as in
+#' @param aes Named list of aesthetics with corresponding data values, as in
 #' `list(x = 3, y = 30, label = "A label")`.
-#' @param params List of parameters for geom, such as `list(colour = "black")`
-#' @param facet_vars List. The names of variables used to facet the plot,
-#' such as list("cyl").
-#' @param facet_levels List. The levels of variables you wish to annotation, such
-#' as list(4).
+#' @param params Optional. Named list of parameters for geom,
+#' such as `list(colour = "black")`
+#' @param facets Optional. Named list of facets; the name is the variable and
+#' the value if the level, such as `list(cyl = 4)`.
 #' @return A call
 #'
 #' @examples
@@ -24,8 +23,7 @@
 #'
 #' my_annot_call <- make_layer("text",
 #'   aes = list(x = 3, y = 30, label = "A label"),
-#'   facet_vars = list("cyl"),
-#'   facet_levels = list(6),
+#'   facets = list(cyl = 6),
 #'   params = list(col = "red")
 #' )
 #'
@@ -41,8 +39,7 @@
 make_layer <- function(geom,
                        aes = NULL,
                        params = NULL,
-                       facet_vars = NULL,
-                       facet_levels = NULL) {
+                       facets = NULL) {
   compact_aes <- purrr::compact(aes)
 
   aesthetics <- rlang::syms(names(compact_aes))
@@ -60,9 +57,10 @@ make_layer <- function(geom,
   data_cols <- lapply(compact_aes, date_call)
 
   # Facets
-  if (isFALSE(missing(facet_vars))) {
-    facet_levels <- as.list(facet_levels)
-    facets <- setNames(facet_levels, facet_vars)
+  if (isFALSE(missing(facets))) {
+    if (is.null(names(facets))) {
+      stop("facets must be a named list")
+    }
     data_cols <- c(data_cols, facets)
   }
 

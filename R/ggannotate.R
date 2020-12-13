@@ -219,14 +219,16 @@ ggannotate <- function(plot = selected_plot()) {
         "rect" = ggplot2::GeomRect
       )
 
-
+      facets <- user_input$facet_levels
+      facets <- setNames(facets, user_input$facet_vars)
 
       # Create the layer call
       layer_call <- make_layer(
         geom = selected_geom(),
         aes = aes_list(),
-        facet_vars = user_input$facet_vars,
-        facet_levels = user_input$facet_levels,
+        facets = facets,
+        # facet_vars = user_input$facet_vars,
+        # facet_levels = user_input$facet_levels,
         params = params_list
       )
 
