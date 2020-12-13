@@ -1,28 +1,29 @@
 #' Take lists corresponding to several annotations, combine annotations
 #' that share parameters and geom, and return a list-of-lists.
 #' @name combine_layers
-#' @param ... lists to combine. Each list should have three elemnts:
+#' @param lists List of lists to combine. Each sub-list should have four elements:
 #' \itemize{
 #'   \item{`geom`}{length-one character vector such as `"text"`, or `"point"`}
 #'   \item{`aes`}{named list containing variable-value mappings,
 #'   such as `list(x = 3, y = 40)`)}
 #'   \item{`param`}{named list containing parameter names and values, such as
 #' `list(colour = "black")`}
+#'   \item{`facets`}{named list containing facet variable-value pairs, such as
+#'   `list(cyl = 4)`}
 #'
 #' }
 #'
 #'
 #' @return A list of lists. Any supplied lists that share a geom and parameters
 #' will be combined, so the length of the returned list will not necessarily
-#' equal the number of lists supplied to `...`.
+#' equal the number of lists supplied to `lists`.
 #'
 #' @examples
-#' # Supply list(s) with three elements: geom (length 1 character vector),
-#' # aes (list), and params (list).
 #' library(ggplot2)
 #'
 #' layer_1 <- list(geom = "text",
 #'                 aes = list(x = 3, y = 30, label = "Some text"),
+#'                 facets = list(cyl = 4),
 #'                 params = list(colour = "red"))
 #'
 #' layer_2 <- list(geom = "text",
@@ -36,9 +37,11 @@
 #'                 aes = list(x = 4, y = 45, label = "Some more text"),
 #'                 params = list(colour = "black"))
 #'
+#' lists <- list(layer_1, layer_2, layer_3, layer_4)
+#'
 #' # combine_layers() combined layers 1 and 2 as they share a geom and params.
 #'
-#' layers <- combine_layers(layer_1, layer_2, layer_3, layer_4)
+#' layers <- combine_layers(lists)
 #'
 #' # The resulting list can be used to create ggplot2 annotations
 #'
@@ -54,21 +57,25 @@
 #' @export
 #' @importFrom rlang .data
 
-combine_layers <- function(...) {
-  if (missing(...)) {
-    stop("Must supply list(s) to ...")
+combine_layers <- function(lists) {
+  if (missing(lists)) {
+    stop("Must supply list of lists")
   }
 
-  lists <- list(...)
+  # lists <- list(...)
+  if (inherits(lists, "reactivevalues")) {
+    lists <- shiny::reactiveValuesToList(lists)
+  }
 
-  each_element_is_list <- all(purrr::map_lgl(lists, is.list))
+  each_element_is_list <- all(purrr::map_lgl(lists,
+                                             is.list))
 
   stopifnot(each_element_is_list)
 
   x <- dplyr::tibble(layer = lists)
   x <- tidyr::unnest_wider(x, .data$layer)
   x <- x %>%
-    dplyr::group_by(.data$geom, .data$params) %>%
+    dplyr::group_by(.data$geom, .data$params, .data$facets) %>%
     dplyr::summarise(aes = list(.data$aes), .groups = "drop") %>%
     dplyr::mutate(annot = dplyr::row_number())
 
@@ -90,8 +97,11 @@ combine_layers <- function(...) {
 
   geoms <- purrr::map(x, ~.x[["geom"]])
 
+  facets <- purrr::map(x, ~purrr::flatten(.x[["facets"]]))
+
   out <- list(aes = aes,
        params = params,
+       facets = facets,
        geom = geoms)
 
   purrr::transpose(out)

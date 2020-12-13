@@ -187,6 +187,7 @@ ggannotate <- function(plot = selected_plot()) {
       purrr::compact(params)
     })
 
+    # Create list of aesthetics based on user input ----
     aes_list <- reactive({
       annot <- input$annotation
       annot_no_esc <- gsub("\\n", "\n", annot, fixed = TRUE)
@@ -208,32 +209,54 @@ ggannotate <- function(plot = selected_plot()) {
       aes
     })
 
-    annot_call <- reactive({
+    # Create list of facets based on user input ----
 
-      params_list <- params_list()
-
-      selected_geom <- switch(selected_geom(),
-        "text"  = ggplot2::GeomText,
-        "label" = ggplot2::GeomLabel,
-        "curve" = ggplot2::GeomCurve,
-        "rect" = ggplot2::GeomRect
-      )
-
-      facets <- user_input$facet_levels
-      facets <- setNames(facets, user_input$facet_vars)
-
-      # Create the layer call
-      layer_call <- make_layer(
-        geom = selected_geom(),
-        aes = aes_list(),
-        facets = facets,
-        # facet_vars = user_input$facet_vars,
-        # facet_levels = user_input$facet_levels,
-        params = params_list
-      )
-
-      layer_call
+    facets_list <- reactive({
+      setNames(user_input$facet_levels,
+               user_input$facet_vars)
     })
+
+
+    # Collect inputs in a list of lists ----
+    this_layer <- reactive({
+      list(geom = selected_geom(),
+           aes = aes_list(),
+           params = params_list(),
+           facets = facets_list()
+           ) %>%
+        purrr::compact()
+    })
+
+    all_layers <- reactiveValues()
+
+    observe({
+      all_layers[[as.character(annot_layer())]] <- this_layer()
+    })
+
+    combined_layers <- reactive({
+      combine_layers(all_layers)
+    })
+
+    annot_calls <- reactive({
+      purrr::map(.x = combined_layers(),
+                 .f = ~make_layer(geom = .x$geom,
+                                  aes = .x$aes,
+                                  params = .x$params,
+                                  facets = .x$facets))
+    })
+
+
+    observe(print(this_layer()$facets))
+    # annot_call <- reactive({
+    #   make_layer(
+    #     # geom = selected_geom(),
+    #     geom = this_layer()$geom,
+    #     # aes = aes_list(),
+    #     aes = this_layer()$aes,
+    #     facets = facets_list(),
+    #     params = params_list()
+    #   )
+    # })
 
     output$instruction <- renderText({
       dplyr::case_when(
@@ -271,7 +294,7 @@ ggannotate <- function(plot = selected_plot()) {
         built_base_plot$plot
       } else {
         built_base_plot$plot +
-          eval(annot_call())
+          purrr::map(annot_calls(), eval)
       }
     })
 

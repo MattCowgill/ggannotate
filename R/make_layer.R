@@ -57,7 +57,7 @@ make_layer <- function(geom,
   data_cols <- lapply(compact_aes, date_call)
 
   # Facets
-  if (isFALSE(missing(facets))) {
+  if (isFALSE(missing(facets)) && !is.null(facets)) {
     if (is.null(names(facets))) {
       stop("facets must be a named list")
     }
