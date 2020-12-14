@@ -8,7 +8,7 @@
 #'
 #' geom_b <- geom_text(aes(x = 3, y = 30, label = "something"))
 #' has_req_aes(geom_b) # returns `TRUE`
-#' @keywords internal
+#' @noRd
 
 has_req_aes <- function(geom) {
   req_aes <- geom$geom$required_aes
