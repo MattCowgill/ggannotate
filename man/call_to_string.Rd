@@ -9,6 +9,10 @@ call_to_string(call)
 \arguments{
 \item{call}{A call}
 }
+\value{
+A string
+}
 \description{
 Given a call, create a tidy string
 }
+\keyword{internal}

@@ -56,7 +56,7 @@ layers <- combine_layers(lists)
 
 # The resulting list can be used to create ggplot2 annotations
 
-annots <-   purrr::map(layers,
+annots <- purrr::map(layers,
                        ~make_layer(geom = .x$geom,
                                    aes = .x$aes,
                                    params = .x$params) \%>\%

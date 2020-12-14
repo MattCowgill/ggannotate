@@ -1,8 +1,7 @@
 #' ggannotate
 #' @name ggannotate
 #'
-#' @param plot Either a ggplot2 object, or code (as string) to create a
-#' ggplot2 object. If blank, your current selection in RStudio will be used.
+#' @param plot A ggplot2 object. Default is `ggplot2::last_plot()`.
 #'
 #' @examples
 #'
@@ -16,17 +15,18 @@
 #' @export
 #' @import shiny
 #' @import ggplot2
-#' @importFrom rstudioapi getSourceEditorContext primary_selection
 #' @importFrom rlang expr exec enquo get_expr expr_deparse parse_expr
 #' @importFrom dplyr case_when if_else
 #' @importFrom miniUI miniPage
 #' @importFrom clipr write_clip
 #'
 
-ggannotate <- function(plot = selected_plot()) {
+ggannotate <- function(plot = last_plot()) {
   if (!interactive()) {
     stop("`ggannotate` only works in interactive sessions.")
   }
+
+  stopifnot(inherits(plot, "gg"))
 
   built_base_plot <- ggplot2::ggplot_build(plot)
 
@@ -310,14 +310,14 @@ ggannotate <- function(plot = selected_plot()) {
     })
 
     observeEvent(input$copy_button, {
-      callstring <- call_to_string(annot_call())
+      callstring <- calls_to_string(annot_calls())
       clipr::write_clip(callstring, object_type = "character")
       ggplot2::set_last_plot(built_base_plot$plot)
       stopApp()
     })
 
     output$code_output <- renderPrint({
-      annot_calls()
+      calls_to_string(annot_calls())
     })
   }
 
