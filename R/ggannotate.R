@@ -63,17 +63,22 @@ ggannotate <- function(plot = last_plot()) {
     annot_layer <- reactive(input$annot_layer)
     selected_geom <- reactive(input$geom)
 
+    geom_fn <- reactive({
+      switch(selected_geom(),
+        "text"  = ggplot2::GeomText,
+        "label" = ggplot2::GeomLabel,
+        "curve" = ggplot2::GeomCurve,
+        "rect" = ggplot2::GeomRect
+      )
+    })
+
     # Get vector of aesthetics known to selected geom -----
     known_aes <- reactive({
-      geom <- switch(selected_geom(),
-                     "text"  = ggplot2::GeomText,
-                     "label" = ggplot2::GeomLabel,
-                     "curve" = ggplot2::GeomCurve,
-                     "rect" = ggplot2::GeomRect
-      )
+      geom_fn()$aesthetics()
+    })
 
-      known_aes <- geom$aesthetics()
-      known_aes
+    req_aes <- reactive({
+      geom_fn()$required_aes
     })
 
     # Observe plot interaction -----
@@ -137,7 +142,10 @@ ggannotate <- function(plot = last_plot()) {
       user_label_r <- safe_unit(input$label.r, "lines")
 
       size <- ifelse(selected_geom() %in% c("text", "label"),
-        input$size / ggplot2::.pt,
+        # Default ggplot2 size is 3.88 = 11.03967 points
+        ifelse(input$size == 11,
+               3.88,
+               input$size / ggplot2::.pt),
         input$size
       )
 
@@ -149,7 +157,8 @@ ggannotate <- function(plot = last_plot()) {
         TRUE ~ NA_real_
       )
 
-      user_alpha <- ifelse(selected_geom() == "rect", input$alpha, 1)
+      user_alpha <- NA
+      # user_alpha <- ifelse(selected_geom() == "rect", input$alpha, NA)
 
       params <- list(
         size = size,
@@ -171,16 +180,16 @@ ggannotate <- function(plot = last_plot()) {
 
       # Remove parameters from the list if they are not known by the geom
       known_params <- switch(selected_geom(),
-                             "text" = c(known_aes()),
-                             "label" = c(
-                               known_aes, "label.padding", "label.r",
-                               "label.size"
-                             ),
-                             "curve" = c(
-                               known_aes, "curvature", "angle",
-                               "arrow", "arrow.fill", "lineend"
-                             ),
-                             "rect" = c(known_aes()),
+        "text" = c(known_aes()),
+        "label" = c(
+          known_aes, "label.padding", "label.r",
+          "label.size"
+        ),
+        "curve" = c(
+          known_aes, "curvature", "angle",
+          "arrow", "arrow.fill", "lineend"
+        ),
+        "rect" = c(known_aes()),
       )
       params <- params[names(params) %in% known_params]
 
@@ -206,24 +215,29 @@ ggannotate <- function(plot = last_plot()) {
 
       aes <- aes[names(aes) %in% known_aes()]
 
+      aes <- purrr::compact(aes)
+
       aes
     })
 
     # Create list of facets based on user input ----
 
     facets_list <- reactive({
-      setNames(user_input$facet_levels,
-               user_input$facet_vars)
+      setNames(
+        user_input$facet_levels,
+        user_input$facet_vars
+      )
     })
 
 
     # Collect inputs in a list of lists ----
     this_layer <- reactive({
-      list(geom = selected_geom(),
-           aes = aes_list(),
-           params = params_list(),
-           facets = facets_list()
-           ) %>%
+      list(
+        geom = selected_geom(),
+        aes = aes_list(),
+        params = params_list(),
+        facets = facets_list()
+      ) %>%
         purrr::compact()
     })
 
@@ -238,11 +252,21 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     annot_calls <- reactive({
-      purrr::map(.x = combined_layers(),
-                 .f = ~make_layer(geom = .x$geom,
-                                  aes = .x$aes,
-                                  params = .x$params,
-                                  facets = .x$facets))
+      raw_calls <- purrr::map(
+        .x = combined_layers(),
+        .f = ~ make_layer(
+          geom = .x$geom,
+          aes = .x$aes,
+          params = .x$params,
+          facets = .x$facets
+        )
+      )
+
+      eval_calls <- purrr::map(raw_calls, eval)
+
+      req_aes_present <- purrr::map_lgl(eval_calls, has_req_aes)
+
+      raw_calls[req_aes_present]
     })
 
     output$instruction <- renderText({
@@ -256,33 +280,8 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     output$plot <- renderPlot({
-      show_annot <- if (is.null(user_input$x)) {
-        FALSE
-      } else if (selected_geom() == "curve") {
-        if (is.null(user_input$x) |
-          is.null(user_input$x_dbl)) {
-          FALSE
-        } else if (isTRUE(user_input$x == user_input$x_dbl) &
-          isTRUE(user_input$y == user_input$y_dbl)) {
-          FALSE
-        }
-      } else if (selected_geom() == "rect") {
-        if (is.null(user_input$xmin) | is.null(user_input$xmax)) {
-          FALSE
-        } else if (isTRUE(user_input$xmin == user_input$xmax) &
-          isTRUE(user_input$ymin == user_input$ymax)) {
-          FALSE
-        }
-      } else {
-        TRUE
-      }
-
-      if (isFALSE(show_annot)) {
-        built_base_plot$plot
-      } else {
-        built_base_plot$plot +
-          purrr::map(annot_calls(), eval)
-      }
+      built_base_plot$plot +
+        purrr::map(annot_calls(), eval)
     })
 
     output$rendered_plot <- renderUI({
@@ -301,7 +300,7 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     output$geom_opts <- renderUI({
-      switch(input$geom,
+      switch(selected_geom(),
         "text"   = text_ui,
         "label"  = label_ui,
         "curve"  = curve_ui,
@@ -317,7 +316,8 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     output$code_output <- renderPrint({
-      calls_to_string(annot_calls())
+      # calls_to_string(annot_calls())
+      annot_calls()
     })
   }
 

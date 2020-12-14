@@ -26,5 +26,12 @@ remove_default_params <- function(geom_as_string, params) {
       params[[param]] <- NULL
     }
   }
+
+  # if (!is.null(params[["alpha"]])) {
+  #   if (params[["alpha"]] == 1) {
+  #     params[["alpha"]] <- NULL
+  #   }
+  # }
+
   params
 }

@@ -23,8 +23,10 @@ call_to_string <- function(call) {
 #' `sep`
 #' @keywords internal
 calls_to_string <- function(list_of_calls, sep = " + \n") {
-  x <- purrr::map_chr(list_of_calls,
-                 call_to_string)
+  x <- purrr::map_chr(
+    list_of_calls,
+    call_to_string
+  )
 
   x <- paste0(x, collapse = sep)
   x

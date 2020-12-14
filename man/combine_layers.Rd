@@ -32,21 +32,29 @@ that share parameters and geom, and return a list-of-lists.
 \examples{
 library(ggplot2)
 
-layer_1 <- list(geom = "text",
-                aes = list(x = 3, y = 30, label = "Some text"),
-                facets = list(cyl = 4),
-                params = list(colour = "red"))
+layer_1 <- list(
+  geom = "text",
+  aes = list(x = 3, y = 30, label = "Some text"),
+  facets = list(cyl = 4),
+  params = list(colour = "red")
+)
 
-layer_2 <- list(geom = "text",
-                aes = list(x = 4, y = 35, label = "Some other text"),
-                params = list(colour = "red"))
+layer_2 <- list(
+  geom = "text",
+  aes = list(x = 4, y = 35, label = "Some other text"),
+  params = list(colour = "red")
+)
 
-layer_3 <- list(geom = "point",
-                aes = list(x = 3, y = 40))
+layer_3 <- list(
+  geom = "point",
+  aes = list(x = 3, y = 40)
+)
 
-layer_4 <- list(geom = "text",
-                aes = list(x = 4, y = 45, label = "Some more text"),
-                params = list(colour = "black"))
+layer_4 <- list(
+  geom = "text",
+  aes = list(x = 4, y = 45, label = "Some more text"),
+  params = list(colour = "black")
+)
 
 lists <- list(layer_1, layer_2, layer_3, layer_4)
 
@@ -56,13 +64,16 @@ layers <- combine_layers(lists)
 
 # The resulting list can be used to create ggplot2 annotations
 
-annots <- purrr::map(layers,
-                       ~make_layer(geom = .x$geom,
-                                   aes = .x$aes,
-                                   params = .x$params) \%>\%
-                         eval())
+annots <- purrr::map(
+  layers,
+  ~ make_layer(
+    geom = .x$geom,
+    aes = .x$aes,
+    params = .x$params
+  ) \%>\%
+    eval()
+)
 
 ggplot2::ggplot() +
   annots
-
 }
