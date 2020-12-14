@@ -65,7 +65,7 @@
 #'
 #' ggplot2::ggplot() +
 #'   annots
-#' @export
+#' @noRd
 #' @importFrom rlang .data
 
 combine_layers <- function(lists) {
@@ -99,12 +99,18 @@ combine_layers <- function(lists) {
 
   x <- split(x, x$annot)
 
-  create_aes_out <- function(nested_tib) {
-    list_out <- nested_tib %>%
+  create_aes_out <- function(split_tib) {
+    aes_col <- split_tib %>%
       dplyr::select(.data$aes) %>%
-      tidyr::unnest_longer(.data$aes) %>%
-      tidyr::unnest_wider(.data$aes) %>%
-      as.list()
+      tidyr::unnest_longer(.data$aes)
+
+    if (all(is.na(aes_col))) {
+      list_out <- list(aes = NULL)
+    } else {
+      list_out <- aes_col %>%
+        tidyr::unnest_wider(.data$aes) %>%
+        as.list()
+    }
 
     list_out
   }

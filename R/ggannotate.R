@@ -40,14 +40,6 @@ ggannotate <- function(plot = last_plot()) {
     observeEvent(input$done, shiny::stopApp())
 
     user_input <- reactiveValues(
-      x = NULL,
-      y = NULL,
-      x_dbl = NULL,
-      y_dbl = NULL,
-      xmin = NULL,
-      xmax = NULL,
-      ymin = NULL,
-      ymax = NULL
     )
 
     # Check whether axes are flipped
@@ -316,7 +308,6 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     output$code_output <- renderPrint({
-      # calls_to_string(annot_calls())
       annot_calls()
     })
   }
