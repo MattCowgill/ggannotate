@@ -87,7 +87,8 @@ correct_facets <- function(clicked_facets, facet_characteristics) {
     for (panelvar in names(clicked_facets$vars)) {
       facet_name <- clicked_facets$vars[[panelvar]]
 
-      facets_out$vars[[panelvar]] <- facet_characteristics[[facet_name]]$data_name
+      facets_out$vars[[panelvar]] <-
+        facet_characteristics[[facet_name]]$data_name
 
       facet_factor <- facet_characteristics[[facet_name]]$facet_factor
 

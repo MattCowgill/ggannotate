@@ -1,7 +1,8 @@
 #' Take lists corresponding to several annotations, combine annotations
 #' that share parameters and geom, and return a list-of-lists.
 #' @name combine_layers
-#' @param lists List of lists to combine. Each sub-list should have four elements:
+#' @param lists List of lists to combine. Each sub-list should have
+#' four elements:
 #' \itemize{
 #'   \item{`geom`}{length-one character vector such as `"text"`, or `"point"`}
 #'   \item{`aes`}{named list containing variable-value mappings,

@@ -148,9 +148,10 @@ ggannotate <- function(plot = last_plot()) {
       )
 
       user_alpha <- ifelse(selected_geom() == "rect" &&
-                             !is.null(input$alpha),
-                           input$alpha,
-                           NA)
+        !is.null(input$alpha),
+      input$alpha,
+      NA
+      )
 
       params <- list(
         size = size,
