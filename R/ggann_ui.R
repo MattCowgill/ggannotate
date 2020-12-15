@@ -1,17 +1,14 @@
 # Shiny UI ------
 ggann_ui <- miniUI::miniPage(
-  tags$head(
-    tags$style(HTML(
-      "hr.black {
+    tags$head(
+      tags$style(HTML(
+        "hr.black {
         border: 0.4px solid #6a737b;
         margin: 0.2em;
         }"
-    ))
-  ),
-  miniUI::miniTabstripPanel(
-    miniUI::miniTabPanel(
-      title = "Annotate", icon = shiny::icon("tag"),
-      miniUI::miniContentPanel(
+      ))
+    ),
+    miniUI::miniContentPanel(
         shiny::fillRow(
           flex = c(1, 2),
           shiny::wellPanel(
@@ -60,25 +57,19 @@ ggann_ui <- miniUI::miniPage(
                   )
                 )
               ),
+            ),
+            shiny::wellPanel(
+              fluidRow(
+                column(
+                  2,
+                  actionButton("copy_button", HTML("<b>Copy code<br/>and close</b>"),
+                               width = "100%",
+                               style = "height:55px; ")
+              ),
+              column(
+                10,
+                verbatimTextOutput("code_output", placeholder = TRUE)
             )
-          )
-        )
-      )
-    ),
-    miniUI::miniTabPanel(
-      title = "Get the code", icon = shiny::icon("code"),
-      miniUI::miniContentPanel(
-        fluidRow(
-          column(
-            2,
-            actionButton("copy_button", HTML("<b>Copy code<br/>and close</b>"),
-              width = "100%",
-              style = "height:55px; "
-            )
-          ),
-          column(
-            10,
-            verbatimTextOutput("code_output")
           )
         )
       )

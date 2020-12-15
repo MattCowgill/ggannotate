@@ -310,7 +310,10 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     output$code_output <- renderPrint({
-      annot_calls()
+      if (length(annot_calls()) > 0) {
+        annot_calls()
+      }
+
     })
   }
 
