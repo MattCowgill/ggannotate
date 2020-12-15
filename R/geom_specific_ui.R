@@ -143,7 +143,7 @@ rect_ui <- tagList(
   fluidRow(
     column(
       6,
-      sliderInput("alpha", "Fill opacity",
+      sliderInput("alpha", "Fill opacity (alpha)",
         min = 0, max = 1, value = 0.25, step = 0.05
       )
     ),

@@ -39,8 +39,7 @@ ggannotate <- function(plot = last_plot()) {
   ggann_server <- function(input, output, session) {
     observeEvent(input$done, shiny::stopApp())
 
-    user_input <- reactiveValues(
-    )
+    user_input <- reactiveValues()
 
     # Check whether axes are flipped
     flipped_coords <- ggplot2::summarise_coord(built_base_plot)$flip
@@ -135,9 +134,8 @@ ggannotate <- function(plot = last_plot()) {
 
       size <- ifelse(selected_geom() %in% c("text", "label"),
         # Default ggplot2 size is 3.88 = 11.03967 points
-        ifelse(input$size == 11,
-               3.88,
-               input$size / ggplot2::.pt),
+        # We want to match this, which using .pt doesn't quite do
+        round(input$size / 2.835052, 2),
         input$size
       )
 
@@ -149,8 +147,10 @@ ggannotate <- function(plot = last_plot()) {
         TRUE ~ NA_real_
       )
 
-      user_alpha <- NA
-      # user_alpha <- ifelse(selected_geom() == "rect", input$alpha, NA)
+      user_alpha <- ifelse(selected_geom() == "rect" &&
+                             !is.null(input$alpha),
+                           input$alpha,
+                           NA)
 
       params <- list(
         size = size,
@@ -190,6 +190,7 @@ ggannotate <- function(plot = last_plot()) {
 
     # Create list of aesthetics based on user input ----
     aes_list <- reactive({
+      req(user_input)
       annot <- input$annotation
       annot_no_esc <- gsub("\\n", "\n", annot, fixed = TRUE)
 
@@ -240,7 +241,7 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     combined_layers <- reactive({
-      combine_layers(all_layers)
+      safely_combine_layers(all_layers)$result
     })
 
     annot_calls <- reactive({

@@ -140,3 +140,5 @@ combine_layers <- function(lists) {
 
   purrr::transpose(out)
 }
+
+safely_combine_layers <- purrr::safely(combine_layers)
