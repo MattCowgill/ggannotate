@@ -7,7 +7,8 @@
 check_if_date(built_plot)
 }
 \arguments{
-\item{built_plot}{A built ggplot2 object, created with `ggplot2::ggplot_build()`}
+\item{built_plot}{A built ggplot2 object, created with
+`ggplot2::ggplot_build()`}
 }
 \description{
 Check if x and/or y-scales of a built ggplot2 object are date scales
