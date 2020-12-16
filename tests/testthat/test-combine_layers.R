@@ -38,19 +38,27 @@ test_that("combine_layers() returns expected output", {
 
     sub_elements_are_lists <- all(purrr::map_lgl(result, is.list))
 
-    sub_elements_are_length_4 <- all(purrr::map_lgl(result,
-                                                    ~length(.x) == 4))
+    sub_elements_are_length_4 <- all(purrr::map_lgl(
+      result,
+      ~ length(.x) == 4
+    ))
 
-    all_names_present <- function(x) all(c("geom", "aes", "params", "facets") %in%
-                                           names(x))
+    all_names_present <- function(x) {
+      all(c("geom", "aes", "params", "facets") %in%
+        names(x))
+    }
 
-    sub_elements_have_correct_names <- all(purrr::map_lgl(result,
-                                                          all_names_present))
+    sub_elements_have_correct_names <- all(purrr::map_lgl(
+      result,
+      all_names_present
+    ))
 
-    all(result_is_list,
-        sub_elements_are_lists,
-        sub_elements_are_length_4,
-        sub_elements_have_correct_names)
+    all(
+      result_is_list,
+      sub_elements_are_lists,
+      sub_elements_are_length_4,
+      sub_elements_have_correct_names
+    )
   }
 
   # Check all lists work when included
@@ -60,24 +68,28 @@ test_that("combine_layers() returns expected output", {
   expect_length(combine_layers(layers), 4)
 
   # Check each individual list works separately
-  expect_true(all(purrr::map_lgl(layers,
-             ~result_is_correct(combine_layers(list(.x)))))
-  )
+  expect_true(all(purrr::map_lgl(
+    layers,
+    ~ result_is_correct(combine_layers(list(.x)))
+  )))
 
   # Empty list should throw error
   expect_error(combine_layers(list()))
 
   # Each list element must contain certain sub-elements
   expect_error(combine_layers(lists = list(
-    list(somenonsense = 1))
-    ))
+    list(somenonsense = 1)
+  )))
 
   # aes sub-element must be a list, not a vector
-  expect_error(combine_layers(lists = list(list(geom = "text",
-                                         aes = c("a", "b", "c")))))
+  expect_error(combine_layers(lists = list(list(
+    geom = "text",
+    aes = c("a", "b", "c")
+  ))))
 
   # aes sub-element is required
-  expect_error(combine_layers(lists = list(list(geom = "text",
-                                         params = list(colour = "red")))))
-
+  expect_error(combine_layers(lists = list(list(
+    geom = "text",
+    params = list(colour = "red")
+  ))))
 })

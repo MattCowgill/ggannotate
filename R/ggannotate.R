@@ -192,6 +192,7 @@ ggannotate <- function(plot = last_plot()) {
     # Create list of aesthetics based on user input ----
     aes_list <- reactive({
       req(user_input)
+      req(input$geom)
       annot <- input$annotation
       annot_no_esc <- gsub("\\n", "\n", annot, fixed = TRUE)
 
@@ -242,6 +243,7 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     combined_layers <- reactive({
+      req(this_layer())
       safely_combine_layers(all_layers)$result
     })
 
@@ -294,6 +296,7 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     output$geom_opts <- renderUI({
+      req(selected_geom())
       switch(selected_geom(),
         "text"   = text_ui,
         "label"  = label_ui,
@@ -313,7 +316,6 @@ ggannotate <- function(plot = last_plot()) {
       if (length(annot_calls()) > 0) {
         annot_calls()
       }
-
     })
   }
 

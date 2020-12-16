@@ -1,5 +1,4 @@
 test_that("A manual construction of inputs yields an annotated plot", {
-
   plot <- mtcars %>%
     ggplot(aes(x = wt, y = mpg)) +
     geom_point() +
@@ -28,7 +27,7 @@ test_that("A manual construction of inputs yields an annotated plot", {
     panelvar1 = 4,
     mapping = list(
       x = "wt",
-      y = "mpg" ,
+      y = "mpg",
       panelvar1 = "cyl"
     ),
     domain = list(
@@ -50,10 +49,10 @@ test_that("A manual construction of inputs yields an annotated plot", {
   )
 
   geom_fn <- switch(selected_geom,
-                    "text"  = ggplot2::GeomText,
-                    "label" = ggplot2::GeomLabel,
-                    "curve" = ggplot2::GeomCurve,
-                    "rect" = ggplot2::GeomRect
+    "text"  = ggplot2::GeomText,
+    "label" = ggplot2::GeomLabel,
+    "curve" = ggplot2::GeomCurve,
+    "rect" = ggplot2::GeomRect
   )
 
 
@@ -82,16 +81,18 @@ test_that("A manual construction of inputs yields an annotated plot", {
   annot <- "My annotation"
   annot_no_esc <- gsub("\\n", "\n", annot, fixed = TRUE)
 
-  aes_list <- list(x = user_input$x,
-                   y = user_input$y,
-                   label = annot_no_esc)
+  aes_list <- list(
+    x = user_input$x,
+    y = user_input$y,
+    label = annot_no_esc
+  )
 
   facets_list <- setNames(
     user_input$facet_levels,
     user_input$facet_vars
   )
 
-  this_layer <-       list(
+  this_layer <- list(
     geom = selected_geom,
     aes = aes_list,
     params = params_list,
@@ -105,10 +106,12 @@ test_that("A manual construction of inputs yields an annotated plot", {
 
   combined_layers <- safely_combine_layers(all_layers)$result
 
-  geom_calls <- purrr::map(combined_layers, ~make_layer(geom = .x$geom,
-                                                        aes = .x$aes,
-                                                        facets = .x$facets,
-                                                        params = .x$params))
+  geom_calls <- purrr::map(combined_layers, ~ make_layer(
+    geom = .x$geom,
+    aes = .x$aes,
+    facets = .x$facets,
+    params = .x$params
+  ))
 
   geoms <- purrr::map(geom_calls, eval)
 
@@ -116,14 +119,18 @@ test_that("A manual construction of inputs yields an annotated plot", {
 
   expect_is(annot_plot, "gg")
 
-  expect_identical(annot_plot$layers[[2]]$data,
-                   data.frame(x = 4,
-                              y = 23,
-                              label = "My annotation",
-                              cyl = 4))
+  expect_identical(
+    annot_plot$layers[[2]]$data,
+    data.frame(
+      x = 4,
+      y = 23,
+      label = "My annotation",
+      cyl = 4
+    )
+  )
 
   vdiffr::expect_doppelganger("faceted mtcars with one text annotation",
-                              annot_plot,
-                              path = "manual-construction")
-
+    annot_plot,
+    path = "manual-construction"
+  )
 })

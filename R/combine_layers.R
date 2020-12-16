@@ -96,17 +96,21 @@ combine_layers <- function(lists) {
   check_element_is_layer <- function(element) {
     element_is_list <- is.list(element)
     has_expected_sub_elements <- all(c("geom", "aes")
-                                     %in% names(element))
+    %in% names(element))
     has_no_unexpected_sub_elements <- all(names(element) %in%
-                                            c("geom", "aes",
-                                              "facets", "params"))
+      c(
+        "geom", "aes",
+        "facets", "params"
+      ))
 
     aes_is_list <- is.list(element[["aes"]])
 
-    all(element_is_list,
-        has_expected_sub_elements,
-        aes_is_list,
-        has_no_unexpected_sub_elements)
+    all(
+      element_is_list,
+      has_expected_sub_elements,
+      aes_is_list,
+      has_no_unexpected_sub_elements
+    )
   }
 
   each_element_is_layer <- all(purrr::map_lgl(
@@ -157,10 +161,12 @@ combine_layers <- function(lists) {
   }
 
   params <- purrr::map(x, add_element_or_flatten,
-                       element = "params")
+    element = "params"
+  )
 
   facets <- purrr::map(x, add_element_or_flatten,
-                       element = "facets")
+    element = "facets"
+  )
 
   out <- list(
     aes = aes,
