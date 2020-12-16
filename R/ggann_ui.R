@@ -1,21 +1,31 @@
+ggannPanel <- function(...) {
+  shiny::wellPanel(style = "background: rgba(22, 80, 129, 0.05); border-style: none",
+                   ...)
+}
+
 # Shiny UI ------
+
 ggann_ui <- miniUI::miniPage(
-    tags$head(
+  tags$head(
       tags$style(HTML(
-        "hr.black {
-        border: 0.4px solid #6a737b;
-        margin: 0.2em;
+        "hr.ggann_blue {
+        border-top: 0.5px solid rgba(22, 80, 129, 1);
+        margin: 0.3em;
+        }
+        body {
+        color: rgba(22, 80, 129, 1);
         }"
       ))
     ),
     miniUI::miniContentPanel(
         shiny::fillRow(
           flex = c(1, 2),
-          shiny::wellPanel(
+          ggannPanel(
+            style = "background: rgba(22, 80, 129, 0.1); border-style: none",
             fluidRow(
               column(
                 6,
-                selectInput("annot_layer", "Annotation",
+                selectInput("annot_layer", "Annotation layer",
                   choices = 1:10,
                   selected = 1,
                   multiple = FALSE
@@ -29,16 +39,17 @@ ggann_ui <- miniUI::miniPage(
                 )
               )
             ),
-            hr(class = "black"),
+            hr(class = "ggann_blue"),
+            br(),
             fluidRow(column(12, uiOutput("geom_opts")))
           ),
           shiny::column(
             width = 12,
             div(textOutput("instruction"),
-              style = "color:black; font-weight:bold; line-height:1.6em; font-size:1em"
+              style = "font-weight:bold; line-height:1.6em; font-size:1em"
             ),
             uiOutput("rendered_plot"),
-            shiny::wellPanel(
+            ggannPanel(
               fluidRow(
                 column(
                   4,
@@ -58,13 +69,13 @@ ggann_ui <- miniUI::miniPage(
                 )
               ),
             ),
-            shiny::wellPanel(
+            ggannPanel(
               fluidRow(
                 column(
                   2,
-                  actionButton("copy_button", HTML("<b>Copy code<br/>and close</b>"),
+                  actionButton("copy_button", HTML("<b>Copy &<br/>close</b>"),
                                width = "100%",
-                               style = "height:55px; ")
+                               style = "height:55px; background: rgba(22, 80, 129, 0.66); color: rgba(255, 255, 255, 1)")
               ),
               column(
                 10,

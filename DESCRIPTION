@@ -1,6 +1,6 @@
 Package: ggannotate
 Title: Interactively Annotate ggplot2 Plots
-Version: 0.0.0.9300
+Version: 0.0.1
 Authors@R: 
     c(person(given = "Matt",
            family = "Cowgill",
@@ -13,6 +13,7 @@ Authors@R:
              email = "john.helveston@gmail.com"))
 Description: Place annotations exactly where you want them to go by 
     pointing and clicking.
+Date: 2020-12-15
 License: MIT + file LICENSE
 Imports: 
     ggplot2 (>= 3.2.1),
