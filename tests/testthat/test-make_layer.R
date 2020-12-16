@@ -38,8 +38,7 @@ annot_facet_1 <-
       y = 30,
       label = "My\ntext"
     ),
-    facet_vars = list("cyl"),
-    facet_levels = list(4)
+    facets = list(cyl = 4)
   )
 annot_facet_1_plot <- facet_plot_1 +
   eval(annot_facet_1)

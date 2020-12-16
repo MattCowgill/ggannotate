@@ -26,5 +26,6 @@ remove_default_params <- function(geom_as_string, params) {
       params[[param]] <- NULL
     }
   }
+
   params
 }

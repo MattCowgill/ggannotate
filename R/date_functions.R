@@ -1,5 +1,6 @@
 #' Check if x and/or y-scales of a built ggplot2 object are date scales
-#' @param built_plot A built ggplot2 object, created with `ggplot2::ggplot_build()`
+#' @param built_plot A built ggplot2 object, created with
+#' `ggplot2::ggplot_build()`
 check_if_date <- function(built_plot) {
   p <- built_plot
 
@@ -39,7 +40,8 @@ num_to_date <- function(numdate) {
 #' The list object returned by Shiny (eg. `input$plot_click`) does not return
 #' dates or flipped scales in a manner that can be easily dealt with. This
 #' function corrects the date and/or flipped scales.
-#' @param input_list List; returned by Shiny on input, such as `input$plot_click`
+#' @param input_list List; returned by Shiny on input,
+#' such as `input$plot_click`
 #' @param axis_classes List; output of `check_if_date()`
 #' @param flipped_coords Logical; returned by `ggplot2::summarise_coord()$flip`
 #' @noRd

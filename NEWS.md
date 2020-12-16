@@ -1,3 +1,6 @@
+# ggannotate 0.1.0
+* Multiple annotations now allowed
+
 # ggannotate 0.0.0.9100
 
 * Added a `NEWS.md` file to track changes to the package.
