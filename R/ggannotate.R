@@ -34,6 +34,15 @@ ggannotate <- function(plot = last_plot()) {
     stop("ggannotate() does not work with polar coordinates.")
   }
 
+  # Check whether axes are flipped
+  flipped_coords <- ggplot2::summarise_coord(built_base_plot)$flip
+
+  # Check whether axes are dates
+  axis_classes <- check_if_date(built_base_plot)
+
+  # Get information about facets in plot
+  facet_characteristics <- get_facet_characteristics(built_base_plot)
+
   # Shiny server ------
 
   ggann_server <- function(input, output, session) {
@@ -41,18 +50,10 @@ ggannotate <- function(plot = last_plot()) {
 
     user_input <- reactiveValues()
 
-    # Check whether axes are flipped
-    flipped_coords <- ggplot2::summarise_coord(built_base_plot)$flip
-
-    # Check whether axes are dates
-    axis_classes <- check_if_date(built_base_plot)
-
-    # Get information about facets in plot
-    facet_characteristics <- get_facet_characteristics(built_base_plot)
-
     # Get information about selected geom and annotation layer
-    annot_layer <- reactive(input$annot_layer)
+    annot_layer <- reactive(as.character(input$annot_layer))
     selected_geom <- reactive(input$geom)
+
 
     geom_fn <- reactive({
       switch(selected_geom(),
@@ -74,6 +75,7 @@ ggannotate <- function(plot = last_plot()) {
 
     # Observe plot interaction -----
     observeEvent(input$plot_click, {
+
       facets <- get_facets(input$plot_click)
       facets <- correct_facets(facets, facet_characteristics)
       user_input$facet_vars <- facets$vars
@@ -239,7 +241,7 @@ ggannotate <- function(plot = last_plot()) {
     all_layers <- reactiveValues()
 
     observe({
-      all_layers[[as.character(annot_layer())]] <- this_layer()
+      all_layers[[annot_layer()]] <- this_layer()
     })
 
     combined_layers <- reactive({
@@ -295,15 +297,6 @@ ggannotate <- function(plot = last_plot()) {
       )
     })
 
-    output$geom_opts <- renderUI({
-      req(selected_geom())
-      switch(selected_geom(),
-        "text"   = text_ui,
-        "label"  = label_ui,
-        "curve"  = curve_ui,
-        "rect"  = rect_ui
-      )
-    })
 
     observeEvent(input$copy_button, {
       callstring <- calls_to_string(annot_calls())
@@ -316,9 +309,24 @@ ggannotate <- function(plot = last_plot()) {
       if (length(annot_calls()) > 0) {
         annot_calls()
       }
+
+      # Dynamic UI ----
+
+      output$geom_opts <- renderUI({
+        req(selected_geom())
+        switch(selected_geom(),
+               "text"   = text_ui,
+               "label"  = label_ui,
+               "curve"  = curve_ui,
+               "rect"  = rect_ui
+        )
+      })
+
+
     })
   }
 
+  # Create app ----
   ggann_app <- shiny::shinyApp(ggann_ui, ggann_server)
 
   shiny::runGadget(
