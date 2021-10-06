@@ -1,6 +1,6 @@
 Package: ggannotate
 Title: Interactively Annotate ggplot2 Plots
-Version: 0.0.1
+Version: 0.1.0.900
 Authors@R: 
     c(person(given = "Matt",
            family = "Cowgill",

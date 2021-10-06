@@ -1,3 +1,6 @@
+# ggannotate 0.1.0.900
+* Bug fixes
+
 # ggannotate 0.1.0
 * Multiple annotations now allowed
 
