@@ -1,5 +1,4 @@
-library(ggplot2)
-library(vdiffr)
+
 
 base_plot <- ggplot(
   mtcars,
@@ -84,8 +83,8 @@ test_that("make_layer works with flipped coords", {
 })
 
 # Date axis -----
-date_line_base <- economics %>%
-  ggplot(aes(x = date, y = unemploy)) +
+date_line_base <- ggplot(ggplot2::economics,
+         aes(x = date, y = unemploy)) +
   geom_line()
 
 annot_date_line <-

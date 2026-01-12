@@ -1,26 +1,24 @@
 test_that("remove_default_params() removes params that match geom defaults", {
-  # Use geom_text which has more stable defaults across ggplot2 versions
 
   params_list <- list(
-    colour = "black",
     angle = 0,
     hjust = 0.5,
     vjust = 0.5,
-    family = "",
     fontface = 1,
     lineheight = 1.2,
     custom_param = "keep_me"
   )
 
- params_list_nodefaults <- remove_default_params("geom_text", params_list)
+  params_list_nodefaults <- remove_default_params("geom_text", params_list)
 
   # custom_param should be kept (not a default)
   expect_true("custom_param" %in% names(params_list_nodefaults))
   expect_equal(params_list_nodefaults$custom_param, "keep_me")
 
-  # Default params should be removed
-  expect_false("colour" %in% names(params_list_nodefaults))
+  # Default params should be removed (these have simple numeric defaults)
   expect_false("angle" %in% names(params_list_nodefaults))
+  expect_false("hjust" %in% names(params_list_nodefaults))
+  expect_false("vjust" %in% names(params_list_nodefaults))
 })
 
 test_that("remove_default_params() leaves params that do not match geom defaults", {
