@@ -24,7 +24,7 @@ annot_plot <- base_plot +
 test_that("make_layer works with basic scatterplot", {
   expect_type(annot, "language")
   expect_s3_class(annot_plot, "ggplot")
-  vdiffr::expect_doppelganger("annot_plot", annot_plot, path = "make-layer")
+  vdiffr::expect_doppelganger("annot_plot", annot_plot)
 })
 
 # Faceted scatterplot -----
@@ -46,7 +46,7 @@ annot_facet_1_plot <- facet_plot_1 +
 test_that("make_layer works with a single facet", {
   expect_type(annot_facet_1, "language")
   expect_s3_class(annot_facet_1_plot, "ggplot")
-  vdiffr::expect_doppelganger("annot_facet_1_plot", annot_facet_1_plot, path = "make-layer")
+  vdiffr::expect_doppelganger("annot_facet_1_plot", annot_facet_1_plot)
 })
 
 # Flipped bar chart -----
@@ -104,7 +104,8 @@ annot_date_line_plot <- date_line_base +
 test_that("make_layer works with date axes", {
   expect_type(annot_date_line, "language")
   expect_s3_class(annot_date_line_plot, "ggplot")
-  vdiffr::expect_doppelganger("annot_date_line_plot", annot_date_line_plot, path = "make-layer")
+  vdiffr::expect_doppelganger(title = "annot_date_line_plot",
+                              fig = annot_date_line_plot)
 })
 
 # Curve ----
@@ -125,5 +126,5 @@ annot_curve_plot <- base_plot +
 test_that("make_layer works with geom_curve", {
   expect_type(annot_curve, "language")
   expect_s3_class(annot_curve_plot, "ggplot")
-  vdiffr::expect_doppelganger("annot_curve_plot", annot_curve_plot, path = "make-layer")
+  vdiffr::expect_doppelganger("annot_curve_plot", fig = annot_curve_plot)
 })

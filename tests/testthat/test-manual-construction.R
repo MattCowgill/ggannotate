@@ -130,7 +130,6 @@ test_that("A manual construction of inputs yields an annotated plot", {
   )
 
   vdiffr::expect_doppelganger("faceted mtcars with one text annotation",
-    annot_plot,
-    path = "manual-construction"
+    annot_plot
   )
 })
