@@ -1,0 +1,20 @@
+url: https://mattcowgill.github.io/ggannotate/
+
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left:  [intro, reference, news]
+    right: [search, github]
+
+reference:
+  - title: Main function
+    desc: Launch the interactive annotation gadget
+    contents:
+      - ggannotate
+
+  - title: Helper functions
+    desc: Functions for programmatic annotation building
+    contents:
+      - make_layer

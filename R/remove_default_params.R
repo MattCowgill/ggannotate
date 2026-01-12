@@ -7,15 +7,13 @@
 #' @return A list of parameters + aesthetics in which none of the values
 #' correspond to the geom defaults
 #' @noRd
-
 remove_default_params <- function(geom_as_string, params) {
-  get_param_defaults <- function(geom_as_string) {
-    geom <- call(geom_as_string)
-    geom <- eval(geom)
-    c(geom$geom_params, geom$geom$default_aes)
-  }
+  default_params <- get_geom_defaults(geom_as_string)
 
-  default_params <- get_param_defaults(geom_as_string)
+  # If we couldn't get defaults, return params unchanged
+  if (length(default_params) == 0) {
+    return(params)
+  }
 
   param_names <- names(params)
 

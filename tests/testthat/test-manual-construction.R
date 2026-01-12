@@ -6,7 +6,7 @@ test_that("A manual construction of inputs yields an annotated plot", {
 
   built_base_plot <- ggplot2::ggplot_build(plot)
 
-  flipped_coords <- ggplot2::summarise_coord(built_base_plot)$flip
+  flipped_coords <- get_flipped_coords(built_base_plot)
   axis_classes <- check_if_date(built_base_plot)
   facet_characteristics <- get_facet_characteristics(built_base_plot)
 
@@ -117,7 +117,7 @@ test_that("A manual construction of inputs yields an annotated plot", {
 
   annot_plot <- plot + geoms
 
-  expect_is(annot_plot, "gg")
+  expect_s3_class(annot_plot, "gg")
 
   expect_identical(
     annot_plot$layers[[2]]$data,

@@ -9,9 +9,15 @@
 #' geom_b <- geom_text(aes(x = 3, y = 30, label = "something"))
 #' has_req_aes(geom_b) # returns `TRUE`
 #' @noRd
-
 has_req_aes <- function(geom) {
-  req_aes <- geom$geom$required_aes
+  req_aes <- get_required_aes(geom)
   actual_aes <- names(geom$mapping)
+
+  # If we couldn't determine required aes, assume valid
+
+  if (length(req_aes) == 0) {
+    return(TRUE)
+  }
+
   all(req_aes %in% actual_aes)
 }

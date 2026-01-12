@@ -128,10 +128,13 @@ ggann_eval_facet <- function(facet, data) {
 #' Get list of facet quosures from built ggplot
 #' @noRd
 get_facet_quos <- function(built_plot) {
+
+  facet_params <- get_facet_params(built_plot)
+
   plot_facets <- list(
-    built_plot$layout$facet_params$rows,
-    built_plot$layout$facet_params$cols,
-    built_plot$layout$facet_params$facets
+    facet_params$rows,
+    facet_params$cols,
+    facet_params$facets
   )
 
   plot_facets <- purrr::compact(plot_facets)
