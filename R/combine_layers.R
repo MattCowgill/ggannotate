@@ -4,17 +4,17 @@
 #' @param lists List of lists to combine. Each sub-list should have
 #' at least these two elements:
 #' \itemize{
-#'   \item{`geom`}{length-one character vector such as `"text"`, or `"point"`}
-#'   \item{`aes`}{named list containing variable-value mappings,
-#'   such as `list(x = 3, y = 40)`)}
+#'   \item `geom`: length-one character vector such as `"text"`, or `"point"`
+#'   \item `aes`: named list containing variable-value mappings,
+#'   such as `list(x = 3, y = 40)`
 #' }
 #'
 #' It can also have two optional additional elements:
-#' \itemize{}
-#'   \item{`param`}{named list containing parameter names and values, such as
-#' `list(colour = "black")`}
-#'   \item{`facets`}{named list containing facet variable-value pairs, such as
-#'   `list(cyl = 4)`}
+#' \itemize{
+#'   \item `param`: named list containing parameter names and values, such as
+#'   `list(colour = "black")`
+#'   \item `facets`: named list containing facet variable-value pairs, such as
+#'   `list(cyl = 4)`
 #' }
 #'
 #'
@@ -78,8 +78,6 @@
 #' ggplot2::ggplot() +
 #'   annots
 #' @noRd
-#' @importFrom rlang .data
-
 combine_layers <- function(lists) {
   if (missing(lists)) {
     stop("Must supply list of lists")
@@ -121,26 +119,26 @@ combine_layers <- function(lists) {
   stopifnot(each_element_is_layer)
 
   x <- dplyr::tibble(layer = lists)
-  x <- tidyr::unnest_wider(x, .data$layer)
+  x <- tidyr::unnest_wider(x, "layer")
 
   x <- dplyr::group_by(x, dplyr::across(!dplyr::one_of("aes")))
 
   x <- x %>%
-    dplyr::summarise(aes = list(.data$aes), .groups = "drop") %>%
+    dplyr::summarise(aes = list(.data[["aes"]]), .groups = "drop") %>%
     dplyr::mutate(annot = dplyr::row_number())
 
   x <- split(x, x$annot)
 
   create_aes_out <- function(split_tib) {
     aes_col <- split_tib %>%
-      dplyr::select(.data$aes) %>%
-      tidyr::unnest_longer(.data$aes)
+      dplyr::select("aes") %>%
+      tidyr::unnest_longer("aes")
 
     if (all(is.na(aes_col))) {
       list_out <- list(aes = NULL)
     } else {
       list_out <- aes_col %>%
-        tidyr::unnest_wider(.data$aes) %>%
+        tidyr::unnest_wider("aes") %>%
         as.list()
     }
 

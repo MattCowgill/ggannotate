@@ -9,7 +9,7 @@ test_that("check_if_date returns appropriate values", {
   expect_true(date_plot_checked$x_date)
   expect_false(date_plot_checked$y_date)
   expect_length(date_plot_checked, 2)
-  expect_is(date_plot_checked, "list")
+  expect_type(date_plot_checked, "list")
 
   non_date_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) +
     geom_point()
@@ -20,7 +20,7 @@ test_that("check_if_date returns appropriate values", {
   expect_false(non_date_plot_checked$x_date)
   expect_false(non_date_plot_checked$y_date)
   expect_length(date_plot_checked, 2)
-  expect_is(date_plot_checked, "list")
+  expect_type(date_plot_checked, "list")
 })
 
 test_that("num_to_date() returns expected values", {
@@ -50,7 +50,7 @@ test_that("correct_scales() corrects scales", {
   corrected_scales <- correct_scales(
     plot_click,
     check_if_date(built_plot),
-    ggplot2::summarise_coord(built_plot)$flip
+    get_flipped_coords(built_plot)
   )
 
   expect_null(corrected_scales$xmin)

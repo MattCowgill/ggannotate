@@ -1,5 +1,4 @@
-library(ggplot2)
-library(vdiffr)
+
 
 base_plot <- ggplot(
   mtcars,
@@ -22,9 +21,9 @@ annot_plot <- base_plot +
   eval(annot)
 
 test_that("make_layer works with basic scatterplot", {
-  expect_is(annot, "call")
-  expect_is(annot_plot, "ggplot")
-  vdiffr::expect_doppelganger("annot_plot", annot_plot, path = "make-layer")
+  expect_type(annot, "language")
+  expect_s3_class(annot_plot, "ggplot")
+  vdiffr::expect_doppelganger("annot_plot", annot_plot)
 })
 
 # Faceted scatterplot -----
@@ -44,9 +43,9 @@ annot_facet_1_plot <- facet_plot_1 +
   eval(annot_facet_1)
 
 test_that("make_layer works with a single facet", {
-  expect_is(annot_facet_1, "call")
-  expect_is(annot_facet_1_plot, "ggplot")
-  vdiffr::expect_doppelganger("annot_facet_1_plot", annot_facet_1_plot, path = "make-layer")
+  expect_type(annot_facet_1, "language")
+  expect_s3_class(annot_facet_1_plot, "ggplot")
+  vdiffr::expect_doppelganger("annot_facet_1_plot", annot_facet_1_plot)
 })
 
 # Flipped bar chart -----
@@ -78,14 +77,14 @@ annot_flipped_bar_plot <- flipped_bar_base +
   eval(annot_flipped_bar)
 
 test_that("make_layer works with flipped coords", {
-  expect_is(annot_flipped_bar, "call")
-  expect_is(annot_flipped_bar_plot, "ggplot")
+  expect_type(annot_flipped_bar, "language")
+  expect_s3_class(annot_flipped_bar_plot, "ggplot")
   # vdiffr::expect_doppelganger("annot_flipped_bar_plot", annot_flipped_bar_plot, path = "make-layer")
 })
 
 # Date axis -----
-date_line_base <- economics %>%
-  ggplot(aes(x = date, y = unemploy)) +
+date_line_base <- ggplot(ggplot2::economics,
+         aes(x = date, y = unemploy)) +
   geom_line()
 
 annot_date_line <-
@@ -102,9 +101,10 @@ annot_date_line_plot <- date_line_base +
   eval(annot_date_line)
 
 test_that("make_layer works with date axes", {
-  expect_is(annot_date_line, "call")
-  expect_is(annot_date_line_plot, "ggplot")
-  vdiffr::expect_doppelganger("annot_date_line_plot", annot_date_line_plot, path = "make-layer")
+  expect_type(annot_date_line, "language")
+  expect_s3_class(annot_date_line_plot, "ggplot")
+  vdiffr::expect_doppelganger(title = "annot_date_line_plot",
+                              fig = annot_date_line_plot)
 })
 
 # Curve ----
@@ -123,7 +123,7 @@ annot_curve_plot <- base_plot +
   eval(annot_curve)
 
 test_that("make_layer works with geom_curve", {
-  expect_is(annot_curve, "call")
-  expect_is(annot_curve_plot, "ggplot")
-  vdiffr::expect_doppelganger("annot_curve_plot", annot_curve_plot, path = "make-layer")
+  expect_type(annot_curve, "language")
+  expect_s3_class(annot_curve_plot, "ggplot")
+  vdiffr::expect_doppelganger("annot_curve_plot", fig = annot_curve_plot)
 })

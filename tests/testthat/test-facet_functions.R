@@ -79,7 +79,7 @@ test_that("get_facet_characteristics() returns expected output", {
 test_that("plot with no facets treated as expected", {
   facets <- get_facets(test_base_list)
 
-  expect_is(facets, "list")
+  expect_type(facets, "list")
 
   expect_length(facets$levels, 0)
 

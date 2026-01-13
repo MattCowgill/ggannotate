@@ -30,7 +30,7 @@ ggannotate <- function(plot = last_plot()) {
 
   built_base_plot <- ggplot2::ggplot_build(plot)
 
-  if (inherits(built_base_plot$layout$coord, "CoordPolar")) {
+  if (is_polar_coord(built_base_plot)) {
     stop("ggannotate() does not work with polar coordinates.")
   }
 
@@ -42,7 +42,7 @@ ggannotate <- function(plot = last_plot()) {
     user_input <- reactiveValues()
 
     # Check whether axes are flipped
-    flipped_coords <- ggplot2::summarise_coord(built_base_plot)$flip
+    flipped_coords <- get_flipped_coords(built_base_plot)
 
     # Check whether axes are dates
     axis_classes <- check_if_date(built_base_plot)
