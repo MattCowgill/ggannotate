@@ -335,7 +335,27 @@ ggannotate <- function(plot = last_plot()) {
 
     observeEvent(input$copy_button, {
       callstring <- calls_to_string(annot_calls())
-      clipr::write_clip(callstring, object_type = "character")
+
+      # Try to copy to clipboard, with fallback for systems without clipboard support
+      clipboard_success <- tryCatch(
+        {
+          clipr::write_clip(callstring, object_type = "character")
+          TRUE
+        },
+        error = function(e) {
+          FALSE
+        }
+      )
+
+      if (!clipboard_success) {
+        message(
+          "Could not copy to clipboard. ",
+          "On Wayland, install 'wl-clipboard'. On X11, install 'xclip' or 'xsel'.\n",
+          "Code printed below:\n\n",
+          callstring, "\n"
+        )
+      }
+
       ggplot2::set_last_plot(plot)
       stopApp()
     })
