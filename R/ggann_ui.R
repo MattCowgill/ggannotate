@@ -36,7 +36,11 @@ ggann_ui <- miniUI::miniPage(
           column(
             6,
             selectInput("geom", "Geom",
-              choices = c("text", "label", "curve", "rect"),
+              choices = if (requireNamespace("ggtext", quietly = TRUE)) {
+                c("text", "label", "curve", "rect", "textbox")
+              } else {
+                c("text", "label", "curve", "rect")
+              },
               selected = "text"
             )
           )

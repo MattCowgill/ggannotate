@@ -35,5 +35,6 @@ Suggests:
     testthat (>= 3.0.0),
     vdiffr (>= 1.0.0),
     covr,
-    pkgdown
+    pkgdown,
+    ggtext
 Config/testthat/edition: 3

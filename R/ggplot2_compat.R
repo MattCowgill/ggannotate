@@ -147,14 +147,15 @@ get_required_aes <- function(geom) {
 
 #' Safely get geom parameters and default aesthetics
 #'
-#' @param geom_as_string Character string like "geom_text"
+#' @param geom_as_string Character string like "geom_text" or "ggtext::geom_textbox"
 #' @return Named list of default parameter values
 #' @noRd
 get_geom_defaults <- function(geom_as_string) {
   tryCatch(
     {
-      geom <- call(geom_as_string)
-      geom <- eval(geom)
+      # Parse and evaluate to handle namespaced calls like "ggtext::geom_textbox"
+      geom_call <- parse(text = paste0(geom_as_string, "()"))[[1]]
+      geom <- eval(geom_call)
       c(geom$geom_params, geom$geom$default_aes)
     },
     error = function(e) {

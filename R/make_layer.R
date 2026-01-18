@@ -72,14 +72,28 @@ make_layer <- function(geom,
 
   params_list <- purrr::compact(params)
 
-  geom_to_call <- paste0("geom_", geom)
+  # Handle textbox namespace - it's from ggtext, not ggplot2
+  if (geom == "textbox") {
+    geom_to_call <- "ggtext::geom_textbox"
+    params_list <- remove_default_params(geom_to_call, params_list)
 
-  params_list <- remove_default_params(geom_to_call, params_list)
+    # Create a properly namespaced call using :: operator
+    rlang::call2(
+      call("::", quote(ggtext), quote(geom_textbox)),
+      data = data_call,
+      mapping = aes_call,
+      !!!params_list,
+      inherit.aes = FALSE
+    )
+  } else {
+    geom_to_call <- paste0("geom_", geom)
+    params_list <- remove_default_params(geom_to_call, params_list)
 
-  rlang::call2(geom_to_call,
-    data = data_call,
-    mapping = aes_call,
-    !!!params_list,
-    inherit.aes = FALSE
-  )
+    rlang::call2(geom_to_call,
+      data = data_call,
+      mapping = aes_call,
+      !!!params_list,
+      inherit.aes = FALSE
+    )
+  }
 }

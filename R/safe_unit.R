@@ -14,7 +14,7 @@
 #' @importFrom rlang call2
 
 safe_unit <- function(x, units) {
-  if (is.null(x) || is.null(units)) {
+  if (is.null(x) || is.null(units) || (length(x) == 1 && is.na(x))) {
     NULL
   } else {
     call("unit", x, units)
