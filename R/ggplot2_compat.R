@@ -119,6 +119,18 @@ is_date_scale <- function(scale) {
   inherits(scale, "ScaleContinuousDate")
 }
 
+#' Check if a scale is a datetime (POSIXct) scale
+#'
+#' @param scale A ggplot2 scale object
+#' @return Logical indicating if scale is a datetime scale
+#' @noRd
+is_datetime_scale <- function(scale) {
+  if (is.null(scale)) {
+    return(FALSE)
+  }
+  inherits(scale, "ScaleContinuousDatetime")
+}
+
 #' Safely get required aesthetics from a geom
 #'
 #' @param geom A ggplot2 geom object (evaluated layer)

@@ -46,9 +46,13 @@ make_layer <- function(geom,
   names(aesthetics) <- aesthetics
   aes_call <- rlang::call2("aes", !!!aesthetics)
 
-  # Dates
+  # Dates and datetimes
   date_call <- function(arg) {
-    if (inherits(arg, "Date")) {
+    if (inherits(arg, "POSIXct")) {
+      # Format datetime as ISO 8601 string and wrap in as.POSIXct call
+      arg <- format(arg, "%Y-%m-%d %H:%M:%S", tz = "UTC")
+      arg <- call("as.POSIXct", arg, tz = "UTC")
+    } else if (inherits(arg, "Date")) {
       arg <- as.character(arg)
       arg <- call("as.Date", arg)
     }
