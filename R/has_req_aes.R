@@ -14,10 +14,22 @@ has_req_aes <- function(geom) {
   actual_aes <- names(geom$mapping)
 
   # If we couldn't determine required aes, assume valid
-
   if (length(req_aes) == 0) {
     return(TRUE)
   }
 
-  all(req_aes %in% actual_aes)
+  # Check each required aesthetic
+
+  # ggplot2 uses "|" syntax for alternatives (e.g., "xend|yend" means xend OR yend)
+  check_one_req <- function(req) {
+    if (grepl("|", req, fixed = TRUE)) {
+      # Split alternatives and check if ANY are present
+      alternatives <- strsplit(req, "|", fixed = TRUE)[[1]]
+      any(alternatives %in% actual_aes)
+    } else {
+      req %in% actual_aes
+    }
+  }
+
+  all(vapply(req_aes, check_one_req, logical(1)))
 }

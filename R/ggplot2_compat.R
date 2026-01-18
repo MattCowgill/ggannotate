@@ -150,3 +150,97 @@ get_geom_defaults <- function(geom_as_string) {
     }
   )
 }
+
+#' Get panel params (data ranges) from a built plot
+#'
+#' @param built_plot A ggplot_build object
+#' @param panel_index Which panel (default 1)
+#' @return List with x.range and y.range, or NULL if not accessible
+#' @noRd
+get_panel_params <- function(built_plot, panel_index = 1) {
+  tryCatch(
+    {
+      built_plot$layout$panel_params[[panel_index]]
+    },
+    error = function(e) NULL
+  )
+}
+
+#' Check if coordinates appear to be normalized (0-1 range)
+#'
+#' Shiny sometimes returns normalized coordinates instead of data coordinates
+#' when using dynamic plotOutput via renderUI. This detects that case.
+#'
+#' @param click_input The input from plot_click, plot_dblclick, or plot_brush
+#' @param panel_params Panel params from get_panel_params()
+#' @return Logical indicating if coordinates appear normalized
+#' @noRd
+coords_are_normalized <- function(click_input, panel_params) {
+  if (is.null(click_input$x) || is.null(click_input$y)) {
+    return(FALSE)
+  }
+  if (is.null(panel_params)) {
+    return(FALSE)
+
+  }
+
+  x_range <- panel_params$x.range
+  y_range <- panel_params$y.range
+
+  if (is.null(x_range) || is.null(y_range)) {
+    return(FALSE)
+  }
+
+
+  # If the click coords are in 0-1 but data range is much larger,
+ # coordinates are likely normalized
+  x_in_unit <- click_input$x >= 0 && click_input$x <= 1
+  y_in_unit <- click_input$y >= 0 && click_input$y <= 1
+  x_range_large <- diff(x_range) > 1.5
+y_range_large <- diff(y_range) > 1.5
+
+  x_in_unit && y_in_unit && (x_range_large || y_range_large)
+}
+
+#' Convert normalized (0-1) coordinates to data coordinates
+#'
+#' @param click_input The input from plot_click, plot_dblclick, or plot_brush
+#' @param panel_params Panel params from get_panel_params()
+#' @return Modified click_input with coordinates in data space
+#' @noRd
+normalize_to_data_coords <- function(click_input, panel_params) {
+  if (is.null(panel_params)) {
+    return(click_input)
+  }
+
+  x_range <- panel_params$x.range
+  y_range <- panel_params$y.range
+
+  if (is.null(x_range) || is.null(y_range)) {
+    return(click_input)
+  }
+
+  # Convert single point coordinates
+  if (!is.null(click_input$x)) {
+    click_input$x <- x_range[1] + click_input$x * diff(x_range)
+  }
+  if (!is.null(click_input$y)) {
+    click_input$y <- y_range[1] + click_input$y * diff(y_range)
+  }
+
+  # Convert brush/range coordinates
+  if (!is.null(click_input$xmin)) {
+    click_input$xmin <- x_range[1] + click_input$xmin * diff(x_range)
+  }
+  if (!is.null(click_input$xmax)) {
+    click_input$xmax <- x_range[1] + click_input$xmax * diff(x_range)
+  }
+  if (!is.null(click_input$ymin)) {
+    click_input$ymin <- y_range[1] + click_input$ymin * diff(y_range)
+  }
+  if (!is.null(click_input$ymax)) {
+    click_input$ymax <- y_range[1] + click_input$ymax * diff(y_range)
+  }
+
+  click_input
+}
