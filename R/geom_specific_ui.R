@@ -169,7 +169,6 @@ rect_ui <- tagList(
 )
 
 textbox_ui <- tagList(
-  # Annotation input without parse expression (ggtext doesn't support plotmath)
   fluidRow(
     column(
       12,
