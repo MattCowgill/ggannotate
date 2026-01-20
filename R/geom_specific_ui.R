@@ -1,13 +1,15 @@
 base_text_ui <- tagList(
 
   # sidebarPanel(width = 10,
-  fluidRow(column(
-    12,
-    textInput("annotation", "Annotation",
-      value = "My annotation",
-      width = "100%"
+  fluidRow(
+    column(
+      12,
+      textInput("annotation", "Annotation",
+        value = "My annotation",
+        width = "100%"
+      )
     )
-  )),
+  ),
   fluidRow(
     column(
       4,
@@ -161,6 +163,84 @@ rect_ui <- tagList(
       6,
       numericInput("size", "Border size",
         value = 0, min = 0, max = 5, step = 0.5
+      )
+    )
+  )
+)
+
+textbox_ui <- tagList(
+  fluidRow(
+    column(
+      12,
+      textInput("annotation", "Annotation",
+        value = "My annotation",
+        width = "100%"
+      )
+    )
+  ),
+  fluidRow(
+    column(
+      4,
+      numericInput("lineheight", "Lineheight",
+        value = 1.2,
+        min = 0, step = 0.05
+      )
+    ),
+    column(
+      4,
+      textInput("colour", "Colour", value = "black")
+    ),
+    column(
+      4,
+      numericInput("size", "Font size (pts)",
+        value = 11, min = 0, max = 48, step = 0.5
+      )
+    )
+  ),
+  fluidRow(
+    column(
+      6,
+      sliderInput("hjust", "hjust",
+        value = 0.5,
+        min = 0, max = 1, step = 0.05, ticks = FALSE
+      )
+    ),
+    column(
+      6,
+      sliderInput("vjust", "vjust",
+        value = 0.5,
+        min = 0, max = 1, step = 0.05, ticks = FALSE
+      )
+    )
+  ),
+  fluidRow(
+    column(
+      6,
+      textInput("font", "font", value = "")
+    ),
+    column(
+      6,
+      selectInput("fontface", "fontface",
+        selected = "plain",
+        choices = c("plain", "bold", "italic", "bold.italic")
+      )
+    )
+  ),
+  fluidRow(
+    column(
+      4,
+      textInput("fill", "Box fill", value = "white")
+    ),
+    column(
+      4,
+      numericInput("box.padding", "Box padding",
+        value = 5.5, min = 0, step = 0.5
+      )
+    ),
+    column(
+      4,
+      numericInput("width", "Width (inches)",
+        value = NA, min = 0, step = 0.1
       )
     )
   )

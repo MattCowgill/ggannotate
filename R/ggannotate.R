@@ -50,6 +50,9 @@ ggannotate <- function(plot = last_plot()) {
     # Get information about facets in plot
     facet_characteristics <- get_facet_characteristics(built_base_plot)
 
+    # Get panel params for coordinate conversion (needed when Shiny returns normalized coords)
+    panel_params <- get_panel_params(built_base_plot)
+
     # Get information about selected geom and annotation layer
     annot_layer <- reactive(input$annot_layer)
     selected_geom <- reactive(input$geom)
@@ -59,7 +62,8 @@ ggannotate <- function(plot = last_plot()) {
         "text"  = ggplot2::GeomText,
         "label" = ggplot2::GeomLabel,
         "curve" = ggplot2::GeomCurve,
-        "rect" = ggplot2::GeomRect
+        "rect" = ggplot2::GeomRect,
+        "textbox" = ggtext::GeomTextBox
       )
     })
 
@@ -74,14 +78,20 @@ ggannotate <- function(plot = last_plot()) {
 
     # Observe plot interaction -----
     observeEvent(input$plot_click, {
-      facets <- get_facets(input$plot_click)
+      click_data <- input$plot_click
+
+      # Convert normalized (0-1) coordinates to data coordinates if needed
+      if (coords_are_normalized(click_data, panel_params)) {
+        click_data <- normalize_to_data_coords(click_data, panel_params)
+      }
+
+      facets <- get_facets(click_data)
       facets <- correct_facets(facets, facet_characteristics)
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
 
-
       corrected_scales <- correct_scales(
-        input$plot_click,
+        click_data,
         axis_classes,
         flipped_coords
       )
@@ -91,8 +101,15 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     observeEvent(input$plot_dblclick, {
+      click_data <- input$plot_dblclick
+
+      # Convert normalized (0-1) coordinates to data coordinates if needed
+      if (coords_are_normalized(click_data, panel_params)) {
+        click_data <- normalize_to_data_coords(click_data, panel_params)
+      }
+
       corrected_scales <- correct_scales(
-        input$plot_dblclick,
+        click_data,
         axis_classes,
         flipped_coords
       )
@@ -102,13 +119,25 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     observeEvent(input$plot_brush, {
-      facets <- get_facets(input$plot_brush)
+      brush_data <- input$plot_brush
+
+      # Convert normalized (0-1) coordinates to data coordinates if needed
+      # For brush, check using xmin/ymin instead of x/y
+      if (!is.null(brush_data$xmin) && !is.null(brush_data$ymin) &&
+          !is.null(panel_params)) {
+        brush_check <- list(x = brush_data$xmin, y = brush_data$ymin)
+        if (coords_are_normalized(brush_check, panel_params)) {
+          brush_data <- normalize_to_data_coords(brush_data, panel_params)
+        }
+      }
+
+      facets <- get_facets(brush_data)
       facets <- correct_facets(facets, facet_characteristics)
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
 
       corrected_scales <- correct_scales(
-        input$plot_brush,
+        brush_data,
         axis_classes,
         flipped_coords
       )
@@ -131,8 +160,10 @@ ggannotate <- function(plot = last_plot()) {
 
       user_label_padding <- safe_unit(input$label.padding, "lines")
       user_label_r <- safe_unit(input$label.r, "lines")
+      user_box_padding <- safe_unit(input$`box.padding`, "pt")
+      user_width <- safe_unit(input$width, "inch")
 
-      size <- ifelse(selected_geom() %in% c("text", "label"),
+      size <- ifelse(selected_geom() %in% c("text", "label", "textbox"),
         # Default ggplot2 size is 3.88 = 11.03967 points
         # We want to match this, which using .pt doesn't quite do
         round(input$size / 2.835052, 2),
@@ -168,8 +199,15 @@ ggannotate <- function(plot = last_plot()) {
         label.r = user_label_r,
         curvature = input$curvature,
         arrow = user_arrow,
-        alpha = user_alpha
+        alpha = user_alpha,
+        box.padding = user_box_padding,
+        width = user_width
       )
+
+      # Convert empty strings to NULL (they cause issues like "Unknown colour name")
+      params <- lapply(params, function(x) {
+        if (is.character(x) && length(x) == 1 && x == "") NULL else x
+      })
 
       # Remove parameters from the list if they are not known by the geom
       known_params <- switch(selected_geom(),
@@ -183,6 +221,9 @@ ggannotate <- function(plot = last_plot()) {
           "arrow", "arrow.fill", "lineend"
         ),
         "rect" = c(known_aes()),
+        "textbox" = c(
+          known_aes(), "fill", "box.padding", "width", "hjust"
+        )
       )
       params <- params[names(params) %in% known_params]
 
@@ -271,12 +312,13 @@ ggannotate <- function(plot = last_plot()) {
         selected_geom() == "label" ~ "Click where you want to place your label",
         selected_geom() == "curve" ~ "Click where you want your line to begin and double-click where it should end",
         selected_geom() == "rect" ~ "Click and drag to draw and adjust the rectangle, then click once anywhere else to set it",
+        selected_geom() == "textbox" ~ "Click where you want to place your textbox",
         TRUE ~ "No instruction defined for geom"
       )
     })
 
     output$plot <- renderPlot({
-      built_base_plot$plot +
+      plot +
         purrr::map(annot_calls(), eval)
     })
 
@@ -298,17 +340,38 @@ ggannotate <- function(plot = last_plot()) {
     output$geom_opts <- renderUI({
       req(selected_geom())
       switch(selected_geom(),
-        "text"   = text_ui,
-        "label"  = label_ui,
-        "curve"  = curve_ui,
-        "rect"  = rect_ui
+        "text"    = text_ui,
+        "label"   = label_ui,
+        "curve"   = curve_ui,
+        "rect"    = rect_ui,
+        "textbox" = textbox_ui
       )
     })
 
     observeEvent(input$copy_button, {
       callstring <- calls_to_string(annot_calls())
-      clipr::write_clip(callstring, object_type = "character")
-      ggplot2::set_last_plot(built_base_plot$plot)
+
+      # Try to copy to clipboard, with fallback for systems without clipboard support
+      clipboard_success <- tryCatch(
+        {
+          clipr::write_clip(callstring, object_type = "character")
+          TRUE
+        },
+        error = function(e) {
+          FALSE
+        }
+      )
+
+      if (!clipboard_success) {
+        message(
+          "Could not copy to clipboard. ",
+          "On Wayland, install 'wl-clipboard'. On X11, install 'xclip' or 'xsel'.\n",
+          "Code printed below:\n\n",
+          callstring, "\n"
+        )
+      }
+
+      ggplot2::set_last_plot(plot)
       stopApp()
     })
 
