@@ -53,6 +53,10 @@ ggannotate <- function(plot = last_plot()) {
     # Get panel params for coordinate conversion (needed when Shiny returns normalized coords)
     panel_params <- get_panel_params(built_base_plot)
 
+    # Get axis ranges for intelligent rounding of click coordinates
+    x_range <- panel_params$x.range
+    y_range <- panel_params$y.range
+
     # Get information about selected geom and annotation layer
     annot_layer <- reactive(input$annot_layer)
     selected_geom <- reactive(input$geom)
@@ -119,8 +123,8 @@ ggannotate <- function(plot = last_plot()) {
         flipped_coords
       )
 
-      user_input$x <- corrected_scales$x
-      user_input$y <- corrected_scales$y
+      user_input$x <- round_to_range(corrected_scales$x, x_range)
+      user_input$y <- round_to_range(corrected_scales$y, y_range)
     })
 
     observeEvent(input$plot_dblclick, {
@@ -145,8 +149,8 @@ ggannotate <- function(plot = last_plot()) {
         flipped_coords
       )
 
-      user_input$x_dbl <- corrected_scales$x
-      user_input$y_dbl <- corrected_scales$y
+      user_input$x_dbl <- round_to_range(corrected_scales$x, x_range)
+      user_input$y_dbl <- round_to_range(corrected_scales$y, y_range)
     })
 
     observeEvent(input$plot_brush, {
@@ -212,10 +216,10 @@ ggannotate <- function(plot = last_plot()) {
         flipped_coords
       )
 
-      user_input$xmin <- corrected_scales$xmin
-      user_input$xmax <- corrected_scales$xmax
-      user_input$ymin <- corrected_scales$ymin
-      user_input$ymax <- corrected_scales$ymax
+      user_input$xmin <- round_to_range(corrected_scales$xmin, x_range)
+      user_input$xmax <- round_to_range(corrected_scales$xmax, x_range)
+      user_input$ymin <- round_to_range(corrected_scales$ymin, y_range)
+      user_input$ymax <- round_to_range(corrected_scales$ymax, y_range)
     })
 
     # Create list of parameters based on user input ----

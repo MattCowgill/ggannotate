@@ -1,5 +1,6 @@
 # ggannotate 0.3.0
 
+* `ggannotate()` now intelligently rounds x and y coordinate values in generated annotation code based on the axis range, producing cleaner output (#44).
 
 # ggannotate 0.2.0
 
