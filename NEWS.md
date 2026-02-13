@@ -1,3 +1,6 @@
+# ggannotate 0.3.0
+
+
 # ggannotate 0.2.0
 
 ## Breaking changes

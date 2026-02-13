@@ -80,13 +80,33 @@ ggannotate <- function(plot = last_plot()) {
     observeEvent(input$plot_click, {
       click_data <- input$plot_click
 
-      # Convert normalized (0-1) coordinates to data coordinates if needed
-      if (coords_are_normalized(click_data, panel_params)) {
+      # Check if we need to infer facets (normalized coords + missing panelvar)
+      is_normalized <- coords_are_normalized(click_data, panel_params)
+      needs_facet_inference <- is_normalized &&
+        length(get_facets(click_data)$vars) == 0 &&
+        length(facet_characteristics) > 0
+
+      # Save normalized coords for facet inference before converting
+      if (is_normalized) {
+        norm_x <- click_data$x
+        norm_y <- click_data$y
+        # Convert whole-plot coords to within-panel coords for faceted plots
+        panel_coords <- convert_to_panel_coords(norm_x, norm_y, built_base_plot)
+        click_data$x <- panel_coords$x
+        click_data$y <- panel_coords$y
         click_data <- normalize_to_data_coords(click_data, panel_params)
       }
 
-      facets <- get_facets(click_data)
-      facets <- correct_facets(facets, facet_characteristics)
+      if (needs_facet_inference) {
+        # Infer facets from normalized position when Shiny doesn't provide them
+        facets <- infer_facet_from_normalized_coords(
+          norm_x, norm_y, built_base_plot
+        )
+        facets <- correct_facets(facets, facet_characteristics)
+      } else {
+        facets <- get_facets(click_data)
+        facets <- correct_facets(facets, facet_characteristics)
+      }
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
 
@@ -105,6 +125,10 @@ ggannotate <- function(plot = last_plot()) {
 
       # Convert normalized (0-1) coordinates to data coordinates if needed
       if (coords_are_normalized(click_data, panel_params)) {
+        # Convert whole-plot coords to within-panel coords for faceted plots
+        panel_coords <- convert_to_panel_coords(click_data$x, click_data$y, built_base_plot)
+        click_data$x <- panel_coords$x
+        click_data$y <- panel_coords$y
         click_data <- normalize_to_data_coords(click_data, panel_params)
       }
 
@@ -123,16 +147,42 @@ ggannotate <- function(plot = last_plot()) {
 
       # Convert normalized (0-1) coordinates to data coordinates if needed
       # For brush, check using xmin/ymin instead of x/y
+      is_normalized <- FALSE
       if (!is.null(brush_data$xmin) && !is.null(brush_data$ymin) &&
           !is.null(panel_params)) {
         brush_check <- list(x = brush_data$xmin, y = brush_data$ymin)
-        if (coords_are_normalized(brush_check, panel_params)) {
-          brush_data <- normalize_to_data_coords(brush_data, panel_params)
-        }
+        is_normalized <- coords_are_normalized(brush_check, panel_params)
       }
 
-      facets <- get_facets(brush_data)
-      facets <- correct_facets(facets, facet_characteristics)
+      # Check if we need to infer facets
+      needs_facet_inference <- is_normalized &&
+        length(get_facets(brush_data)$vars) == 0 &&
+        length(facet_characteristics) > 0
+
+      # Save normalized coords for facet inference before converting
+      if (is_normalized) {
+        # Use center of brush for facet inference
+        norm_x <- (brush_data$xmin + brush_data$xmax) / 2
+        norm_y <- (brush_data$ymin + brush_data$ymax) / 2
+        # Convert whole-plot coords to within-panel coords for faceted plots
+        panel_min <- convert_to_panel_coords(brush_data$xmin, brush_data$ymin, built_base_plot)
+        panel_max <- convert_to_panel_coords(brush_data$xmax, brush_data$ymax, built_base_plot)
+        brush_data$xmin <- panel_min$x
+        brush_data$ymin <- panel_min$y
+        brush_data$xmax <- panel_max$x
+        brush_data$ymax <- panel_max$y
+        brush_data <- normalize_to_data_coords(brush_data, panel_params)
+      }
+
+      if (needs_facet_inference) {
+        facets <- infer_facet_from_normalized_coords(
+          norm_x, norm_y, built_base_plot
+        )
+        facets <- correct_facets(facets, facet_characteristics)
+      } else {
+        facets <- get_facets(brush_data)
+        facets <- correct_facets(facets, facet_characteristics)
+      }
       user_input$facet_vars <- facets$vars
       user_input$facet_levels <- facets$levels
 
