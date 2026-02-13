@@ -26,7 +26,7 @@ ggann_ui <- miniUI::miniPage(
         style = "background: rgba(22, 80, 129, 0.1); border-style: none",
         fluidRow(
           column(
-            6,
+            5,
             selectInput(
               "annot_layer",
               "Annotation layer",
@@ -36,7 +36,18 @@ ggann_ui <- miniUI::miniPage(
             )
           ),
           column(
-            6,
+            2,
+            div(
+              style = "margin-top: 25px;",
+              actionButton(
+                "delete_layer",
+                "Delete",
+                style = "width: 100%; background: rgba(180, 50, 50, 0.7); color: white; padding: 6px 2px; font-size: 0.85em;"
+              )
+            )
+          ),
+          column(
+            5,
             selectInput(
               "geom",
               "Geom",

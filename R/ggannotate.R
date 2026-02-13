@@ -353,24 +353,259 @@ ggannotate <- function(plot = last_plot()) {
 
     # Collect inputs in a list of lists ----
     this_layer <- reactive({
-      list(
+      purrr::compact(list(
         geom = selected_geom(),
         aes = aes_list(),
         params = params_list(),
         facets = facets_list()
-      ) %>%
-        purrr::compact()
+      ))
     })
 
     all_layers <- reactiveValues()
+    active_layer <- reactiveVal(1L)
+    layer_states <- reactiveValues()
+    pending_restore <- reactiveVal(NULL)
 
+    # Save current layer to all_layers explicitly (not via auto-observe)
+    save_current_layer <- function() {
+      all_layers[[as.character(active_layer())]] <- this_layer()
+      layer_states[[as.character(active_layer())]] <- list(
+        geom = input$geom,
+        annotation = input$annotation,
+        colour = input$colour,
+        fill = input$fill,
+        size = input$size,
+        angle = input$angle,
+        lineheight = input$lineheight,
+        hjust = input$hjust,
+        vjust = input$vjust,
+        font = input$font,
+        fontface = input$fontface,
+        curvature = input$curvature,
+        arrow_length = input$arrow_length,
+        arrow_angle = input$arrow_angle,
+        alpha = input$alpha,
+        label.padding = input$`label.padding`,
+        label.r = input$`label.r`,
+        label.size = input$`label.size`,
+        box.padding = input$`box.padding`,
+        width = input$width,
+        x = user_input$x,
+        y = user_input$y,
+        x_dbl = user_input$x_dbl,
+        y_dbl = user_input$y_dbl,
+        xmin = user_input$xmin,
+        xmax = user_input$xmax,
+        ymin = user_input$ymin,
+        ymax = user_input$ymax,
+        facet_vars = user_input$facet_vars,
+        facet_levels = user_input$facet_levels
+      )
+    }
+
+    update_layer_labels <- function() {
+      stored <- reactiveValuesToList(all_layers)
+      all_choices <- as.character(1:10)
+      labels <- all_choices
+      for (i in seq_along(all_choices)) {
+        key <- all_choices[[i]]
+        if (!is.null(stored[[key]])) {
+          labels[[i]] <- paste0(key, " <", stored[[key]]$geom, ">")
+        }
+      }
+      names(all_choices) <- labels
+      updateSelectInput(
+        session,
+        "annot_layer",
+        choices = all_choices,
+        selected = as.character(active_layer())
+      )
+    }
+
+    # Handle layer switching
+    observeEvent(input$annot_layer, {
+      new_layer <- as.integer(input$annot_layer)
+      old_layer <- active_layer()
+      if (new_layer == old_layer) {
+        return()
+      }
+
+      # Save current layer before switching
+      save_current_layer()
+
+      active_layer(new_layer)
+      update_layer_labels()
+
+      # Restore stored state for new layer
+      stored <- layer_states[[as.character(new_layer)]]
+      if (!is.null(stored)) {
+        # Restore coordinates
+        user_input$x <- stored$x
+        user_input$y <- stored$y
+        user_input$x_dbl <- stored$x_dbl
+        user_input$y_dbl <- stored$y_dbl
+        user_input$xmin <- stored$xmin
+        user_input$xmax <- stored$xmax
+        user_input$ymin <- stored$ymin
+        user_input$ymax <- stored$ymax
+        user_input$facet_vars <- stored$facet_vars
+        user_input$facet_levels <- stored$facet_levels
+
+        # Restore geom selection
+        updateSelectInput(session, "geom", selected = stored$geom)
+
+        # Queue styling restoration for after UI renders
+        pending_restore(stored)
+      } else {
+        # Clear state for empty layer
+        user_input$x <- NULL
+        user_input$y <- NULL
+        user_input$x_dbl <- NULL
+        user_input$y_dbl <- NULL
+        user_input$xmin <- NULL
+        user_input$xmax <- NULL
+        user_input$ymin <- NULL
+        user_input$ymax <- NULL
+        user_input$facet_vars <- NULL
+        user_input$facet_levels <- NULL
+      }
+    })
+
+    # Apply pending restore after geom-specific UI has rendered
     observe({
-      all_layers[[as.character(annot_layer())]] <- this_layer()
+      state <- pending_restore()
+      req(state)
+      req(input$geom == state$geom)
+      # Wait for UI to be fully rendered before updating inputs
+      session$onFlushed(
+        function() {
+          session$onFlushed(
+            function() {
+              if (!is.null(state$annotation)) {
+                updateTextInput(session, "annotation", value = state$annotation)
+              }
+              if (!is.null(state$colour)) {
+                updateTextInput(session, "colour", value = state$colour)
+              }
+              if (!is.null(state$fill)) {
+                updateTextInput(session, "fill", value = state$fill)
+              }
+              if (!is.null(state$size)) {
+                updateNumericInput(session, "size", value = state$size)
+              }
+              if (!is.null(state$lineheight)) {
+                updateNumericInput(
+                  session,
+                  "lineheight",
+                  value = state$lineheight
+                )
+              }
+              if (!is.null(state$hjust)) {
+                updateSliderInput(session, "hjust", value = state$hjust)
+              }
+              if (!is.null(state$vjust)) {
+                updateSliderInput(session, "vjust", value = state$vjust)
+              }
+              if (!is.null(state$font)) {
+                updateTextInput(session, "font", value = state$font)
+              }
+              if (!is.null(state$fontface)) {
+                updateSelectInput(
+                  session,
+                  "fontface",
+                  selected = state$fontface
+                )
+              }
+              if (!is.null(state$angle)) {
+                updateNumericInput(session, "angle", value = state$angle)
+              }
+              if (!is.null(state$curvature)) {
+                updateSliderInput(session, "curvature", value = state$curvature)
+              }
+              if (!is.null(state$arrow_length)) {
+                updateSliderInput(
+                  session,
+                  "arrow_length",
+                  value = state$arrow_length
+                )
+              }
+              if (!is.null(state$arrow_angle)) {
+                updateSliderInput(
+                  session,
+                  "arrow_angle",
+                  value = state$arrow_angle
+                )
+              }
+              if (!is.null(state$alpha)) {
+                updateSliderInput(session, "alpha", value = state$alpha)
+              }
+              if (!is.null(state$`label.padding`)) {
+                updateNumericInput(
+                  session,
+                  "label.padding",
+                  value = state$`label.padding`
+                )
+              }
+              if (!is.null(state$`label.r`)) {
+                updateNumericInput(session, "label.r", value = state$`label.r`)
+              }
+              if (!is.null(state$`label.size`)) {
+                updateNumericInput(
+                  session,
+                  "label.size",
+                  value = state$`label.size`
+                )
+              }
+              if (!is.null(state$`box.padding`)) {
+                updateNumericInput(
+                  session,
+                  "box.padding",
+                  value = state$`box.padding`
+                )
+              }
+              if (!is.null(state$width)) {
+                updateNumericInput(session, "width", value = state$width)
+              }
+              isolate(pending_restore(NULL))
+            },
+            once = TRUE
+          )
+        },
+        once = TRUE
+      )
+    })
+
+    # Handle layer deletion
+    observeEvent(input$delete_layer, {
+      current <- as.character(active_layer())
+      all_layers[[current]] <- NULL
+      layer_states[[current]] <- NULL
+
+      # Clear current UI state
+      user_input$x <- NULL
+      user_input$y <- NULL
+      user_input$x_dbl <- NULL
+      user_input$y_dbl <- NULL
+      user_input$xmin <- NULL
+      user_input$xmax <- NULL
+      user_input$ymin <- NULL
+      user_input$ymax <- NULL
+      user_input$facet_vars <- NULL
+      user_input$facet_levels <- NULL
+
+      update_layer_labels()
     })
 
     combined_layers <- reactive({
       req(this_layer())
-      safely_combine_layers(all_layers)$result
+      # Get all stored layers and override active layer with current UI state
+      layers <- reactiveValuesToList(all_layers)
+      layers[[as.character(active_layer())]] <- this_layer()
+      layers <- purrr::compact(layers)
+      if (length(layers) == 0) {
+        return(NULL)
+      }
+      safely_combine_layers(layers)$result
     })
 
     annot_calls <- reactive({
@@ -440,6 +675,7 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     observeEvent(input$copy_button, {
+      save_current_layer()
       callstring <- calls_to_string(annot_calls())
 
       # Try to copy to clipboard, with fallback for systems without clipboard support
