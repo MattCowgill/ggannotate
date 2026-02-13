@@ -44,8 +44,10 @@ test_that("combine_layers() returns expected output", {
     ))
 
     all_names_present <- function(x) {
-      all(c("geom", "aes", "params", "facets") %in%
-        names(x))
+      all(
+        c("geom", "aes", "params", "facets") %in%
+          names(x)
+      )
     }
 
     sub_elements_have_correct_names <- all(purrr::map_lgl(
@@ -77,19 +79,25 @@ test_that("combine_layers() returns expected output", {
   expect_error(combine_layers(list()))
 
   # Each list element must contain certain sub-elements
-  expect_error(combine_layers(lists = list(
-    list(somenonsense = 1)
-  )))
+  expect_error(combine_layers(
+    lists = list(
+      list(somenonsense = 1)
+    )
+  ))
 
   # aes sub-element must be a list, not a vector
-  expect_error(combine_layers(lists = list(list(
-    geom = "text",
-    aes = c("a", "b", "c")
-  ))))
+  expect_error(combine_layers(
+    lists = list(list(
+      geom = "text",
+      aes = c("a", "b", "c")
+    ))
+  ))
 
   # aes sub-element is required
-  expect_error(combine_layers(lists = list(list(
-    geom = "text",
-    params = list(colour = "red")
-  ))))
+  expect_error(combine_layers(
+    lists = list(list(
+      geom = "text",
+      params = list(colour = "red")
+    ))
+  ))
 })

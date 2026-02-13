@@ -1,4 +1,3 @@
-
 # test_list is a full replica of a list that is returned as `input$plot_click`
 # by Shiny, on clicking in a plot
 library(ggplot2)
@@ -75,7 +74,6 @@ test_that("get_facet_characteristics() returns expected output", {
 })
 
 
-
 test_that("plot with no facets treated as expected", {
   facets <- get_facets(test_base_list)
 
@@ -105,7 +103,9 @@ test_that("plot with regular facet names treated as expected", {
   expect_length(facets, 2)
   expect_identical(facets$vars$panelvar2, "cyl")
 
-  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(
+    facet_plot
+  ))
   facets <- correct_facets(facets, facet_characteristics)
 
   expect_type(facets, "list")
@@ -123,7 +123,9 @@ test_that("plot with 'factor' in name treated as expected", {
   test_list_facets$mapping$panelvar2 <- "factor(cyl)"
 
   facets <- get_facets(test_list_facets)
-  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(
+    facet_plot
+  ))
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -141,7 +143,8 @@ test_that("plot with 'factor' in name treated as expected", {
 })
 
 test_that("factor transformation in facet call treated as expected", {
-  facet_plot <- test_base_plot + facet_grid(carb ~ factor(cyl, levels = c(2, 4, 6, 8)))
+  facet_plot <- test_base_plot +
+    facet_grid(carb ~ factor(cyl, levels = c(2, 4, 6, 8)))
 
   test_list_facets <- test_base_list
   test_list_facets$panelvar1 <- 6
@@ -150,7 +153,9 @@ test_that("factor transformation in facet call treated as expected", {
   test_list_facets$mapping$panelvar2 <- "factor(cyl, levels = c(2, 4, 6, 8))"
 
   facets <- get_facets(test_list_facets)
-  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(
+    facet_plot
+  ))
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -181,15 +186,15 @@ test_that("factor in raw data for faceting recognised", {
   test_list_facets$mapping$panelvar2 <- "cyl"
 
   facets <- get_facets(test_list_facets)
-  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
-
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(
+    facet_plot
+  ))
 
   expect_type(facets, "list")
   expect_length(facets, 2)
   expect_identical(facets$vars$panelvar2, "cyl")
   expect_identical(facets$levels$panelvar2, 3)
   expect_type(facets$levels$panelvar2, "double")
-
 
   facets <- correct_facets(facets, facet_characteristics)
 
@@ -217,7 +222,9 @@ test_that("factor with multiple matching columns works as expected", {
   test_list_facets$mapping$panelvar2 <- "cyl"
 
   facets <- get_facets(test_list_facets)
-  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(
+    facet_plot
+  ))
 
   expect_type(facets, "list")
   expect_length(facets, 2)
@@ -244,7 +251,9 @@ test_that("factor with multiple matching columns works as expected", {
   test_list_facets$mapping$panelvar2 <- "factor(cyl)"
 
   facets <- get_facets(test_list_facets)
-  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(
+    facet_plot
+  ))
   facets <- correct_facets(facets, facet_characteristics)
 
   expect_identical(eval(facets$levels$panelvar2), factor(3))
@@ -262,7 +271,9 @@ test_that("factor with multiple matching columns works as expected", {
   test_list_facets$mapping$panelvar2 <- 'factor(cyl2, levels = c("8", "6", "4"))'
 
   facets <- get_facets(test_list_facets)
-  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(facet_plot))
+  facet_characteristics <- get_facet_characteristics(ggplot2::ggplot_build(
+    facet_plot
+  ))
   facets <- correct_facets(facets, facet_characteristics)
   expect_identical(eval(facets$levels$panelvar2), factor(3))
   expect_identical(facets$vars$panelvar2, "cyl2")

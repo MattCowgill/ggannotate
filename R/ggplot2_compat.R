@@ -8,7 +8,6 @@
 #' @return A package_version object
 #' @noRd
 ggplot2_version <- function() {
-
   utils::packageVersion("ggplot2")
 }
 
@@ -194,7 +193,6 @@ coords_are_normalized <- function(click_input, panel_params) {
   }
   if (is.null(panel_params)) {
     return(FALSE)
-
   }
 
   x_range <- panel_params$x.range
@@ -204,13 +202,12 @@ coords_are_normalized <- function(click_input, panel_params) {
     return(FALSE)
   }
 
-
   # If the click coords are in 0-1 but data range is much larger,
- # coordinates are likely normalized
+  # coordinates are likely normalized
   x_in_unit <- click_input$x >= 0 && click_input$x <= 1
   y_in_unit <- click_input$y >= 0 && click_input$y <= 1
   x_range_large <- diff(x_range) > 1.5
-y_range_large <- diff(y_range) > 1.5
+  y_range_large <- diff(y_range) > 1.5
 
   x_in_unit && y_in_unit && (x_range_large || y_range_large)
 }
@@ -341,7 +338,7 @@ infer_facet_from_normalized_coords <- function(x, y, built_plot) {
   row <- max(1, min(row, n_rows))
 
   # Find the panel at this row/col
- panel_row <- layout[layout$ROW == row & layout$COL == col, ]
+  panel_row <- layout[layout$ROW == row & layout$COL == col, ]
 
   if (nrow(panel_row) == 0) {
     return(list(vars = list(), levels = list()))

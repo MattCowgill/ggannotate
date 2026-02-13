@@ -23,10 +23,7 @@ safe_unit <- function(x, units) {
 
 #' @rdname safe_unit
 safe_arrow <-
-  function(angle,
-           length,
-           ends = "last",
-           type = "closed") {
+  function(angle, length, ends = "last", type = "closed") {
     if (is.null(angle) || is.null(length)) {
       NULL
     } else {

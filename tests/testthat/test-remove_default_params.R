@@ -1,5 +1,4 @@
 test_that("remove_default_params() removes params that match geom defaults", {
-
   params_list <- list(
     angle = 0,
     hjust = 0.5,

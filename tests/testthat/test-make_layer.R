@@ -1,5 +1,3 @@
-
-
 base_plot <- ggplot(
   mtcars,
   aes(x = wt, y = mpg)
@@ -83,8 +81,7 @@ test_that("make_layer works with flipped coords", {
 })
 
 # Date axis -----
-date_line_base <- ggplot(ggplot2::economics,
-         aes(x = date, y = unemploy)) +
+date_line_base <- ggplot(ggplot2::economics, aes(x = date, y = unemploy)) +
   geom_line()
 
 annot_date_line <-
@@ -103,8 +100,10 @@ annot_date_line_plot <- date_line_base +
 test_that("make_layer works with date axes", {
   expect_type(annot_date_line, "language")
   expect_s3_class(annot_date_line_plot, "ggplot")
-  vdiffr::expect_doppelganger(title = "annot_date_line_plot",
-                              fig = annot_date_line_plot)
+  vdiffr::expect_doppelganger(
+    title = "annot_date_line_plot",
+    fig = annot_date_line_plot
+  )
 })
 
 # Curve ----

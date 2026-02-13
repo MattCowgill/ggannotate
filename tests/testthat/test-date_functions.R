@@ -29,7 +29,10 @@ test_that("check_if_date returns appropriate values for Date", {
 
 test_that("check_if_date returns appropriate values for datetime (POSIXct)", {
   datetime_df <- data.frame(
-    time = as.POSIXct(c("2023-01-01 10:00:00", "2023-01-01 12:00:00"), tz = "UTC"),
+    time = as.POSIXct(
+      c("2023-01-01 10:00:00", "2023-01-01 12:00:00"),
+      tz = "UTC"
+    ),
     y = c(1, 2)
   )
   datetime_plot <- ggplot(datetime_df, aes(x = time, y = y)) +
@@ -54,10 +57,12 @@ test_that("num_to_datetime() returns expected values", {
   # 1672531200 is 2023-01-01 00:00:00 UTC
   result <- num_to_datetime(1672531200)
   expect_s3_class(result, "POSIXct")
-  expect_equal(format(result, "%Y-%m-%d %H:%M:%S", tz = "UTC"), "2023-01-01 00:00:00")
+  expect_equal(
+    format(result, "%Y-%m-%d %H:%M:%S", tz = "UTC"),
+    "2023-01-01 00:00:00"
+  )
   expect_null(num_to_datetime(NULL))
 })
-
 
 
 test_that("correct_scales() corrects scales", {
@@ -83,6 +88,9 @@ test_that("correct_scales() corrects scales", {
   )
 
   expect_null(corrected_scales$xmin)
-  expect_identical(corrected_scales$x, as.Date(plot_click$y, origin = "1970-01-01"))
+  expect_identical(
+    corrected_scales$x,
+    as.Date(plot_click$y, origin = "1970-01-01")
+  )
   expect_identical(corrected_scales$y, plot_click$x)
 })

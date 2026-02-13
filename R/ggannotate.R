@@ -58,8 +58,9 @@ ggannotate <- function(plot = last_plot()) {
     selected_geom <- reactive(input$geom)
 
     geom_fn <- reactive({
-      switch(selected_geom(),
-        "text"  = ggplot2::GeomText,
+      switch(
+        selected_geom(),
+        "text" = ggplot2::GeomText,
         "label" = ggplot2::GeomLabel,
         "curve" = ggplot2::GeomCurve,
         "rect" = ggplot2::GeomRect,
@@ -100,7 +101,9 @@ ggannotate <- function(plot = last_plot()) {
       if (needs_facet_inference) {
         # Infer facets from normalized position when Shiny doesn't provide them
         facets <- infer_facet_from_normalized_coords(
-          norm_x, norm_y, built_base_plot
+          norm_x,
+          norm_y,
+          built_base_plot
         )
         facets <- correct_facets(facets, facet_characteristics)
       } else {
@@ -126,7 +129,11 @@ ggannotate <- function(plot = last_plot()) {
       # Convert normalized (0-1) coordinates to data coordinates if needed
       if (coords_are_normalized(click_data, panel_params)) {
         # Convert whole-plot coords to within-panel coords for faceted plots
-        panel_coords <- convert_to_panel_coords(click_data$x, click_data$y, built_base_plot)
+        panel_coords <- convert_to_panel_coords(
+          click_data$x,
+          click_data$y,
+          built_base_plot
+        )
         click_data$x <- panel_coords$x
         click_data$y <- panel_coords$y
         click_data <- normalize_to_data_coords(click_data, panel_params)
@@ -148,8 +155,11 @@ ggannotate <- function(plot = last_plot()) {
       # Convert normalized (0-1) coordinates to data coordinates if needed
       # For brush, check using xmin/ymin instead of x/y
       is_normalized <- FALSE
-      if (!is.null(brush_data$xmin) && !is.null(brush_data$ymin) &&
-          !is.null(panel_params)) {
+      if (
+        !is.null(brush_data$xmin) &&
+          !is.null(brush_data$ymin) &&
+          !is.null(panel_params)
+      ) {
         brush_check <- list(x = brush_data$xmin, y = brush_data$ymin)
         is_normalized <- coords_are_normalized(brush_check, panel_params)
       }
@@ -165,8 +175,16 @@ ggannotate <- function(plot = last_plot()) {
         norm_x <- (brush_data$xmin + brush_data$xmax) / 2
         norm_y <- (brush_data$ymin + brush_data$ymax) / 2
         # Convert whole-plot coords to within-panel coords for faceted plots
-        panel_min <- convert_to_panel_coords(brush_data$xmin, brush_data$ymin, built_base_plot)
-        panel_max <- convert_to_panel_coords(brush_data$xmax, brush_data$ymax, built_base_plot)
+        panel_min <- convert_to_panel_coords(
+          brush_data$xmin,
+          brush_data$ymin,
+          built_base_plot
+        )
+        panel_max <- convert_to_panel_coords(
+          brush_data$xmax,
+          brush_data$ymax,
+          built_base_plot
+        )
         brush_data$xmin <- panel_min$x
         brush_data$ymin <- panel_min$y
         brush_data$xmax <- panel_max$x
@@ -176,7 +194,9 @@ ggannotate <- function(plot = last_plot()) {
 
       if (needs_facet_inference) {
         facets <- infer_facet_from_normalized_coords(
-          norm_x, norm_y, built_base_plot
+          norm_x,
+          norm_y,
+          built_base_plot
         )
         facets <- correct_facets(facets, facet_characteristics)
       } else {
@@ -198,7 +218,6 @@ ggannotate <- function(plot = last_plot()) {
       user_input$ymax <- corrected_scales$ymax
     })
 
-
     # Create list of parameters based on user input ----
     params_list <- reactive({
       user_arrow <- safe_arrow(
@@ -213,7 +232,8 @@ ggannotate <- function(plot = last_plot()) {
       user_box_padding <- safe_unit(input$`box.padding`, "pt")
       user_width <- safe_unit(input$width, "inch")
 
-      size <- ifelse(selected_geom() %in% c("text", "label", "textbox"),
+      size <- ifelse(
+        selected_geom() %in% c("text", "label", "textbox"),
         # Default ggplot2 size is 3.88 = 11.03967 points
         # We want to match this, which using .pt doesn't quite do
         round(input$size / 2.835052, 2),
@@ -228,10 +248,11 @@ ggannotate <- function(plot = last_plot()) {
         TRUE ~ NA_real_
       )
 
-      user_alpha <- ifelse(selected_geom() == "rect" &&
-        !is.null(input$alpha),
-      input$alpha,
-      NA
+      user_alpha <- ifelse(
+        selected_geom() == "rect" &&
+          !is.null(input$alpha),
+        input$alpha,
+        NA
       )
 
       params <- list(
@@ -260,19 +281,30 @@ ggannotate <- function(plot = last_plot()) {
       })
 
       # Remove parameters from the list if they are not known by the geom
-      known_params <- switch(selected_geom(),
+      known_params <- switch(
+        selected_geom(),
         "text" = c(known_aes()),
         "label" = c(
-          known_aes, "label.padding", "label.r",
+          known_aes,
+          "label.padding",
+          "label.r",
           "label.size"
         ),
         "curve" = c(
-          known_aes, "curvature", "angle",
-          "arrow", "arrow.fill", "lineend"
+          known_aes,
+          "curvature",
+          "angle",
+          "arrow",
+          "arrow.fill",
+          "lineend"
         ),
         "rect" = c(known_aes()),
         "textbox" = c(
-          known_aes(), "fill", "box.padding", "width", "hjust"
+          known_aes(),
+          "fill",
+          "box.padding",
+          "width",
+          "hjust"
         )
       )
       params <- params[names(params) %in% known_params]
@@ -314,7 +346,6 @@ ggannotate <- function(plot = last_plot()) {
         user_input$facet_vars
       )
     })
-
 
     # Collect inputs in a list of lists ----
     this_layer <- reactive({
@@ -358,11 +389,15 @@ ggannotate <- function(plot = last_plot()) {
 
     output$instruction <- renderText({
       dplyr::case_when(
-        selected_geom() == "text" ~ "Click where you want to place your annotation",
+        selected_geom() ==
+          "text" ~ "Click where you want to place your annotation",
         selected_geom() == "label" ~ "Click where you want to place your label",
-        selected_geom() == "curve" ~ "Click where you want your line to begin and double-click where it should end",
-        selected_geom() == "rect" ~ "Click and drag to draw and adjust the rectangle, then click once anywhere else to set it",
-        selected_geom() == "textbox" ~ "Click where you want to place your textbox",
+        selected_geom() ==
+          "curve" ~ "Click where you want your line to begin and double-click where it should end",
+        selected_geom() ==
+          "rect" ~ "Click and drag to draw and adjust the rectangle, then click once anywhere else to set it",
+        selected_geom() ==
+          "textbox" ~ "Click where you want to place your textbox",
         TRUE ~ "No instruction defined for geom"
       )
     })
@@ -378,7 +413,8 @@ ggannotate <- function(plot = last_plot()) {
       plot_width <- paste0(input$plot_width, size_units)
       plot_height <- paste0(input$plot_height, size_units)
 
-      plotOutput("plot",
+      plotOutput(
+        "plot",
         click = "plot_click",
         dblclick = "plot_dblclick",
         brush = shiny::brushOpts(id = "plot_brush"),
@@ -389,11 +425,12 @@ ggannotate <- function(plot = last_plot()) {
 
     output$geom_opts <- renderUI({
       req(selected_geom())
-      switch(selected_geom(),
-        "text"    = text_ui,
-        "label"   = label_ui,
-        "curve"   = curve_ui,
-        "rect"    = rect_ui,
+      switch(
+        selected_geom(),
+        "text" = text_ui,
+        "label" = label_ui,
+        "curve" = curve_ui,
+        "rect" = rect_ui,
         "textbox" = textbox_ui
       )
     })
@@ -417,7 +454,8 @@ ggannotate <- function(plot = last_plot()) {
           "Could not copy to clipboard. ",
           "On Wayland, install 'wl-clipboard'. On X11, install 'xclip' or 'xsel'.\n",
           "Code printed below:\n\n",
-          callstring, "\n"
+          callstring,
+          "\n"
         )
       }
 
@@ -436,7 +474,8 @@ ggannotate <- function(plot = last_plot()) {
 
   shiny::runGadget(
     app = ggann_app,
-    viewer = shiny::dialogViewer("Annotate plot with ggannotate",
+    viewer = shiny::dialogViewer(
+      "Annotate plot with ggannotate",
       width = 1300,
       height = 780
     ),

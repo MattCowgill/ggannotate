@@ -48,13 +48,13 @@ test_that("A manual construction of inputs yields an annotated plot", {
     )
   )
 
-  geom_fn <- switch(selected_geom,
-    "text"  = ggplot2::GeomText,
+  geom_fn <- switch(
+    selected_geom,
+    "text" = ggplot2::GeomText,
     "label" = ggplot2::GeomLabel,
     "curve" = ggplot2::GeomCurve,
     "rect" = ggplot2::GeomRect
   )
-
 
   known_aes <- geom_fn$aesthetics()
 
@@ -106,12 +106,15 @@ test_that("A manual construction of inputs yields an annotated plot", {
 
   combined_layers <- safely_combine_layers(all_layers)$result
 
-  geom_calls <- purrr::map(combined_layers, ~ make_layer(
-    geom = .x$geom,
-    aes = .x$aes,
-    facets = .x$facets,
-    params = .x$params
-  ))
+  geom_calls <- purrr::map(
+    combined_layers,
+    ~ make_layer(
+      geom = .x$geom,
+      aes = .x$aes,
+      facets = .x$facets,
+      params = .x$params
+    )
+  )
 
   geoms <- purrr::map(geom_calls, eval)
 
@@ -129,7 +132,8 @@ test_that("A manual construction of inputs yields an annotated plot", {
     )
   )
 
-  vdiffr::expect_doppelganger("faceted mtcars with one text annotation",
+  vdiffr::expect_doppelganger(
+    "faceted mtcars with one text annotation",
     annot_plot
   )
 })

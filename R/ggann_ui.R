@@ -27,7 +27,9 @@ ggann_ui <- miniUI::miniPage(
         fluidRow(
           column(
             6,
-            selectInput("annot_layer", "Annotation layer",
+            selectInput(
+              "annot_layer",
+              "Annotation layer",
               choices = 1:10,
               selected = 1,
               multiple = FALSE
@@ -35,7 +37,9 @@ ggann_ui <- miniUI::miniPage(
           ),
           column(
             6,
-            selectInput("geom", "Geom",
+            selectInput(
+              "geom",
+              "Geom",
               choices = if (requireNamespace("ggtext", quietly = TRUE)) {
                 c("text", "label", "curve", "rect", "textbox")
               } else {
@@ -51,7 +55,8 @@ ggann_ui <- miniUI::miniPage(
       ),
       shiny::column(
         width = 12,
-        div(textOutput("instruction"),
+        div(
+          textOutput("instruction"),
           style = "font-weight:bold; line-height:1.6em; font-size:1em"
         ),
         uiOutput("rendered_plot"),
@@ -59,15 +64,28 @@ ggann_ui <- miniUI::miniPage(
           fluidRow(
             column(
               4,
-              numericInput("plot_width", "Plot width", value = 18, min = 0, step = 1)
+              numericInput(
+                "plot_width",
+                "Plot width",
+                value = 18,
+                min = 0,
+                step = 1
+              )
             ), # 22.16
             column(
               4,
-              numericInput("plot_height", "Plot height", value = 10, min = 0, step = 1)
+              numericInput(
+                "plot_height",
+                "Plot height",
+                value = 10,
+                min = 0,
+                step = 1
+              )
             ), # 14.5
             column(
               4,
-              selectInput("size_units",
+              selectInput(
+                "size_units",
                 "Units  ",
                 choices = c("cm", "mm", "in", "px"),
                 selected = "cm"
@@ -79,7 +97,9 @@ ggann_ui <- miniUI::miniPage(
           fluidRow(
             column(
               2,
-              actionButton("copy_button", HTML("<b>Copy &<br/>close</b>"),
+              actionButton(
+                "copy_button",
+                HTML("<b>Copy &<br/>close</b>"),
                 width = "100%",
                 style = "height:55px; background: rgba(22, 80, 129, 0.66); color: rgba(255, 255, 255, 1)"
               )
