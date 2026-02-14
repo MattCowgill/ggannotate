@@ -101,3 +101,45 @@ test_that("combine_layers() returns expected output", {
     ))
   ))
 })
+
+test_that("combine_layers() combines annotations across facet panels", {
+  layer_a <- list(
+    geom = "text",
+    aes = list(x = 3, y = 30, label = "Panel 4"),
+    facets = list(cyl = 4),
+    params = list(colour = "red")
+  )
+
+  layer_b <- list(
+    geom = "text",
+    aes = list(x = 4, y = 25, label = "Panel 6"),
+    facets = list(cyl = 6),
+    params = list(colour = "red")
+  )
+
+  result <- combine_layers(list(layer_a, layer_b))
+  expect_length(result, 1)
+  expect_equal(result[[1]]$geom, "text")
+  expect_equal(result[[1]]$facets, list(cyl = c(4, 6)))
+  expect_equal(result[[1]]$aes$x, c(3, 4))
+  expect_equal(result[[1]]$aes$y, c(30, 25))
+  expect_equal(result[[1]]$aes$label, c("Panel 4", "Panel 6"))
+})
+
+test_that("combine_layers() keeps annotations separate when facet vars differ", {
+  layer_with_facet <- list(
+    geom = "text",
+    aes = list(x = 3, y = 30, label = "Faceted"),
+    facets = list(cyl = 4),
+    params = list(colour = "red")
+  )
+
+  layer_without_facet <- list(
+    geom = "text",
+    aes = list(x = 4, y = 25, label = "No facet"),
+    params = list(colour = "red")
+  )
+
+  result <- combine_layers(list(layer_with_facet, layer_without_facet))
+  expect_length(result, 2)
+})

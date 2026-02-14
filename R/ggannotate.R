@@ -597,11 +597,33 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     combined_layers <- reactive({
-      req(this_layer())
-      # Get all stored layers and override active layer with current UI state
+      # Use tryCatch so that a transient error in this_layer() (e.g. during
+      # geom UI transition when inputs are momentarily NULL) doesn't hide
+      # previously-saved layers
+      current <- tryCatch(this_layer(), error = function(e) NULL)
       layers <- reactiveValuesToList(all_layers)
-      layers[[as.character(active_layer())]] <- this_layer()
+      if (!is.null(current)) {
+        layers[[as.character(active_layer())]] <- current
+      }
       layers <- purrr::compact(layers)
+      # Filter out layers missing required aesthetics before combining,
+      # otherwise an incomplete layer (e.g. no x/y yet) can merge with a
+      # valid one and introduce NA rows
+      layers <- Filter(
+        function(l) {
+          layer_obj <- tryCatch(
+            eval(make_layer(
+              geom = l$geom,
+              aes = l$aes,
+              params = l$params,
+              facets = l$facets
+            )),
+            error = function(e) NULL
+          )
+          !is.null(layer_obj) && has_req_aes(layer_obj)
+        },
+        layers
+      )
       if (length(layers) == 0) {
         return(NULL)
       }

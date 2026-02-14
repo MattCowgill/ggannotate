@@ -124,10 +124,31 @@ combine_layers <- function(lists) {
   x <- dplyr::tibble(layer = lists)
   x <- tidyr::unnest_wider(x, "layer")
 
-  x <- dplyr::group_by(x, dplyr::across(!dplyr::one_of("aes")))
+  # Group by facet variable names (not values) so annotations in different
+  # panels of the same facet variable can be combined into one geom call.
+  # Ensure the facets column exists even when no layers have facets.
+  if (!"facets" %in% names(x)) {
+    x$facets <- vector("list", nrow(x))
+  }
+  x$facet_var_names <- purrr::map_chr(x$facets, function(f) {
+    if (is.null(f) || length(f) == 0) {
+      ""
+    } else {
+      paste(sort(names(f)), collapse = ",")
+    }
+  })
 
-  x <- x %>%
-    dplyr::summarise(aes = list(.data[["aes"]]), .groups = "drop") %>%
+  x <- dplyr::group_by(
+    x,
+    dplyr::across(!dplyr::one_of(c("aes", "facets")))
+  )
+
+  x <- x |>
+    dplyr::summarise(
+      aes = list(.data[["aes"]]),
+      facets = list(.data[["facets"]]),
+      .groups = "drop"
+    ) |>
     dplyr::mutate(annot = dplyr::row_number())
 
   x <- split(x, x$annot)
@@ -163,7 +184,22 @@ combine_layers <- function(lists) {
 
   params <- purrr::map(x, add_element_or_flatten, element = "params")
 
-  facets <- purrr::map(x, add_element_or_flatten, element = "facets")
+  facets <- purrr::map(x, function(xi) {
+    facet_col <- xi[["facets"]]
+    if (is.null(facet_col)) {
+      return(list())
+    }
+    facet_lists <- purrr::compact(facet_col[[1]])
+    if (length(facet_lists) == 0) {
+      return(list())
+    }
+    all_names <- unique(unlist(lapply(facet_lists, names)))
+    result <- lapply(all_names, function(nm) {
+      unlist(lapply(facet_lists, function(fl) fl[[nm]]))
+    })
+    names(result) <- all_names
+    result
+  })
 
   out <- list(
     aes = aes,

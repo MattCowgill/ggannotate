@@ -1,5 +1,6 @@
 # ggannotate 0.3.0
 
+* Annotations across different facet panels with the same geom and parameters are now combined into a single geom call, producing more concise code.
 * Annotations are no longer lost when switching between layers in the Shiny gadget (#11).
 * `ggannotate()` now includes a "Delete" button to remove the current annotation layer (#11).
 * `ggannotate()` now intelligently rounds x and y coordinate values in generated annotation code based on the axis range, producing cleaner output (#44).
