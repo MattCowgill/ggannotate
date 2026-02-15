@@ -28,6 +28,12 @@ ggannotate <- function(plot = last_plot()) {
 
   stopifnot(inherits(plot, "gg"))
 
+  # Preserve last_plot() so the Shiny app's internal rendering doesn't
+
+  # overwrite it
+  saved_last_plot <- ggplot2::last_plot()
+  on.exit(ggplot2::set_last_plot(saved_last_plot), add = TRUE)
+
   built_base_plot <- ggplot2::ggplot_build(plot)
 
   if (is_polar_coord(built_base_plot)) {
