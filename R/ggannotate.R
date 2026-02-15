@@ -36,6 +36,29 @@ ggannotate <- function(plot = last_plot()) {
 
   # Shiny server ------
 
+  # Work around Shiny < 1.11 bug where ggplot2 4.x S7 class dispatch
+  # bypasses Shiny's local print.ggplot override, breaking coordmap
+  # extraction. We pre-build the plot and return the gtable structure
+  # directly, with a globally registered print method so S3 dispatch
+  # finds it. See https://github.com/rstudio/shiny/issues/4226
+  needs_coordmap_fix <- utils::packageVersion("ggplot2") >= "4.0.0" &&
+    utils::packageVersion("shiny") < "1.11.0"
+  if (needs_coordmap_fix) {
+    assign(
+      "print.ggplot_build_gtable",
+      function(x, ...) {
+        grid::grid.newpage()
+        grid::grid.draw(x$gtable)
+        x
+      },
+      envir = globalenv()
+    )
+    on.exit(
+      rm("print.ggplot_build_gtable", envir = globalenv()),
+      add = TRUE
+    )
+  }
+
   ggann_server <- function(input, output, session) {
     observeEvent(input$done, shiny::stopApp())
 
@@ -664,24 +687,23 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     output$plot <- renderPlot({
-      plot +
-        purrr::map(annot_calls(), eval)
+      p <- plot + purrr::map(annot_calls(), eval)
+      if (needs_coordmap_fix) {
+        build <- ggplot2::ggplot_build(p)
+        gtable <- ggplot2::ggplot_gtable(build)
+        structure(
+          list(build = build, gtable = gtable),
+          class = "ggplot_build_gtable"
+        )
+      } else {
+        p
+      }
     })
 
-    output$rendered_plot <- renderUI({
-      size_units <- input$size_units
-
-      plot_width <- paste0(input$plot_width, size_units)
-      plot_height <- paste0(input$plot_height, size_units)
-
-      plotOutput(
-        "plot",
-        click = "plot_click",
-        dblclick = "plot_dblclick",
-        brush = shiny::brushOpts(id = "plot_brush"),
-        width = plot_width,
-        height = plot_height
-      )
+    observe({
+      w <- paste0(input$plot_width, input$size_units)
+      h <- paste0(input$plot_height, input$size_units)
+      session$sendCustomMessage("resize-plot", list(width = w, height = h))
     })
 
     output$geom_opts <- renderUI({

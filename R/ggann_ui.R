@@ -17,6 +17,18 @@ ggann_ui <- miniUI::miniPage(
         body {
         color: rgba(22, 80, 129, 1);
         }"
+    )),
+    tags$script(HTML(
+      "
+      Shiny.addCustomMessageHandler('resize-plot', function(msg) {
+        var el = document.getElementById('plot');
+        if (el) {
+          el.style.width = msg.width;
+          el.style.height = msg.height;
+          $(el).trigger('resize');
+        }
+      });
+    "
     ))
   ),
   miniUI::miniContentPanel(
@@ -70,7 +82,14 @@ ggann_ui <- miniUI::miniPage(
           textOutput("instruction"),
           style = "font-weight:bold; line-height:1.6em; font-size:1em"
         ),
-        uiOutput("rendered_plot"),
+        plotOutput(
+          "plot",
+          click = "plot_click",
+          dblclick = "plot_dblclick",
+          brush = shiny::brushOpts(id = "plot_brush"),
+          width = "18cm",
+          height = "10cm"
+        ),
         ggannPanel(
           fluidRow(
             column(
