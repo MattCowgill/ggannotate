@@ -13,7 +13,7 @@ base_text_ui <- tagList(
   ),
   fluidRow(
     column(
-      4,
+      6,
       numericInput(
         "lineheight",
         "Lineheight",
@@ -23,19 +23,8 @@ base_text_ui <- tagList(
       )
     ),
     column(
-      4,
+      6,
       textInput("colour", "Colour", value = "black")
-    ),
-    column(
-      4,
-      numericInput(
-        "size",
-        "Font size (pts)",
-        value = 11,
-        min = 0,
-        max = 48,
-        step = 0.5
-      )
     )
   ),
   fluidRow(
@@ -84,16 +73,49 @@ base_text_ui <- tagList(
 text_ui <- c(
   base_text_ui,
   tagList(
-    fluidRow(column(
-      4,
-      numericInput("angle", "Angle", value = 0, min = -360, max = 360, step = 1)
-    ))
+    fluidRow(
+      column(
+        4,
+        numericInput(
+          "size",
+          "Font size",
+          value = 11,
+          min = 0,
+          max = 48,
+          step = 0.5
+        )
+      ),
+      column(
+        4,
+        numericInput(
+          "angle",
+          "Angle",
+          value = 0,
+          min = -360,
+          max = 360,
+          step = 1
+        )
+      )
+    )
   )
 )
 
 label_ui <- c(
   base_text_ui,
   tagList(
+    fluidRow(
+      column(
+        4,
+        numericInput(
+          "size",
+          "Font size",
+          value = 11,
+          min = 0,
+          max = 48,
+          step = 0.5
+        )
+      )
+    ),
     fluidRow(
       column(
         4,
@@ -235,7 +257,7 @@ textbox_ui <- tagList(
   ),
   fluidRow(
     column(
-      4,
+      6,
       numericInput(
         "lineheight",
         "Lineheight",
@@ -245,14 +267,16 @@ textbox_ui <- tagList(
       )
     ),
     column(
-      4,
+      6,
       textInput("colour", "Colour", value = "black")
-    ),
+    )
+  ),
+  fluidRow(
     column(
       4,
       numericInput(
         "size",
-        "Font size (pts)",
+        "Font size",
         value = 11,
         min = 0,
         max = 48,

@@ -17,7 +17,7 @@
 #' @import ggplot2
 #' @importFrom rlang expr exec enquo get_expr expr_deparse parse_expr
 #' @importFrom dplyr case_when if_else
-#' @importFrom miniUI miniPage
+#' @importFrom bslib bs_theme font_google
 #' @importFrom clipr write_clip
 #'
 
