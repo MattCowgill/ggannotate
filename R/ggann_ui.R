@@ -119,8 +119,14 @@ ggann_ui <- shiny::fillPage(
       width = 12,
       style = "padding-left: 20px; padding-right: 20px;",
       div(
-        textOutput("instruction"),
-        style = "font-weight:bold; line-height:1.6em; font-size:1em"
+        style = "display: flex; align-items: center; gap: 8px; background: #f0fdfa; border-left: 4px solid #0d9488; border-radius: 0 6px 6px 0; padding: 8px 12px; margin-bottom: 8px;",
+        HTML(
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>'
+        ),
+        span(
+          textOutput("instruction", inline = TRUE),
+          style = "font-weight: 600; font-size: 13px; color: #1e293b;"
+        )
       ),
       plotOutput(
         "plot",
