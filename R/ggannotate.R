@@ -366,6 +366,11 @@ ggannotate <- function(plot = last_plot()) {
 
       aes <- aes[names(aes) %in% known_aes()]
 
+      # For rect, exclude x/y — rect requires xmin/xmax/ymin/ymax from brush
+      if (selected_geom() == "rect") {
+        aes[c("x", "y")] <- NULL
+      }
+
       aes <- purrr::compact(aes)
 
       aes

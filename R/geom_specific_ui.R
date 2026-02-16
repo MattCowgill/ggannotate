@@ -105,7 +105,7 @@ label_ui <- c(
   tagList(
     fluidRow(
       column(
-        4,
+        6,
         numericInput(
           "size",
           "Font size",
@@ -114,24 +114,24 @@ label_ui <- c(
           max = 48,
           step = 0.5
         )
+      ),
+      column(
+        6,
+        numericInput(
+          "label.padding",
+          span("Label padding", style = "white-space: nowrap;"),
+          value = 0.25,
+          step = 0.025
+        )
       )
     ),
     fluidRow(
       column(
-        4,
-        numericInput(
-          "label.padding",
-          "Label padding",
-          value = 0.25,
-          step = 0.025
-        )
-      ),
-      column(
-        4,
+        6,
         numericInput("label.r", "Label radius", value = 0.15, step = 0.025)
       ),
       column(
-        4,
+        6,
         numericInput("label.size", "Label size", value = 0.25, step = 0.05)
       )
     )
