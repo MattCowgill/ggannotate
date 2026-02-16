@@ -50,18 +50,16 @@ ggannotate <- function(plot = last_plot()) {
   needs_coordmap_fix <- utils::packageVersion("ggplot2") >= "4.0.0" &&
     utils::packageVersion("shiny") < "1.11.0"
   if (needs_coordmap_fix) {
-    assign(
-      "print.ggplot_build_gtable",
-      function(x, ...) {
-        grid::grid.newpage()
-        grid::grid.draw(x$gtable)
-        x
-      },
-      envir = globalenv()
-    )
-    on.exit(
-      rm("print.ggplot_build_gtable", envir = globalenv()),
-      add = TRUE
+    print.ggplot_build_gtable <- function(x, ...) {
+      grid::grid.newpage()
+      grid::grid.draw(x$gtable)
+      x
+    }
+    registerS3method(
+      "print",
+      "ggplot_build_gtable",
+      print.ggplot_build_gtable,
+      envir = asNamespace("base")
     )
   }
 

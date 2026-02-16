@@ -10,3 +10,4 @@
 ^pkgdown$
 ^cran-comments\.md$
 ^\.claude$
+^Rplots\.pdf$

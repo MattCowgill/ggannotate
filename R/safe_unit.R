@@ -11,6 +11,7 @@
 #' @param length Length of arrow created by `grid::arrow()`
 #' @param ends See `?grid::arrow()`
 #' @param type See `?grid::arrow()`
+#' @keywords internal
 #' @importFrom rlang call2
 
 safe_unit <- function(x, units) {
