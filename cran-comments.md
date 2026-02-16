@@ -6,7 +6,7 @@
 
 ## Test environments
 
-* local macOS (aarch64-apple-darwin), R 4.x
+* local macOS (aarch64-apple-darwin), R 4.4.1
 * GitHub Actions (ubuntu-latest): R-devel, R-release, R-oldrel-1
 * GitHub Actions (windows-latest): R-release
 * GitHub Actions (macos-latest): R-release

@@ -71,7 +71,7 @@
 #'     geom = .x$geom,
 #'     aes = .x$aes,
 #'     params = .x$params
-#'   ) %>%
+#'   ) |>
 #'     eval()
 #' )
 #'
@@ -154,15 +154,15 @@ combine_layers <- function(lists) {
   x <- split(x, x$annot)
 
   create_aes_out <- function(split_tib) {
-    aes_col <- split_tib %>%
-      dplyr::select("aes") %>%
+    aes_col <- split_tib |>
+      dplyr::select("aes") |>
       tidyr::unnest_longer("aes")
 
     if (all(is.na(aes_col))) {
       list_out <- list(aes = NULL)
     } else {
-      list_out <- aes_col %>%
-        tidyr::unnest_wider("aes") %>%
+      list_out <- aes_col |>
+        tidyr::unnest_wider("aes") |>
         as.list()
     }
 

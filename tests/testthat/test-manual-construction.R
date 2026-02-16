@@ -1,5 +1,5 @@
 test_that("A manual construction of inputs yields an annotated plot", {
-  plot <- mtcars %>%
+  plot <- mtcars |>
     ggplot(aes(x = wt, y = mpg)) +
     geom_point() +
     facet_wrap(~cyl)
@@ -97,7 +97,7 @@ test_that("A manual construction of inputs yields an annotated plot", {
     aes = aes_list,
     params = params_list,
     facets = facets_list
-  ) %>%
+  ) |>
     purrr::compact()
 
   all_layers <- list()

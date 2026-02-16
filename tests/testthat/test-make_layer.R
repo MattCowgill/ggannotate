@@ -52,7 +52,7 @@ mtcars_with_rownames <- mtcars
 mtcars_with_rownames$car <- rownames(mtcars)
 
 
-flipped_bar_base <- mtcars_with_rownames %>%
+flipped_bar_base <- mtcars_with_rownames |>
   ggplot(aes(
     x = reorder(car, mpg),
     y = mpg,
