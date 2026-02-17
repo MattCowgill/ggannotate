@@ -149,6 +149,12 @@ ggannotate <- function(plot = last_plot()) {
 
       user_input$x <- round_to_range(corrected_scales$x, x_range)
       user_input$y <- round_to_range(corrected_scales$y, y_range)
+
+      # For curves, clear the end point so the user can reposition the start
+      if (selected_geom() == "curve") {
+        user_input$x_dbl <- NULL
+        user_input$y_dbl <- NULL
+      }
     })
 
     observeEvent(input$plot_dblclick, {
@@ -673,12 +679,16 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     output$instruction <- renderText({
+      curve_has_start <- selected_geom() == "curve" &&
+        !is.null(user_input$x) &&
+        is.null(user_input$x_dbl)
+
       dplyr::case_when(
         selected_geom() ==
           "text" ~ "Click where you want to place your annotation",
         selected_geom() == "label" ~ "Click where you want to place your label",
-        selected_geom() ==
-          "curve" ~ "Click where you want your line to begin and double-click where it should end",
+        curve_has_start ~ "Now double-click where the line should end",
+        selected_geom() == "curve" ~ "Click where you want your line to begin",
         selected_geom() ==
           "rect" ~ "Click and drag to draw and adjust the rectangle, then click once anywhere else to set it",
         selected_geom() ==
@@ -687,8 +697,27 @@ ggannotate <- function(plot = last_plot()) {
       )
     })
 
+    curve_start_marker <- reactive({
+      if (
+        selected_geom() == "curve" &&
+          !is.null(user_input$x) &&
+          !is.null(user_input$y) &&
+          is.null(user_input$x_dbl)
+      ) {
+        ggplot2::annotate(
+          "point",
+          x = user_input$x,
+          y = user_input$y,
+          colour = "#0d9488",
+          size = 3,
+          shape = 4,
+          stroke = 1.5
+        )
+      }
+    })
+
     output$plot <- renderPlot({
-      p <- plot + purrr::map(annot_calls(), eval)
+      p <- plot + purrr::map(annot_calls(), eval) + curve_start_marker()
       if (needs_coordmap_fix) {
         build <- ggplot2::ggplot_build(p)
         gtable <- ggplot2::ggplot_gtable(build)
