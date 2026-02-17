@@ -436,15 +436,31 @@ ggannotate <- function(plot = last_plot()) {
 
     update_layer_labels <- function() {
       stored <- reactiveValuesToList(all_layers)
-      all_choices <- as.character(1:10)
+
+      # Include the live current layer if it has content (aes set)
+      current <- tryCatch(this_layer(), error = function(e) NULL)
+      current_key <- as.character(active_layer())
+      if (!is.null(current) && length(current$aes) > 0) {
+        stored[[current_key]] <- current
+      }
+
+      existing_keys <- names(stored)
+      existing_nums <- as.integer(existing_keys)
+
+      if (length(existing_nums) == 0) {
+        next_num <- 1L
+      } else {
+        next_num <- max(existing_nums) + 1L
+      }
+
+      all_choices <- c(existing_keys, as.character(next_num))
       labels <- all_choices
-      for (i in seq_along(all_choices)) {
-        key <- all_choices[[i]]
-        if (!is.null(stored[[key]])) {
-          labels[[i]] <- paste0(key, " <", stored[[key]]$geom, ">")
-        }
+      for (i in seq_along(existing_keys)) {
+        key <- existing_keys[[i]]
+        labels[[i]] <- paste0(key, " <", stored[[key]]$geom, ">")
       }
       names(all_choices) <- labels
+
       updateSelectInput(
         session,
         "annot_layer",
@@ -452,6 +468,12 @@ ggannotate <- function(plot = last_plot()) {
         selected = as.character(active_layer())
       )
     }
+
+    # Update dropdown whenever the current layer's content changes
+    observe({
+      this_layer()
+      update_layer_labels()
+    })
 
     # Handle layer switching
     observeEvent(input$annot_layer, {

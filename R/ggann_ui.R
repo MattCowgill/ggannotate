@@ -81,7 +81,7 @@ ggann_ui <- shiny::fillPage(
           selectInput(
             "annot_layer",
             "Annotation layer",
-            choices = 1:10,
+            choices = 1,
             selected = 1,
             multiple = FALSE
           )
