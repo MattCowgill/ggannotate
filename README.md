@@ -6,7 +6,7 @@
 <!-- badges: start -->
 
 [![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![R build
 status](https://github.com/mattcowgill/ggannotate/workflows/R-CMD-check/badge.svg)](https://github.com/mattcowgill/ggannotate/actions)
 [![Codecov test
@@ -16,69 +16,69 @@ status](https://www.r-pkg.org/badges/version/ggannotate)](https://CRAN.R-project
 
 <!-- badges: end -->
 
-{ggannotate} is a point-and-click tool to help you put your annotations
-exactly where you want them to go on your {ggplot2} plots.
+{ggannotate} makes it easy to add annotations to your {ggplot2} plots by
+pointing and clicking.
 
-The last step in data visualisation - adding annotations - is one of the
-most important, but it can be hard to get annotations in exactly the
-right place. With {ggannotate}, you interactively annotate ggplots using
-a Shiny-based RStudio add-in.
+Annotations are often the most important part of a data visualisation,
+but getting them in exactly the right place can be fiddly. {ggannotate}
+launches an interactive Shiny gadget that lets you click on your plot to
+place annotations, then generates the code to reproduce them.
+
+<figure>
+<img src="man/figures/demo.gif" alt="Demo of ggannotate" />
+<figcaption aria-hidden="true">Demo of ggannotate</figcaption>
+</figure>
+
+## Features
+
+- Add **text**, **labels**, **curves**, and **rectangles** to any
+  ggplot2 plot
+- Place multiple annotations in a single session
+- Full support for faceted plots
+- Annotations using the same geom are combined into a single layer for
+  cleaner code
+- Copy generated code to the clipboard with one click
+- Use as an RStudio addin or call directly from the console
 
 ## Installation
 
-{ggannotate} is not yet on CRAN. It will be submitted to CRAN when it is
-more stable and feature-complete.
-
-Install from GitHub:
+Install from CRAN:
 
 ``` r
-remotes::install_github("mattcowgill/ggannotate")
+install.packages("ggannotate")
+```
+
+Or install the development version from GitHub:
+
+``` r
+# install.packages("pak")
+pak::pak("MattCowgill/ggannotate")
 ```
 
 ## Usage
 
-Create a ggplot2 object, then call `ggannotate()`:
+Create a ggplot2 object and pass it to `ggannotate()`:
 
 ``` r
 library(ggplot2)
 library(ggannotate)
 
-p <- ggplot(mtcars, 
-            aes(x = wt, y = mpg)) + 
-  geom_point() 
+p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point()
 
 ggannotate(p)
 ```
 
-If you invoke `ggannotate()` without specifying a plot, it will use the
-last plot you modified or created, using `ggplot2::last_plot()`:
+Or call `ggannotate()` with no arguments to annotate your most recent
+plot:
 
 ``` r
-ggplot(mtcars, 
-            aes(x = wt, y = mpg)) + 
-  geom_point() 
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point()
 
 ggannotate()
 ```
 
-You can also use the RStudio add-in to annotate your `last_plot()` with
-`ggannotate()`.
-
-Each of these options will launch a Shiny app. Add your annotation(s)
-and click ‘copy code’ to copy the annotation code to the clipboard. Then
-paste the copied code in your script and you’re done!
-
-You can adjust the size of the plot in the Shiny app so you can set it
-to be the same as your intended output.
-
-## Lifecycle
-
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-
-{ggannotate} is still in active development, in an experimental phase.
-Aspects of the functionality are quite likely to change as the package
-evolves.
-
-Suggestions are welcome (please file a GitHub issue). The UI will change
-substantially.
+This launches a Shiny app where you can add your annotations
+interactively. When you’re done, click “Copy code” to copy the
+annotation code to your clipboard, then paste it into your script.

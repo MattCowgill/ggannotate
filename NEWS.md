@@ -1,3 +1,7 @@
+# ggannotate 1.0.0
+
+* First CRAN release.
+
 # ggannotate 0.3.0
 
 * Annotations across different facet panels with the same geom and parameters are now combined into a single geom call, producing more concise code.

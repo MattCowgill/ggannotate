@@ -1,5 +1,8 @@
-#' ggannotate
-#' @name ggannotate
+#' Interactively annotate a ggplot2 plot
+#'
+#' Launches an interactive Shiny gadget that lets you point and click
+#' on a ggplot2 plot to add annotations, then generates the code to
+#' reproduce them.
 #'
 #' @param plot A ggplot2 object. Default is `ggplot2::last_plot()`.
 #'
