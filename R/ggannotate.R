@@ -67,8 +67,6 @@ ggannotate <- function(plot = last_plot()) {
   }
 
   ggann_server <- function(input, output, session) {
-    observeEvent(input$done, shiny::stopApp())
-
     user_input <- reactiveValues()
 
     # Check whether axes are flipped
@@ -105,10 +103,6 @@ ggannotate <- function(plot = last_plot()) {
     # Get vector of aesthetics known to selected geom -----
     known_aes <- reactive({
       geom_fn()$aesthetics()
-    })
-
-    req_aes <- reactive({
-      geom_fn()$required_aes
     })
 
     # Observe plot interaction -----
@@ -274,13 +268,7 @@ ggannotate <- function(plot = last_plot()) {
         input$size
       )
 
-      fontface <- case_when(
-        input$fontface == "plain" ~ 1,
-        input$fontface == "bold" ~ 2,
-        input$fontface == "italic" ~ 3,
-        input$fontface == "bold.italic" ~ 4,
-        TRUE ~ NA_real_
-      )
+      fontface <- input$fontface
 
       user_alpha <- ifelse(
         selected_geom() == "rect" &&
@@ -319,13 +307,13 @@ ggannotate <- function(plot = last_plot()) {
         selected_geom(),
         "text" = c(known_aes()),
         "label" = c(
-          known_aes,
+          known_aes(),
           "label.padding",
           "label.r",
           "label.size"
         ),
         "curve" = c(
-          known_aes,
+          known_aes(),
           "curvature",
           "angle",
           "arrow",
@@ -338,7 +326,8 @@ ggannotate <- function(plot = last_plot()) {
           "fill",
           "box.padding",
           "width",
-          "hjust"
+          "hjust",
+          "vjust"
         )
       )
       params <- params[names(params) %in% known_params]

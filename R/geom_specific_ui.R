@@ -150,6 +150,10 @@ curve_ui <- tagList(
         value = 0.5,
         step = 0.05
       )
+    ),
+    column(
+      6,
+      textInput("colour", "Colour", value = "black")
     )
   ),
   fluidRow(
