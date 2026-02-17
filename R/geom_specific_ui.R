@@ -24,7 +24,12 @@ base_text_ui <- tagList(
     ),
     column(
       6,
-      textInput("colour", "Colour", value = "black")
+      colourpicker::colourInput(
+        "colour",
+        "Colour",
+        value = "black",
+        allowTransparent = TRUE
+      )
     )
   ),
   fluidRow(
@@ -153,7 +158,12 @@ curve_ui <- tagList(
     ),
     column(
       6,
-      textInput("colour", "Colour", value = "black")
+      colourpicker::colourInput(
+        "colour",
+        "Colour",
+        value = "black",
+        allowTransparent = TRUE
+      )
     )
   ),
   fluidRow(
@@ -236,13 +246,23 @@ rect_ui <- tagList(
     ),
     column(
       6,
-      textInput("fill", "Fill colour", value = "grey55")
+      colourpicker::colourInput(
+        "fill",
+        "Fill colour",
+        value = "grey55",
+        allowTransparent = TRUE
+      )
     )
   ),
   fluidRow(
     column(
       6,
-      textInput("colour", "Border colour", value = "black")
+      colourpicker::colourInput(
+        "colour",
+        "Border colour",
+        value = "black",
+        allowTransparent = TRUE
+      )
     ),
     column(
       6,
@@ -283,7 +303,12 @@ textbox_ui <- tagList(
     ),
     column(
       6,
-      textInput("colour", "Colour", value = "black")
+      colourpicker::colourInput(
+        "colour",
+        "Colour",
+        value = "black",
+        allowTransparent = TRUE
+      )
     )
   ),
   fluidRow(
@@ -343,7 +368,12 @@ textbox_ui <- tagList(
   fluidRow(
     column(
       4,
-      textInput("fill", "Box fill", value = "white")
+      colourpicker::colourInput(
+        "fill",
+        "Box fill",
+        value = "white",
+        allowTransparent = TRUE
+      )
     ),
     column(
       4,

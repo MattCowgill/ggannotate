@@ -538,10 +538,18 @@ ggannotate <- function(plot = last_plot()) {
                 updateTextInput(session, "annotation", value = state$annotation)
               }
               if (!is.null(state$colour)) {
-                updateTextInput(session, "colour", value = state$colour)
+                colourpicker::updateColourInput(
+                  session,
+                  "colour",
+                  value = state$colour
+                )
               }
               if (!is.null(state$fill)) {
-                updateTextInput(session, "fill", value = state$fill)
+                colourpicker::updateColourInput(
+                  session,
+                  "fill",
+                  value = state$fill
+                )
               }
               if (!is.null(state$size)) {
                 updateNumericInput(session, "size", value = state$size)
