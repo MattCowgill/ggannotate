@@ -257,7 +257,7 @@ ggannotate <- function(plot = last_plot()) {
       user_arrow <- safe_arrow(
         angle = input$arrow_angle,
         length = input$arrow_length,
-        ends = "last",
+        ends = input$arrow_ends %||% "last",
         type = "closed"
       )
 
@@ -414,6 +414,7 @@ ggannotate <- function(plot = last_plot()) {
         curvature = input$curvature,
         arrow_length = input$arrow_length,
         arrow_angle = input$arrow_angle,
+        arrow_ends = input$arrow_ends,
         alpha = input$alpha,
         label.padding = input$`label.padding`,
         label.r = input$`label.r`,
@@ -564,6 +565,13 @@ ggannotate <- function(plot = last_plot()) {
                   session,
                   "arrow_angle",
                   value = state$arrow_angle
+                )
+              }
+              if (!is.null(state$arrow_ends)) {
+                updateSelectInput(
+                  session,
+                  "arrow_ends",
+                  selected = state$arrow_ends
                 )
               }
               if (!is.null(state$alpha)) {

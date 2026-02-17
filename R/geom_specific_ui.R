@@ -207,6 +207,17 @@ curve_ui <- tagList(
         ticks = FALSE
       )
     )
+  ),
+  fluidRow(
+    column(
+      6,
+      selectInput(
+        "arrow_ends",
+        "Arrow ends",
+        choices = c("last", "first", "both"),
+        selected = "last"
+      )
+    )
   )
 )
 
