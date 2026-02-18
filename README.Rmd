@@ -25,9 +25,9 @@ knitr::opts_chunk$set(
 
 Annotations are often the most important part of a data visualisation, but getting them in exactly the right place can be fiddly. 
 
-**{ggannotate} launches an interactive Shiny gadget that lets you click on your plot to place annotations exactly where you want them.** It then generates the code to reproduce your annotations
+{ggannotate} launches an interactive Shiny gadget that lets you **click on your plot to place annotations exactly where you want them.** It then generates the code to reproduce your annotations
 
-![Demo of ggannotate](man/figures/demo.gif)
+![ ](man/figures/demo.gif)
 
 ## Features
 
