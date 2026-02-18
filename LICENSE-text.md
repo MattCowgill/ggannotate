@@ -1,0 +1,4 @@
+# License
+
+    YEAR: 2020-2026
+    COPYRIGHT HOLDER: Matt Cowgill

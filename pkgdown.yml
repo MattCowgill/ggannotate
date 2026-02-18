@@ -1,0 +1,8 @@
+pandoc: 3.1.11
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles: {}
+last_built: 2026-02-18T08:49Z
+urls:
+  reference: https://mattcowgill.github.io/ggannotate/reference
+  article: https://mattcowgill.github.io/ggannotate/articles
