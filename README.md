@@ -20,9 +20,11 @@ status](https://www.r-pkg.org/badges/version/ggannotate)](https://CRAN.R-project
 pointing and clicking.
 
 Annotations are often the most important part of a data visualisation,
-but getting them in exactly the right place can be fiddly. {ggannotate}
-launches an interactive Shiny gadget that lets you click on your plot to
-place annotations, then generates the code to reproduce them.
+but getting them in exactly the right place can be fiddly.
+
+**{ggannotate} launches an interactive Shiny gadget that lets you click
+on your plot to place annotations exactly where you want them.** It then
+generates the code to reproduce your annotations
 
 <figure>
 <img src="man/figures/demo.gif" alt="Demo of ggannotate" />
@@ -42,13 +44,7 @@ place annotations, then generates the code to reproduce them.
 
 ## Installation
 
-Install from CRAN:
-
-``` r
-install.packages("ggannotate")
-```
-
-Or install the development version from GitHub:
+Install the development version from GitHub:
 
 ``` r
 # install.packages("pak")
@@ -57,26 +53,26 @@ pak::pak("MattCowgill/ggannotate")
 
 ## Usage
 
-Create a ggplot2 object and pass it to `ggannotate()`:
+Firs, create a ggplot2 object:
 
 ``` r
 library(ggplot2)
 library(ggannotate)
 
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point()
+```
+
+Then just call `ggannotate()` or use the handy RStudio addin to invoke
+ggannotate.
+
+It also works with named plots:
+
+``` r
 p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
   geom_point()
 
 ggannotate(p)
-```
-
-Or call `ggannotate()` with no arguments to annotate your most recent
-plot:
-
-``` r
-ggplot(mtcars, aes(x = wt, y = mpg)) +
-  geom_point()
-
-ggannotate()
 ```
 
 This launches a Shiny app where you can add your annotations
