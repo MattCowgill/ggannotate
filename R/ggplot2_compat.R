@@ -8,7 +8,6 @@
 #' @return A package_version object
 #' @noRd
 ggplot2_version <- function() {
-
   utils::packageVersion("ggplot2")
 }
 
@@ -194,7 +193,6 @@ coords_are_normalized <- function(click_input, panel_params) {
   }
   if (is.null(panel_params)) {
     return(FALSE)
-
   }
 
   x_range <- panel_params$x.range
@@ -204,13 +202,12 @@ coords_are_normalized <- function(click_input, panel_params) {
     return(FALSE)
   }
 
-
   # If the click coords are in 0-1 but data range is much larger,
- # coordinates are likely normalized
+  # coordinates are likely normalized
   x_in_unit <- click_input$x >= 0 && click_input$x <= 1
   y_in_unit <- click_input$y >= 0 && click_input$y <= 1
   x_range_large <- diff(x_range) > 1.5
-y_range_large <- diff(y_range) > 1.5
+  y_range_large <- diff(y_range) > 1.5
 
   x_in_unit && y_in_unit && (x_range_large || y_range_large)
 }
@@ -256,4 +253,113 @@ normalize_to_data_coords <- function(click_input, panel_params) {
   }
 
   click_input
+}
+
+#' Convert whole-plot normalized coordinates to within-panel normalized coordinates
+#'
+#' When a plot has multiple facet panels, the normalized 0-1 coordinates from Shiny
+#' span the entire plot. This function converts them to coordinates within the
+#' specific panel that was clicked.
+#'
+#' @param x Normalized x coordinate (0-1) for whole plot
+#' @param y Normalized y coordinate (0-1) for whole plot
+#' @param built_plot A ggplot_build object
+#' @return A list with $x and $y as within-panel normalized coordinates (0-1)
+#' @noRd
+convert_to_panel_coords <- function(x, y, built_plot) {
+  layout <- tryCatch(
+    built_plot$layout$layout,
+    error = function(e) NULL
+  )
+
+  if (is.null(layout) || nrow(layout) <= 1) {
+    # Single panel or no layout - coordinates are already panel-relative
+    return(list(x = x, y = y))
+  }
+
+  n_cols <- max(layout$COL)
+  n_rows <- max(layout$ROW)
+
+  # Calculate which column and the position within that column
+  col_width <- 1 / n_cols
+  col <- ceiling(x * n_cols)
+  col <- max(1, min(col, n_cols))
+  # Position within the column (0-1)
+  x_in_panel <- (x - (col - 1) * col_width) / col_width
+
+  # Calculate which row and the position within that row
+  # y=0 is bottom, y=1 is top in normalized space
+  row_height <- 1 / n_rows
+  # Invert y because panel ROW 1 is at top
+  y_inverted <- 1 - y
+  row <- ceiling(y_inverted * n_rows)
+  row <- max(1, min(row, n_rows))
+  # Position within the row (0-1), then invert back
+  y_in_row <- (y_inverted - (row - 1) * row_height) / row_height
+  y_in_panel <- 1 - y_in_row
+
+  list(x = x_in_panel, y = y_in_panel)
+}
+
+#' Infer which facet panel was clicked from normalized coordinates
+#'
+#' When Shiny returns normalized (0-1) coordinates, it often omits the panelvar
+#' facet information. This function infers which panel was clicked based on the
+#' normalized x,y position and the panel layout.
+#'
+#' @param x Normalized x coordinate (0-1)
+#' @param y Normalized y coordinate (0-1)
+#' @param built_plot A ggplot_build object
+#' @return A list with $vars and $levels matching the format from get_facets()
+#' @noRd
+infer_facet_from_normalized_coords <- function(x, y, built_plot) {
+  layout <- tryCatch(
+    built_plot$layout$layout,
+    error = function(e) NULL
+  )
+
+  if (is.null(layout) || nrow(layout) == 0) {
+    return(list(vars = list(), levels = list()))
+  }
+
+  # Get grid dimensions
+  n_cols <- max(layout$COL)
+  n_rows <- max(layout$ROW)
+
+  # Determine which column (1-indexed)
+  # x=0 is left edge, x=1 is right edge
+  col <- ceiling(x * n_cols)
+  col <- max(1, min(col, n_cols)) # clamp to valid range
+
+  # Determine which row (1-indexed)
+  # In normalized space, y=0 is bottom, y=1 is top
+  # But panel ROW 1 is at the top, so we need to invert
+  row <- ceiling((1 - y) * n_rows)
+  row <- max(1, min(row, n_rows))
+
+  # Find the panel at this row/col
+  panel_row <- layout[layout$ROW == row & layout$COL == col, ]
+
+  if (nrow(panel_row) == 0) {
+    return(list(vars = list(), levels = list()))
+  }
+
+  # Extract facet variable columns (exclude layout metadata columns)
+  facet_cols <- setdiff(
+    names(panel_row),
+    c("PANEL", "ROW", "COL", "SCALE_X", "SCALE_Y", "COORD")
+  )
+
+  if (length(facet_cols) == 0) {
+    return(list(vars = list(), levels = list()))
+  }
+
+  # Build facet vars and levels in the format expected by correct_facets()
+  vars <- as.list(facet_cols)
+  names(vars) <- paste0("panelvar", seq_along(facet_cols))
+
+  levels <- as.list(panel_row[1, facet_cols, drop = FALSE])
+  names(levels) <- paste0("panelvar", seq_along(facet_cols))
+
+  list(vars = vars, levels = levels)
 }

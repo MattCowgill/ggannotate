@@ -10,8 +10,10 @@ get_facets <- function(plot_click) {
 
   facet_levels <- plot_click[is_panel_var]
 
-  facet_vars <- plot_click$mapping[names(plot_click$mapping) %in%
-    panelvars]
+  facet_vars <- plot_click$mapping[
+    names(plot_click$mapping) %in%
+      panelvars
+  ]
 
   facets <- list(levels = facet_levels, vars = facet_vars)
 
@@ -39,10 +41,7 @@ get_facet_characteristics <- function(built_plot) {
 
   plot_data <- built_plot$plot$data
 
-  facets_data <- lapply(facets_quos,
-    ggann_eval_facet,
-    data = plot_data
-  )
+  facets_data <- lapply(facets_quos, ggann_eval_facet, data = plot_data)
 
   facets_out <- list()
 
@@ -54,7 +53,8 @@ get_facet_characteristics <- function(built_plot) {
     if (!facet_name %in% names(plot_data)) {
       data_name <- match_facet_var(
         facet_name,
-        facet_data, plot_data
+        facet_data,
+        plot_data
       )
     } else {
       data_name <- facet_name
@@ -63,11 +63,13 @@ get_facet_characteristics <- function(built_plot) {
     # Where facet is a factor, the level should be 'factor(x)' rather than 'x'
     facet_factor <- inherits(facets_data[[facet_name]], "factor")
 
-    facet_list <- list(facet = list(
-      facet_name = facet_name,
-      data_name = data_name,
-      facet_factor = facet_factor
-    ))
+    facet_list <- list(
+      facet = list(
+        facet_name = facet_name,
+        data_name = data_name,
+        facet_factor = facet_factor
+      )
+    )
 
     names(facet_list) <- facet_name
 
@@ -87,7 +89,9 @@ correct_facets <- function(clicked_facets, facet_characteristics) {
     for (panelvar in names(clicked_facets$vars)) {
       facet_name <- clicked_facets$vars[[panelvar]]
 
-      facets_out$vars[[panelvar]] <- facet_characteristics[[facet_name]]$data_name
+      facets_out$vars[[panelvar]] <- facet_characteristics[[
+        facet_name
+      ]]$data_name
 
       facet_factor <- facet_characteristics[[facet_name]]$facet_factor
 
@@ -103,7 +107,6 @@ correct_facets <- function(clicked_facets, facet_characteristics) {
 }
 
 
-
 #' This function is a simplified version of ggplot2:::eval_facet()
 #' Copied here as that function is non-exported
 #' @param facet A facet quosure, obtained through `get_facet_quos(built_plot)`
@@ -114,8 +117,7 @@ ggann_eval_facet <- function(facet, data) {
     facet <- as.character(rlang::quo_get_expr(facet))
     if (facet %in% names(data)) {
       out <- data[[facet]]
-    }
-    else {
+    } else {
       out <- NULL
     }
     return(out)
@@ -128,7 +130,6 @@ ggann_eval_facet <- function(facet, data) {
 #' Get list of facet quosures from built ggplot
 #' @noRd
 get_facet_quos <- function(built_plot) {
-
   facet_params <- get_facet_params(built_plot)
 
   plot_facets <- list(
@@ -179,7 +180,8 @@ match_facet_var <- function(facet, facet_data, plot_data) {
 
       if (!var_before_comma %in% names(plot_data)) {
         stop(
-          "facet variable `", facet,
+          "facet variable `",
+          facet,
           "` could not be found in the plot data"
         )
       }

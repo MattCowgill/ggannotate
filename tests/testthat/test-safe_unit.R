@@ -21,8 +21,10 @@ test_that("safe_arrow returns expected output", {
   expect_identical(
     eval(valid_arrow),
     arrow(
-      angle = 30, length = unit(0.1, "inches"),
-      "last", "closed"
+      angle = 30,
+      length = unit(0.1, "inches"),
+      "last",
+      "closed"
     )
   )
 })

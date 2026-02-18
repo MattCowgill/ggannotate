@@ -36,10 +36,7 @@
 #' @importFrom rlang call2 syms `!!!`
 #' @importFrom stats setNames
 
-make_layer <- function(geom,
-                       aes = NULL,
-                       params = NULL,
-                       facets = NULL) {
+make_layer <- function(geom, aes = NULL, params = NULL, facets = NULL) {
   compact_aes <- purrr::compact(aes)
 
   aesthetics <- rlang::syms(names(compact_aes))
@@ -89,7 +86,8 @@ make_layer <- function(geom,
     geom_to_call <- paste0("geom_", geom)
     params_list <- remove_default_params(geom_to_call, params_list)
 
-    rlang::call2(geom_to_call,
+    rlang::call2(
+      geom_to_call,
       data = data_call,
       mapping = aes_call,
       !!!params_list,

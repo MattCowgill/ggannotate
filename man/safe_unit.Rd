@@ -28,3 +28,4 @@ safe_arrow(angle, length, ends = "last", type = "closed")
 This is needed because `unit(NULL, "inches")` gives an error,
 whereas we want `NULL`.
 }
+\keyword{internal}

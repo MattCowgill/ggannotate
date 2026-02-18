@@ -55,8 +55,7 @@ test_that("get_panel_scale detects date scales", {
   expect_false(is_date_scale(y_scale))
 })
 
-test_that("get_facet_params retrieves facet parameters",
-{
+test_that("get_facet_params retrieves facet parameters", {
   p_faceted <- ggplot(mtcars, aes(x = wt, y = mpg)) +
     geom_point() +
     facet_wrap(~cyl)

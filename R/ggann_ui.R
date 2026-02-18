@@ -1,95 +1,201 @@
 ggannPanel <- function(...) {
   shiny::wellPanel(
-    style = "background: rgba(22, 80, 129, 0.05); border-style: none",
+    style = "background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;",
     ...
   )
 }
 
 # Shiny UI ------
 
-ggann_ui <- miniUI::miniPage(
+ggann_ui <- shiny::fillPage(
+  theme = bslib::bs_theme(
+    version = 5,
+    bg = "#ffffff",
+    fg = "#1e293b",
+    primary = "#0d9488",
+    secondary = "#64748b",
+    font_scale = 0.9,
+    base_font = bslib::font_google("Inter", local = FALSE)
+  ),
   tags$head(
     tags$style(HTML(
       "hr.ggann_blue {
-        border-top: 0.5px solid rgba(22, 80, 129, 1);
+        border-top: 1px solid #e2e8f0;
         margin: 0.3em;
+      }
+      .control-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        letter-spacing: 0.01em;
+      }
+      pre#code_output {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 12px;
+        background: #1e293b;
+        border: none;
+        border-radius: 6px;
+        color: #e2e8f0;
+        padding: 12px;
+      }
+      .btn-delete {
+        transition: color 0.15s, border-color 0.15s;
+      }
+      .btn-delete:hover {
+        color: #ef4444 !important;
+        border-color: #ef4444 !important;
+      }
+      body {
+        background: #ffffff;
+      }
+      .well {
+        box-shadow: none;
+      }
+      .irs-single, .irs-from, .irs-to,
+      .irs--shiny .irs-single,
+      .irs--shiny .irs-from,
+      .irs--shiny .irs-to {
+        color: #fff !important;
+      }"
+    )),
+    tags$script(HTML(
+      "
+      Shiny.addCustomMessageHandler('resize-plot', function(msg) {
+        var el = document.getElementById('plot');
+        if (el) {
+          el.style.width = msg.width;
+          el.style.height = msg.height;
+          $(el).trigger('resize');
         }
-        body {
-        color: rgba(22, 80, 129, 1);
-        }"
+      });
+      $(document).on('shiny:value', function(e) {
+        if (e.name === 'geom_opts') {
+          setTimeout(function() {
+            var $alpha = $('#alpha');
+            if ($alpha.length && $alpha.data('ionRangeSlider')) {
+              $alpha.data('ionRangeSlider').update({ grid_num: 2 });
+            }
+          }, 100);
+        }
+      });
+    "
     ))
   ),
-  miniUI::miniContentPanel(
-    shiny::fillRow(
-      flex = c(1, 2),
-      ggannPanel(
-        style = "background: rgba(22, 80, 129, 0.1); border-style: none",
-        fluidRow(
-          column(
-            6,
-            selectInput("annot_layer", "Annotation layer",
-              choices = 1:10,
-              selected = 1,
-              multiple = FALSE
-            )
-          ),
-          column(
-            6,
-            selectInput("geom", "Geom",
-              choices = if (requireNamespace("ggtext", quietly = TRUE)) {
-                c("text", "label", "curve", "rect", "textbox")
-              } else {
-                c("text", "label", "curve", "rect")
-              },
-              selected = "text"
-            )
+  shiny::fillRow(
+    flex = c(1, 2),
+    ggannPanel(
+      style = "background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px;",
+      fluidRow(
+        column(
+          6,
+          selectInput(
+            "annot_layer",
+            "Annotation layer",
+            choices = 1,
+            selected = 1,
+            multiple = FALSE
           )
         ),
-        hr(class = "ggann_blue"),
-        br(),
-        fluidRow(column(12, uiOutput("geom_opts")))
-      ),
-      shiny::column(
-        width = 12,
-        div(textOutput("instruction"),
-          style = "font-weight:bold; line-height:1.6em; font-size:1em"
-        ),
-        uiOutput("rendered_plot"),
-        ggannPanel(
-          fluidRow(
-            column(
-              4,
-              numericInput("plot_width", "Plot width", value = 18, min = 0, step = 1)
-            ), # 22.16
-            column(
-              4,
-              numericInput("plot_height", "Plot height", value = 10, min = 0, step = 1)
-            ), # 14.5
-            column(
-              4,
-              selectInput("size_units",
-                "Units  ",
-                choices = c("cm", "mm", "in", "px"),
-                selected = "cm"
-              )
-            )
-          ),
-        ),
-        ggannPanel(
-          fluidRow(
-            column(
-              2,
-              actionButton("copy_button", HTML("<b>Copy &<br/>close</b>"),
-                width = "100%",
-                style = "height:55px; background: rgba(22, 80, 129, 0.66); color: rgba(255, 255, 255, 1)"
-              )
-            ),
-            column(
-              10,
-              verbatimTextOutput("code_output", placeholder = TRUE)
-            )
+        column(
+          6,
+          selectInput(
+            "geom",
+            "Geom",
+            choices = if (requireNamespace("ggtext", quietly = TRUE)) {
+              c("text", "label", "curve", "segment", "rect", "textbox")
+            } else {
+              c("text", "label", "curve", "segment", "rect")
+            },
+            selected = "text"
           )
         )
+      ),
+      fluidRow(
+        column(
+          6,
+          actionButton(
+            "undo_click",
+            "Undo click",
+            style = "width: 100%; background: transparent; color: #64748b; border: 1px solid #64748b; border-radius: 4px; font-size: 12px;"
+          )
+        ),
+        column(
+          6,
+          actionButton(
+            "delete_layer",
+            "Delete layer",
+            class = "btn-delete",
+            style = "width: 100%; background: transparent; color: #0d9488; border: 1px solid #0d9488; border-radius: 4px; font-size: 12px;"
+          )
+        )
+      ),
+      hr(class = "ggann_blue"),
+      br(),
+      fluidRow(column(12, uiOutput("geom_opts")))
+    ),
+    shiny::column(
+      width = 12,
+      style = "padding-left: 20px; padding-right: 20px;",
+      div(
+        style = "display: flex; align-items: center; gap: 8px; background: #f0fdfa; border-left: 4px solid #0d9488; border-radius: 0 6px 6px 0; padding: 8px 12px; margin-bottom: 8px;",
+        HTML(
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>'
+        ),
+        span(
+          textOutput("instruction", inline = TRUE),
+          style = "font-weight: 600; font-size: 13px; color: #1e293b;"
+        )
+      ),
+      plotOutput(
+        "plot",
+        click = "plot_click",
+        dblclick = "plot_dblclick",
+        brush = shiny::brushOpts(id = "plot_brush"),
+        width = "16cm",
+        height = "10cm"
+      ),
+      div(
+        style = "padding: 8px 0; border-top: 1px solid #e2e8f0; margin-top: 8px;",
+        fluidRow(
+          column(
+            4,
+            numericInput(
+              "plot_width",
+              "Plot width",
+              value = 16,
+              min = 0,
+              step = 1
+            )
+          ), # 22.16
+          column(
+            4,
+            numericInput(
+              "plot_height",
+              "Plot height",
+              value = 10,
+              min = 0,
+              step = 1
+            )
+          ), # 14.5
+          column(
+            4,
+            selectInput(
+              "size_units",
+              "Units  ",
+              choices = c("cm", "mm", "in", "px"),
+              selected = "cm"
+            )
+          )
+        ),
+      ),
+      div(
+        style = "padding: 8px 0;",
+        actionButton(
+          "copy_button",
+          "Copy & close",
+          style = "background: #0d9488; color: #fff; border: none; border-radius: 6px; font-weight: 600; font-size: 13px; padding: 8px 24px; margin-bottom: 8px;"
+        ),
+        verbatimTextOutput("code_output", placeholder = TRUE)
       )
     )
   )

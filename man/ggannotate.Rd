@@ -2,7 +2,7 @@
 % Please edit documentation in R/ggannotate.R
 \name{ggannotate}
 \alias{ggannotate}
-\title{ggannotate}
+\title{Interactively annotate a ggplot2 plot}
 \usage{
 ggannotate(plot = last_plot())
 }
@@ -10,7 +10,9 @@ ggannotate(plot = last_plot())
 \item{plot}{A ggplot2 object. Default is `ggplot2::last_plot()`.}
 }
 \description{
-ggannotate
+Launches an interactive Shiny gadget that lets you point and click
+on a ggplot2 plot to add annotations, then generates the code to
+reproduce them.
 }
 \examples{
 
