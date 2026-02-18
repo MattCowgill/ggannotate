@@ -61,13 +61,13 @@ base_text_ui <- tagList(
   fluidRow(
     column(
       6,
-      textInput("font", "font", value = "")
+      textInput("font", "Font", value = "")
     ),
     column(
       6,
       selectInput(
         "fontface",
-        "fontface",
+        "Fontface",
         selected = "plain",
         choices = c("plain", "bold", "italic", "bold.italic")
       )
@@ -100,6 +100,17 @@ text_ui <- c(
           max = 360,
           step = 1
         )
+      ),
+      column(
+        4,
+        sliderInput(
+          "alpha",
+          "Alpha",
+          min = 0,
+          max = 1,
+          value = 1,
+          step = 0.05
+        )
       )
     )
   )
@@ -122,22 +133,33 @@ label_ui <- c(
       ),
       column(
         6,
+        sliderInput(
+          "alpha",
+          "Alpha",
+          min = 0,
+          max = 1,
+          value = 1,
+          step = 0.05
+        )
+      )
+    ),
+    fluidRow(
+      column(
+        4,
         numericInput(
           "label.padding",
           span("Label padding", style = "white-space: nowrap;"),
           value = 0.25,
           step = 0.025
         )
-      )
-    ),
-    fluidRow(
+      ),
       column(
-        6,
+        4,
         numericInput("label.r", "Label radius", value = 0.15, step = 0.025)
       ),
       column(
-        6,
-        numericInput("label.size", "Label size", value = 0.25, step = 0.05)
+        4,
+        numericInput("label.size", "Linewidth", value = 0.25, step = 0.05)
       )
     )
   )
@@ -220,12 +242,128 @@ curve_ui <- tagList(
   ),
   fluidRow(
     column(
-      6,
+      4,
       selectInput(
         "arrow_ends",
         "Arrow ends",
-        choices = c("last", "first", "both"),
+        choices = c("last", "first", "both", "none"),
         selected = "last"
+      )
+    ),
+    column(
+      4,
+      selectInput(
+        "linetype",
+        "Linetype",
+        choices = c(
+          "solid",
+          "dashed",
+          "dotted",
+          "dotdash",
+          "longdash",
+          "twodash"
+        ),
+        selected = "solid"
+      )
+    ),
+    column(
+      4,
+      sliderInput(
+        "alpha",
+        "Alpha",
+        min = 0,
+        max = 1,
+        value = 1,
+        step = 0.05
+      )
+    )
+  )
+)
+
+segment_ui <- tagList(
+  fluidRow(
+    column(
+      6,
+      sliderInput(
+        "size",
+        "Line size",
+        min = 0.1,
+        max = 20,
+        value = 0.5,
+        step = 0.05
+      )
+    ),
+    column(
+      6,
+      colourpicker::colourInput(
+        "colour",
+        "Colour",
+        value = "black",
+        allowTransparent = TRUE
+      )
+    )
+  ),
+  fluidRow(
+    column(
+      6,
+      sliderInput(
+        "arrow_length",
+        "Arrow length (in)",
+        value = 0.1,
+        min = 0,
+        max = 1,
+        step = 0.05,
+        ticks = FALSE
+      )
+    ),
+    column(
+      6,
+      sliderInput(
+        "arrow_angle",
+        "Arrowhead angle",
+        min = 0,
+        max = 90,
+        value = 30,
+        step = 1,
+        ticks = FALSE
+      )
+    )
+  ),
+  fluidRow(
+    column(
+      4,
+      selectInput(
+        "arrow_ends",
+        "Arrow ends",
+        choices = c("last", "first", "both", "none"),
+        selected = "last"
+      )
+    ),
+    column(
+      4,
+      selectInput(
+        "linetype",
+        "Linetype",
+        choices = c(
+          "solid",
+          "dashed",
+          "dotted",
+          "dotdash",
+          "longdash",
+          "twodash"
+        ),
+        selected = "solid"
+      )
+    ),
+    column(
+      4,
+      sliderInput(
+        "alpha",
+        "Alpha",
+        min = 0,
+        max = 1,
+        value = 1,
+        step = 0.05
       )
     )
   )
@@ -237,7 +375,7 @@ rect_ui <- tagList(
       6,
       sliderInput(
         "alpha",
-        "Fill opacity (alpha)",
+        "Alpha",
         min = 0,
         max = 1,
         value = 0.25,
@@ -322,6 +460,17 @@ textbox_ui <- tagList(
         max = 48,
         step = 0.5
       )
+    ),
+    column(
+      4,
+      sliderInput(
+        "alpha",
+        "Alpha",
+        min = 0,
+        max = 1,
+        value = 1,
+        step = 0.05
+      )
     )
   ),
   fluidRow(
@@ -353,13 +502,13 @@ textbox_ui <- tagList(
   fluidRow(
     column(
       6,
-      textInput("font", "font", value = "")
+      textInput("font", "Font", value = "")
     ),
     column(
       6,
       selectInput(
         "fontface",
-        "fontface",
+        "Fontface",
         selected = "plain",
         choices = c("plain", "bold", "italic", "bold.italic")
       )
@@ -387,7 +536,7 @@ textbox_ui <- tagList(
     ),
     column(
       4,
-      numericInput("width", "Width (inches)", value = NA, min = 0, step = 0.1)
+      numericInput("width", "Width (in)", value = NA, min = 0, step = 0.1)
     )
   )
 )

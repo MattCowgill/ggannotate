@@ -95,6 +95,7 @@ ggannotate <- function(plot = last_plot()) {
         "text" = ggplot2::GeomText,
         "label" = ggplot2::GeomLabel,
         "curve" = ggplot2::GeomCurve,
+        "segment" = ggplot2::GeomSegment,
         "rect" = ggplot2::GeomRect,
         "textbox" = ggtext::GeomTextBox
       )
@@ -150,8 +151,8 @@ ggannotate <- function(plot = last_plot()) {
       user_input$x <- round_to_range(corrected_scales$x, x_range)
       user_input$y <- round_to_range(corrected_scales$y, y_range)
 
-      # For curves, clear the end point so the user can reposition the start
-      if (selected_geom() == "curve") {
+      # For curves/segments, clear the end point so the user can reposition the start
+      if (selected_geom() %in% c("curve", "segment")) {
         user_input$x_dbl <- NULL
         user_input$y_dbl <- NULL
       }
@@ -254,12 +255,16 @@ ggannotate <- function(plot = last_plot()) {
 
     # Create list of parameters based on user input ----
     params_list <- reactive({
-      user_arrow <- safe_arrow(
-        angle = input$arrow_angle,
-        length = input$arrow_length,
-        ends = input$arrow_ends %||% "last",
-        type = "closed"
-      )
+      user_arrow <- if (identical(input$arrow_ends, "none")) {
+        NULL
+      } else {
+        safe_arrow(
+          angle = input$arrow_angle,
+          length = input$arrow_length,
+          ends = input$arrow_ends %||% "last",
+          type = "closed"
+        )
+      }
 
       user_label_padding <- safe_unit(input$label.padding, "lines")
       user_label_r <- safe_unit(input$label.r, "lines")
@@ -276,12 +281,21 @@ ggannotate <- function(plot = last_plot()) {
 
       fontface <- input$fontface
 
-      user_alpha <- ifelse(
-        selected_geom() == "rect" &&
-          !is.null(input$alpha),
-        input$alpha,
+      user_alpha <- if (!is.null(input$alpha) && input$alpha != 1) {
+        input$alpha
+      } else if (selected_geom() == "rect" && !is.null(input$alpha)) {
+        input$alpha
+      } else {
         NA
-      )
+      }
+
+      user_linetype <- if (
+        !is.null(input$linetype) && input$linetype != "solid"
+      ) {
+        input$linetype
+      } else {
+        NULL
+      }
 
       params <- list(
         size = size,
@@ -299,6 +313,7 @@ ggannotate <- function(plot = last_plot()) {
         curvature = input$curvature,
         arrow = user_arrow,
         alpha = user_alpha,
+        linetype = user_linetype,
         box.padding = user_box_padding,
         width = user_width
       )
@@ -324,7 +339,15 @@ ggannotate <- function(plot = last_plot()) {
           "angle",
           "arrow",
           "arrow.fill",
-          "lineend"
+          "lineend",
+          "linetype"
+        ),
+        "segment" = c(
+          known_aes(),
+          "arrow",
+          "arrow.fill",
+          "lineend",
+          "linetype"
         ),
         "rect" = c(known_aes()),
         "textbox" = c(
@@ -416,6 +439,7 @@ ggannotate <- function(plot = last_plot()) {
         arrow_angle = input$arrow_angle,
         arrow_ends = input$arrow_ends,
         alpha = input$alpha,
+        linetype = input$linetype,
         label.padding = input$`label.padding`,
         label.r = input$`label.r`,
         label.size = input$`label.size`,
@@ -607,6 +631,13 @@ ggannotate <- function(plot = last_plot()) {
               if (!is.null(state$alpha)) {
                 updateSliderInput(session, "alpha", value = state$alpha)
               }
+              if (!is.null(state$linetype)) {
+                updateSelectInput(
+                  session,
+                  "linetype",
+                  selected = state$linetype
+                )
+              }
               if (!is.null(state$`label.padding`)) {
                 updateNumericInput(
                   session,
@@ -664,6 +695,37 @@ ggannotate <- function(plot = last_plot()) {
       update_layer_labels()
     })
 
+    # Handle undo click
+    observeEvent(input$undo_click, {
+      geom <- selected_geom()
+      if (geom %in% c("curve", "segment")) {
+        if (!is.null(user_input$x_dbl)) {
+          # Endpoint placed — clear only endpoint
+          user_input$x_dbl <- NULL
+          user_input$y_dbl <- NULL
+        } else {
+          # Only start placed — clear start too
+          user_input$x <- NULL
+          user_input$y <- NULL
+          user_input$facet_vars <- NULL
+          user_input$facet_levels <- NULL
+        }
+      } else if (geom == "rect") {
+        user_input$xmin <- NULL
+        user_input$xmax <- NULL
+        user_input$ymin <- NULL
+        user_input$ymax <- NULL
+        user_input$facet_vars <- NULL
+        user_input$facet_levels <- NULL
+      } else {
+        # text, label, textbox
+        user_input$x <- NULL
+        user_input$y <- NULL
+        user_input$facet_vars <- NULL
+        user_input$facet_levels <- NULL
+      }
+    })
+
     combined_layers <- reactive({
       # Use tryCatch so that a transient error in this_layer() (e.g. during
       # geom UI transition when inputs are momentarily NULL) doesn't hide
@@ -717,7 +779,8 @@ ggannotate <- function(plot = last_plot()) {
     })
 
     output$instruction <- renderText({
-      curve_has_start <- selected_geom() == "curve" &&
+      line_has_start <- selected_geom() %in%
+        c("curve", "segment") &&
         !is.null(user_input$x) &&
         is.null(user_input$x_dbl)
 
@@ -725,8 +788,9 @@ ggannotate <- function(plot = last_plot()) {
         selected_geom() ==
           "text" ~ "Click where you want to place your annotation",
         selected_geom() == "label" ~ "Click where you want to place your label",
-        curve_has_start ~ "Now double-click where the line should end",
-        selected_geom() == "curve" ~ "Click where you want your line to begin",
+        line_has_start ~ "Now double-click where the line should end",
+        selected_geom() %in% c("curve", "segment") ~
+          "Click where you want your line to begin",
         selected_geom() ==
           "rect" ~ "Click and drag to draw and adjust the rectangle, then click once anywhere else to set it",
         selected_geom() ==
@@ -737,7 +801,8 @@ ggannotate <- function(plot = last_plot()) {
 
     curve_start_marker <- reactive({
       if (
-        selected_geom() == "curve" &&
+        selected_geom() %in%
+          c("curve", "segment") &&
           !is.null(user_input$x) &&
           !is.null(user_input$y) &&
           is.null(user_input$x_dbl)
@@ -781,6 +846,7 @@ ggannotate <- function(plot = last_plot()) {
         "text" = text_ui,
         "label" = label_ui,
         "curve" = curve_ui,
+        "segment" = segment_ui,
         "rect" = rect_ui,
         "textbox" = textbox_ui
       )

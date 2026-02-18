@@ -6,7 +6,7 @@
 Each element of the list will be converted to a string, and then
 combined with the other elements}
 \usage{
-calls_to_string(list_of_calls, sep = " + \\n")
+calls_to_string(list_of_calls, sep = " +\\n")
 }
 \arguments{
 \item{list_of_calls}{a list of calls}

@@ -68,6 +68,16 @@ ggann_ui <- shiny::fillPage(
           $(el).trigger('resize');
         }
       });
+      $(document).on('shiny:value', function(e) {
+        if (e.name === 'geom_opts') {
+          setTimeout(function() {
+            var $alpha = $('#alpha');
+            if ($alpha.length && $alpha.data('ionRangeSlider')) {
+              $alpha.data('ionRangeSlider').update({ grid_num: 2 });
+            }
+          }, 100);
+        }
+      });
     "
     ))
   ),
@@ -92,9 +102,9 @@ ggann_ui <- shiny::fillPage(
             "geom",
             "Geom",
             choices = if (requireNamespace("ggtext", quietly = TRUE)) {
-              c("text", "label", "curve", "rect", "textbox")
+              c("text", "label", "curve", "segment", "rect", "textbox")
             } else {
-              c("text", "label", "curve", "rect")
+              c("text", "label", "curve", "segment", "rect")
             },
             selected = "text"
           )
@@ -102,7 +112,15 @@ ggann_ui <- shiny::fillPage(
       ),
       fluidRow(
         column(
-          12,
+          6,
+          actionButton(
+            "undo_click",
+            "Undo click",
+            style = "width: 100%; background: transparent; color: #64748b; border: 1px solid #64748b; border-radius: 4px; font-size: 12px;"
+          )
+        ),
+        column(
+          6,
           actionButton(
             "delete_layer",
             "Delete layer",
