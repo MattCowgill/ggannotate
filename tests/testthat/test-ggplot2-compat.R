@@ -107,3 +107,38 @@ test_that("get_required_aes retrieves required aesthetics", {
   expect_type(req_aes, "character")
   expect_true("label" %in% req_aes)
 })
+
+test_that("strip_panel_size_theme removes panel size overrides", {
+  p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+    geom_point() +
+    theme(
+      panel.heights = grid::unit(5, "cm"),
+      panel.widths = grid::unit(5, "cm")
+    )
+  stripped <- strip_panel_size_theme(p)
+  built <- ggplot_build(stripped)
+  expect_no_error(ggplot_gtable(built))
+})
+
+test_that("strip_panel_size_theme is a no-op for plots without panel size overrides", {
+  p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+  expect_no_error(strip_panel_size_theme(p))
+})
+
+test_that("get_fixed_panel_dims returns NULL for plots without fixed panel sizes", {
+  p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+  expect_null(get_fixed_panel_dims(p))
+})
+
+test_that("get_fixed_panel_dims detects fixed panel sizes", {
+  p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+    geom_point() +
+    theme(
+      panel.heights = grid::unit(5, "cm"),
+      panel.widths = grid::unit(8, "cm")
+    )
+  dims <- get_fixed_panel_dims(p)
+  expect_false(is.null(dims))
+  expect_equal(dims$height_cm, 5)
+  expect_equal(dims$width_cm, 8)
+})
