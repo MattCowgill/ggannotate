@@ -126,3 +126,39 @@ test_that("make_layer works with geom_curve", {
   expect_s3_class(annot_curve_plot, "ggplot")
   vdiffr::expect_doppelganger("annot_curve_plot", fig = annot_curve_plot)
 })
+
+# POSIXct axis ----
+
+test_that("make_layer works with POSIXct axes", {
+  layer <- make_layer(
+    geom = "text",
+    aes = list(
+      x = as.POSIXct("2023-01-15 10:30:00", tz = "UTC"),
+      y = 1,
+      label = "A"
+    )
+  )
+  expect_type(layer, "language")
+  expect_match(paste(deparse(layer), collapse = ""), "as.POSIXct")
+})
+
+# Textbox ----
+
+test_that("make_layer works with textbox geom", {
+  skip_if_not_installed("ggtext")
+  layer <- make_layer(
+    geom = "textbox",
+    aes = list(x = 3, y = 30, label = "A textbox")
+  )
+  expect_type(layer, "language")
+  expect_match(paste(deparse(layer), collapse = ""), "geom_textbox")
+})
+
+# Error handling ----
+
+test_that("make_layer errors on unnamed facets", {
+  expect_error(
+    make_layer("text", aes = list(x = 1, y = 1, label = "A"), facets = list(4)),
+    "facets must be a named list"
+  )
+})
