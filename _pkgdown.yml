@@ -2,6 +2,8 @@ url: https://mattcowgill.github.io/ggannotate/
 
 template:
   bootstrap: 5
+  bslib:
+    pkgdown-nav-height: 60px
 
 navbar:
   structure:
