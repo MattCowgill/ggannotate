@@ -2,6 +2,11 @@
 
 ## ggannotate 1.0.0
 
+- [`ggannotate()`](https://mattcowgill.github.io/ggannotate/reference/ggannotate.md)
+  now works correctly when `panel.heights` or `panel.widths` are set in
+  the plot theme; the preview gadget now correctly maps clicks to data
+  coordinates
+  ([\#58](https://github.com/MattCowgill/ggannotate/issues/58)).
 - First CRAN release.
 
 ## ggannotate 0.3.0
