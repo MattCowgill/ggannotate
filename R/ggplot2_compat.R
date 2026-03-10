@@ -301,6 +301,60 @@ convert_to_panel_coords <- function(x, y, built_plot) {
   list(x = x_in_panel, y = y_in_panel)
 }
 
+#' Strip panel.heights / panel.widths from a plot's theme
+#'
+#' Fixed-unit panel size theme elements cause Shiny's coordmap to map
+#' clicks to wrong data coordinates. Removing them from the rendered
+#' plot does not affect annotation accuracy, since annotation positions
+#' are always emitted in data coordinates. Safe to call on any ggplot2
+#' version — uses tryCatch in case the elements are unrecognised.
+#'
+#' @param plot A ggplot object
+#' @return The plot with panel.heights and panel.widths reset to NULL
+#' @noRd
+strip_panel_size_theme <- function(plot) {
+  reset <- tryCatch(
+    ggplot2::theme(panel.heights = NULL, panel.widths = NULL),
+    error = function(e) ggplot2::theme()
+  )
+  plot + reset
+}
+
+#' Get fixed panel dimensions from a plot's theme
+#'
+#' Reads the effective theme (global + plot-level), extracts
+#' `panel.heights` / `panel.widths`, and converts to cm. Returns
+#' `NULL` if neither is set; otherwise a list with `height_cm` and
+#' `width_cm` (NA for unset dimensions).
+#'
+#' @param plot A ggplot object
+#' @return NULL or list(height_cm, width_cm)
+#' @noRd
+get_fixed_panel_dims <- function(plot) {
+  th <- tryCatch(
+    ggplot2::theme_get() + plot$theme,
+    error = function(e) ggplot2::theme()
+  )
+
+  to_cm <- function(u) {
+    if (is.null(u)) {
+      return(NA_real_)
+    }
+    tryCatch(
+      grid::convertUnit(u, "cm", valueOnly = TRUE),
+      error = function(e) NA_real_
+    )
+  }
+
+  h_cm <- to_cm(th$panel.heights)
+  w_cm <- to_cm(th$panel.widths)
+
+  if (is.na(h_cm) && is.na(w_cm)) {
+    return(NULL)
+  }
+  list(height_cm = h_cm, width_cm = w_cm)
+}
+
 #' Infer which facet panel was clicked from normalized coordinates
 #'
 #' When Shiny returns normalized (0-1) coordinates, it often omits the panelvar

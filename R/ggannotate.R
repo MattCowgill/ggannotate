@@ -819,19 +819,47 @@ ggannotate <- function(plot = last_plot()) {
       }
     })
 
-    output$plot <- renderPlot({
-      p <- plot + purrr::map(annot_calls(), eval) + curve_start_marker()
-      if (needs_coordmap_fix) {
-        build <- ggplot2::ggplot_build(p)
-        gtable <- ggplot2::ggplot_gtable(build)
-        structure(
-          list(build = build, gtable = gtable),
-          class = "ggplot_build_gtable"
-        )
-      } else {
-        p
+    observe({
+      fixed_dims <- get_fixed_panel_dims(plot)
+      if (!is.null(fixed_dims)) {
+        margin_cm <- 3
+        if (!is.na(fixed_dims$width_cm)) {
+          updateNumericInput(
+            session,
+            "plot_width",
+            value = round(fixed_dims$width_cm + margin_cm, 1)
+          )
+        }
+        if (!is.na(fixed_dims$height_cm)) {
+          updateNumericInput(
+            session,
+            "plot_height",
+            value = round(fixed_dims$height_cm + margin_cm, 1)
+          )
+        }
+        updateSelectInput(session, "size_units", selected = "cm")
       }
-    })
+    }) |>
+      bindEvent(TRUE, once = TRUE)
+
+    output$plot <- renderPlot(
+      {
+        p <- strip_panel_size_theme(plot) +
+          purrr::map(annot_calls(), eval) +
+          curve_start_marker()
+        if (needs_coordmap_fix) {
+          build <- ggplot2::ggplot_build(p)
+          gtable <- ggplot2::ggplot_gtable(build)
+          structure(
+            list(build = build, gtable = gtable),
+            class = "ggplot_build_gtable"
+          )
+        } else {
+          p
+        }
+      },
+      res = 96
+    )
 
     observe({
       w <- paste0(input$plot_width, input$size_units)

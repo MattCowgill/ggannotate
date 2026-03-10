@@ -5,7 +5,7 @@ on:
     branches: [main, master]
   pull_request:
 
-name: test-coverage
+name: test-coverage.yaml
 
 permissions: read-all
 
@@ -40,7 +40,8 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
-          fail_ci_if_error: ${{ github.event_name != 'pull_request' && secrets.CODECOV_TOKEN != '' }}
+          # Fail if error if not on PR, or if on PR and token is given
+          fail_ci_if_error: ${{ github.event_name != 'pull_request' || secrets.CODECOV_TOKEN }}
           files: ./cobertura.xml
           plugins: noop
           disable_search: true
@@ -49,6 +50,7 @@ jobs:
       - name: Show testthat output
         if: always()
         run: |
+          ## --------------------------------------------------------------------
           find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
         shell: bash
 

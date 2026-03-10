@@ -52,3 +52,14 @@ test_that("remove_default_params() leaves intact params that aren't in defaults"
     params_list
   )
 })
+
+test_that("remove_default_params() treats fontface strings as equivalent to their numeric defaults", {
+  expect_false(
+    "fontface" %in%
+      names(remove_default_params("geom_text", list(fontface = "plain")))
+  )
+  expect_true(
+    "fontface" %in%
+      names(remove_default_params("geom_text", list(fontface = "bold")))
+  )
+})
