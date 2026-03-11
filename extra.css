@@ -1,0 +1,4 @@
+img[src*="ggannotate_hex"] {
+  max-height: 160px;
+  width: auto;
+}
