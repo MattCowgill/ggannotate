@@ -1,5 +1,5 @@
 Package: ggannotate
-Title: Interactively Annotate ggplot2 Plots
+Title: Interactively Annotate 'ggplot2' Plots
 Version: 1.0.0
 Authors@R:
     c(person(given = "Matt",
@@ -12,8 +12,8 @@ Authors@R:
              role = "ctb",
              email = "john.helveston@gmail.com"))
 Description: Place annotations exactly where you want them to go by
-    pointing and clicking. Launches an interactive Shiny gadget that lets
-    you click on a ggplot2 plot to place text, labels, curves, or rectangles,
+    pointing and clicking. Launches an interactive 'Shiny' gadget that lets
+    you click on a 'ggplot2' plot to place text, labels, curves, or rectangles,
     then generates the code to reproduce those annotations.
 Depends: R (>= 4.1)
 License: MIT + file LICENSE

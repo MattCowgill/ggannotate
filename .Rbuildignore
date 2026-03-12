@@ -12,3 +12,4 @@
 ^\.claude$
 ^Rplots\.pdf$
 ^CRAN-SUBMISSION$
+man/figures/demo.gif
