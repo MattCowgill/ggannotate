@@ -6,13 +6,17 @@
 #'
 #' @param plot A ggplot2 object. Default is `ggplot2::last_plot()`.
 #'
+#' @return Called for its side effects. When the gadget is closed via
+#'   the "Copy code" or "Done" button, the generated annotation code
+#'   is copied to the clipboard. Returns `NULL` invisibly.
+#'
 #' @examples
 #'
-#' \dontrun{
-#' p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
-#'   geom_point()
+#' if (interactive()) {
+#'   p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+#'     geom_point()
 #'
-#' ggannotate(p)
+#'   ggannotate(p)
 #' }
 #'
 #' @export
